@@ -1,0 +1,2 @@
+critic:
+  gamma: 0.99

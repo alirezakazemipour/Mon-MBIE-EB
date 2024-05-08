@@ -1,0 +1,68 @@
+import numpy as np
+from abc import ABC, abstractmethod
+from omegaconf import DictConfig
+
+from src.utils import random_argmax
+import src.parameter as parameter
+from src.critic import Critic
+
+
+class Actor(ABC):
+    def __init__(self, critic: Critic):
+        self._critic = critic
+        self._train = True
+        self.reset()
+
+    @abstractmethod
+    def __call__(self, obs_env, obs_mon):
+        """
+        Draw one action in one state. Not vectorized.
+        """
+        pass
+
+    def greedy_call(self, obs_env, obs_mon):
+        """
+        Draw the greedy action, i.e., the one maximizing the critic's estimate
+        of the state-action value. Not vectorized.
+        """
+        q = self._critic._q_joint(obs_env, obs_mon)
+        return tuple(random_argmax(q))
+
+    @abstractmethod
+    def update(self):
+        pass
+
+    @abstractmethod
+    def reset(self):
+        pass
+
+    def eval(self):
+        self._train = False
+
+    def train(self):
+        self._train = True
+
+
+class MonEpsilonGreedy(Actor):
+    def __init__(
+        self,
+        critic: Critic,
+        **kwargs,
+    ):
+        """
+        Args:
+            critic (Critic): the critic providing estimates of state-action values,
+            eps (DictConfig): configuration to initialize the exploration coefficient
+                epsilon,
+        """
+
+        Actor.__init__(self, critic)
+
+    def __call__(self, obs_env, obs_mon):
+            return self.greedy_call(obs_env, obs_mon)
+
+    def update(self):
+        pass
+
+    def reset(self):
+        pass
