@@ -53,7 +53,7 @@ def run(cfg: DictConfig) -> None:
         env.action_space["mon"].n,
         **cfg.agent.critic,
     )
-    actor = MonEpsilonGreedy(critic, **cfg.agent.actor)
+    actor = MonEpsilonGreedy(critic)
     experiment = MonExperiment(env, env_test, actor, critic, **cfg.experiment)
 
     return_train_history, return_test_history = experiment.train()
