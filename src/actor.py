@@ -25,7 +25,7 @@ class Actor(ABC):
         Draw the greedy action, i.e., the one maximizing the critic's estimate
         of the state-action value. Not vectorized.
         """
-        q = self._critic._q_joint(obs_env, obs_mon)
+        q = self._critic._q_joint[obs_env, obs_mon]
         return tuple(random_argmax(q))
 
     @abstractmethod
