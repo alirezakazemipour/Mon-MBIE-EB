@@ -11,9 +11,9 @@ RIGHT = 2
 UP = 3
 
 # these are both identifiers and reward values
-EMPTY = 0.1
+EMPTY = 0
 GOOD = 1
-BAD = 0
+BAD = -1
 
 # rendering colors
 RED = (255, 0, 0)
