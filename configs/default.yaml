@@ -1,7 +1,7 @@
 defaults:
   - environment: medium
   - agent: default
-  - monitor: switch
+  - monitor: level
   - experiment: short
   - _self_
   - override hydra/hydra_logging: disabled
