@@ -77,7 +77,7 @@ class MonExperiment:
                 f"train {last_ep_return:.3f} / "
                 f"test {np.mean(test_return):.3f} "
             )  # fmt: skip
-            self._critic.calc_opti_q(ucrl_t)
+            self._critic.calc_opti_q()
             ep_seed = cantor_pairing(self._rng_seed, tot_episodes)
             obs, _ = self._env.reset(seed=ep_seed)
             ep_return_env = 0.0
