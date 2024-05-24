@@ -8,4 +8,4 @@ params:
   experiment.hide_progress_bar: True
   experiment.datadir: data
   experiment.rng_seed: range(0, 100)
-  monitor: binary_stateless, switch, n, limited_time, limited_use, limited_use_bonus, level
+  monitor: binary_stateless, switch

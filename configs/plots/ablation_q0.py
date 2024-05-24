@@ -7,7 +7,7 @@ consecutive_steps_for_convergence = 200
 y_tick_pad = -2
 savedir = "ablation_q0"
 
-q_init_values = ["-10.0", "0.0", "1.0"]
+q_init_values = ["OFU", "0.0", "1.0"]
 
 mon_to_label = {
     "Gridworld-Easy-3x3-v0_mes50/iStatelessBinaryMonitor": "Simple",

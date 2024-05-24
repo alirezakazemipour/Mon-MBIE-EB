@@ -70,6 +70,8 @@ def error_shade_plot(ax, data, stepsize, smoothing_window=1, **kwargs):
         error = smooth(error, smoothing_window)
     error = 1.96 * error / np.sqrt(data.shape[0])
     ax.fill_between(x, y - error, y + error, alpha=0.2, linewidth=0.0, color=line.get_color())
+    plt.axhline(0.907, linestyle='--', label="optimal", c="magenta")
+
 
 
 def error_bar_plot(ax, data, stepsize, smoothing_window=1, **kwargs):

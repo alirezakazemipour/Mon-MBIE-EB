@@ -7,7 +7,7 @@ consecutive_steps_for_convergence = 2000
 y_tick_pad = -20
 savedir = "noisy_main"
 
-q_init_values = ["-10.0"]
+q_init_values = ["OFU"]
 
 mon_to_label = {
     "Gridworld-Easy-3x3-Stochastic-v0_mes50/iStatelessBinaryMonitor": "Simple",

@@ -162,7 +162,7 @@ class MonQCritic(Critic):
                                     p_joint_hat[*s, *a, *ns] = 0
                                     residual = p_joint_hat[*s, *a, *ns] + residual
 
-        c_joint_bar = np.ones((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
+        c_joint_bar = np.ones((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon)) / 2
         for se in range(self.n_obs_env):
             for ae in range(self.n_act_env):
                 for sm in range(self.n_obs_mon):
@@ -176,6 +176,9 @@ class MonQCritic(Critic):
 
         for se in range(self.n_obs_env):
             for ae in range(self.n_act_env):
+                if np.sum(c_joint_bar[se, :, ae, :]) < 0.001:
+                    self._q_joint[se, :, ae, :] = -100
+                    continue
                 if self._n_env[se, ae] == 0:
                     self._q_joint[se, :, ae, :] = 2  # 1 / (1 - self.gamma)
                     continue
@@ -193,7 +196,6 @@ class MonQCritic(Critic):
                                                      * (1 - self._nd_env[se, ae])
                                                      )
 
-        pp = 26
 
     def reset(self):
         self._nr_env = np.zeros((self.n_obs_env, self.n_act_env))

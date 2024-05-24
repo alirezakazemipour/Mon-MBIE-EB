@@ -7,7 +7,7 @@ consecutive_steps_for_convergence = 200
 y_tick_pad = -2
 savedir = "deterministic_appendix"
 
-q_init_values = ["-10.0"]
+q_init_values = ["OFU"]
 
 mon_to_label = {
     "Gridworld-Easy-3x3-v0_mes50/iStatelessBinaryMonitor": "Simple",
@@ -45,8 +45,8 @@ mon_to_xlim = defaultdict(lambda: 10000)
 mon_to_xticks = defaultdict(lambda: np.arange(0, 10001, 2000))
 mon_to_xlim = {
     "Gridworld-Easy-3x3-v0_mes50/iStatelessBinaryMonitor": 500,
-    "Gridworld-Medium-3x3-v0_mes50/iStatelessBinaryMonitor": 2000,
-    "Gridworld-Medium-3x3-v0_mes50/iToySwitchMonitor": 2000,
+    "Gridworld-Medium-3x3-v0_mes50/iStatelessBinaryMonitor": 20000,
+    "Gridworld-Medium-3x3-v0_mes50/iToySwitchMonitor": 20000,
     "Gridworld-Medium-3x3-v0_mes50/iNMonitor_nm5": 5000,
     "Gridworld-Medium-3x3-v0_mes50/iLimitedTimeMonitor": 10000,
     "Gridworld-Medium-3x3-v0_mes50/iLimitedUseMonitor_mb7": 10000,

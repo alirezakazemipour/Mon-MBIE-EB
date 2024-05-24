@@ -15,7 +15,7 @@ class Monitor(gymnasium.Wrapper):
     """
 
     @abstractmethod
-    def _monitor_step(self, action, env_reward):
+    def _monitor_step(self, action, env_reward, next_obs):
         pass
 
     def step(self, action):
@@ -46,7 +46,7 @@ class Monitor(gymnasium.Wrapper):
             monitor_obs,
             proxy_reward,
             monitor_reward,
-        ) = self._monitor_step(action, env_reward)
+        ) = self._monitor_step(action, env_reward, env_obs)
 
         obs = {"env": env_obs, "mon": monitor_obs}
         reward = {"env": env_reward, "mon": monitor_reward, "proxy": proxy_reward}
@@ -84,7 +84,7 @@ class FullMonitor(Monitor):
         monitor_obs = 0  # default monitor state, always on
         return {"env": env_obs, "mon": monitor_obs}, env_info
 
-    def _monitor_step(self, action, env_reward):
+    def _monitor_step(self, action, env_reward, no):
         monitor_reward = 0.0
         proxy_reward = env_reward
         monitor_obs = 0
@@ -127,7 +127,7 @@ class StatefulBinaryMonitor(Monitor):
         self.monitor_state = 0  # monitor starts off
         return {"env": env_obs, "mon": self.monitor_state}, env_info
 
-    def _monitor_step(self, action, env_reward):
+    def _monitor_step(self, action, env_reward,next_obs):
         if action["mon"] == 1:
             self.monitor_state = 1
         elif action["mon"] == 0:
@@ -180,7 +180,7 @@ class StatelessBinaryMonitor(Monitor):
         self.monitor_state = 0  # monitor always off
         return {"env": env_obs, "mon": self.monitor_state}, env_info
 
-    def _monitor_step(self, action, env_reward):
+    def _monitor_step(self, action, env_reward, next_obs):
         if action["mon"] == 1:
             proxy_reward = env_reward
             monitor_reward = -self.monitor_cost
@@ -231,9 +231,9 @@ class NMonitor(Monitor):
         self.monitor_state = self.observation_space["mon"].sample()
         return {"env": env_obs, "mon": self.monitor_state}, env_info
 
-    def _monitor_step(self, action, env_reward):
+    def _monitor_step(self, action, env_reward, next_obs):
         assert (
-            action["mon"] < self.action_space["mon"].n
+                action["mon"] < self.action_space["mon"].n
         ), "illegal monitor action"  # fmt: skip
 
         if action["mon"] == self.monitor_state:
@@ -287,9 +287,9 @@ class LevelMonitor(Monitor):
         self.monitor_state = 0
         return {"env": env_obs, "mon": self.monitor_state}, env_info
 
-    def _monitor_step(self, action, env_reward):
+    def _monitor_step(self, action, env_reward, next_obs):
         assert (
-            action["mon"] < self.action_space["mon"].n
+                action["mon"] < self.action_space["mon"].n
         ), "illegal monitor action"  # fmt: skip
 
         monitor_reward = 0.0
@@ -346,7 +346,7 @@ class LimitedTimeMonitor(Monitor):
         self.monitor_state = 1  # monitor starts on
         return {"env": env_obs, "mon": self.monitor_state}, env_info
 
-    def _monitor_step(self, action, env_reward):
+    def _monitor_step(self, action, env_reward, next_obs):
         monitor_reward = 0.0
         if self.monitor_state == 1:
             proxy_reward = env_reward
@@ -399,7 +399,7 @@ class LimitedUseMonitor(Monitor):
         )
         return {"env": env_obs, "mon": monitor_obs}, env_info
 
-    def _monitor_step(self, action, env_reward):
+    def _monitor_step(self, action, env_reward, next_obs):
         proxy_reward = np.nan
         monitor_reward = 0.0
 
@@ -526,3 +526,48 @@ class ToySwitchMonitor(Monitor):
         truncated = env_truncated
 
         return obs, reward, terminated, truncated, env_info
+
+
+class Unsolvable(Monitor):
+    """
+    Simple monitor where the action is "turn on monitor" / "do nothing".
+    The monitor is always off. The reward is seen only when the agent asks for it.
+    The monitor reward is a constant penalty given if the agent asks to see the reward.
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment,
+        monitor_cost (float): cost for asking the monitor for rewards.
+    """
+
+    def __init__(self, env, monitor_cost=0.02, **kwargs):
+        gymnasium.Wrapper.__init__(self, env)
+        self.action_space = spaces.Dict({
+            "env": env.action_space,
+            "mon": spaces.Discrete(2),
+        })  # fmt: skip
+        self.observation_space = spaces.Dict({
+            "env": env.observation_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.monitor_state = 0  # off
+        self.monitor_cost = monitor_cost
+
+    def reset(self, seed=None, **kwargs):
+        self.action_space.seed(seed)
+        self.observation_space.seed(seed)
+        env_obs, env_info = self.env.reset(seed=seed, **kwargs)
+        self.monitor_state = 0  # monitor always off
+        return {"env": env_obs, "mon": self.monitor_state}, env_info
+
+    def _monitor_step(self, action, env_reward, next_obs):
+        if action["mon"] == 1:
+            if next_obs != 4 and next_obs != 1:
+                proxy_reward = env_reward
+            else:
+                proxy_reward = np.nan
+            monitor_reward = -self.monitor_cost
+        else:
+            proxy_reward = np.nan
+            monitor_reward = 0.0
+        monitor_obs = self.monitor_state
+        return monitor_obs, proxy_reward, monitor_reward

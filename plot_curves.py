@@ -70,7 +70,7 @@ def plot(folder):
                 seeds_completed = 0
                 for seed in range(0, n_seeds):
                     try:
-                        filename = os.path.join(folder, mon, q0, alg) + f"_test_{seed}.npy"
+                        filename = os.path.join(folder, mon, q0, alg) + f"_train_{seed}.npy"
                         data_np.append(np.load(filename))
                         seeds_completed += 1
                     except Exception as e:  # noqa: F841
@@ -86,7 +86,7 @@ def plot(folder):
                 error_shade_plot(
                     axs,
                     data_np,
-                    testing_frequency,
+                    1,
                     smoothing_window=smoothing_window,
                     label=alg_to_label[alg],
                     lw=3,

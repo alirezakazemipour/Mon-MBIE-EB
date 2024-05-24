@@ -1,0 +1,172 @@
+hydra:
+  run:
+    dir: .
+  sweep:
+    dir: .
+    subdir: .
+  launcher:
+    _target_: hydra_plugins.hydra_joblib_launcher.joblib_launcher.JoblibLauncher
+    n_jobs: -1
+    backend: null
+    prefer: processes
+    require: null
+    verbose: 0
+    timeout: null
+    pre_dispatch: 2*n_jobs
+    batch_size: auto
+    temp_folder: null
+    max_nbytes: null
+    mmap_mode: r
+  sweeper:
+    _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
+    max_batch_size: null
+    params:
+      environment: medium
+      experiment: short
+      experiment.hide_progress_bar: true
+      experiment.datadir: data
+      experiment.rng_seed: range(0, 100)
+      monitor: binary_stateless, switch
+  help:
+    app_name: ${hydra.job.name}
+    header: '${hydra.help.app_name} is powered by Hydra.
+
+      '
+    footer: 'Powered by Hydra (https://hydra.cc)
+
+      Use --hydra-help to view Hydra specific help
+
+      '
+    template: '${hydra.help.header}
+
+      == Configuration groups ==
+
+      Compose your configuration from those groups (group=option)
+
+
+      $APP_CONFIG_GROUPS
+
+
+      == Config ==
+
+      Override anything in the config (foo.bar=value)
+
+
+      $CONFIG
+
+
+      ${hydra.help.footer}
+
+      '
+  hydra_help:
+    template: 'Hydra (${hydra.runtime.version})
+
+      See https://hydra.cc for more info.
+
+
+      == Flags ==
+
+      $FLAGS_HELP
+
+
+      == Configuration groups ==
+
+      Compose your configuration from those groups (For example, append hydra/job_logging=disabled
+      to command line)
+
+
+      $HYDRA_CONFIG_GROUPS
+
+
+      Use ''--cfg hydra'' to Show the Hydra config.
+
+      '
+    hydra_help: ???
+  hydra_logging:
+    version: 1
+    root:
+      level: ERROR
+    disable_existing_loggers: true
+  job_logging:
+    version: 1
+    root:
+      level: ERROR
+    disable_existing_loggers: true
+  env: {}
+  mode: MULTIRUN
+  searchpath: []
+  callbacks: {}
+  output_subdir: null
+  overrides:
+    hydra:
+    - hydra/launcher=joblib
+    - hydra/sweeper=medium_det
+    - hydra.mode=MULTIRUN
+    task: []
+  job:
+    name: main
+    chdir: null
+    override_dirname: ''
+    id: ???
+    num: ???
+    config_name: default
+    env_set: {}
+    env_copy: []
+    config:
+      override_dirname:
+        kv_sep: '='
+        item_sep: ','
+        exclude_keys: []
+  runtime:
+    version: 1.3.2
+    version_base: '1.3'
+    cwd: /Users/alirezakazemipour/github/Optimism-in-the-face-of-unobservability
+    config_sources:
+    - path: hydra.conf
+      schema: pkg
+      provider: hydra
+    - path: /Users/alirezakazemipour/github/Optimism-in-the-face-of-unobservability/configs
+      schema: file
+      provider: main
+    - path: ''
+      schema: structured
+      provider: schema
+    output_dir: ???
+    choices:
+      experiment: short
+      monitor: switch
+      agent: default
+      environment: medium
+      hydra/env: default
+      hydra/callbacks: null
+      hydra/job_logging: disabled
+      hydra/hydra_logging: disabled
+      hydra/hydra_help: default
+      hydra/help: default
+      hydra/sweeper: medium_det
+      hydra/launcher: joblib
+      hydra/output: default
+  verbose: false
+environment:
+  id: Gym-Monitor/Gridworld-Medium-3x3-v0
+  max_episode_steps: 50
+  render_mode: null
+agent:
+  critic:
+    gamma: 0.99
+    q0: OFU
+    strategy: reward_model
+monitor:
+  id: ToySwitchMonitor
+experiment:
+  training_steps: 40000
+  testing_episodes: 100
+  testing_frequency: 10
+  datadir: null
+  debugdir: null
+  rng_seed: 1
+  hide_progress_bar: false
+wandb:
+  mode: disabled
+  entity: ualberta-bowling
+  project: mmdp_simone

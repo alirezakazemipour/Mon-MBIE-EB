@@ -1,2 +1,4 @@
 critic:
   gamma: 0.99
+  q0: OFU
+  strategy: reward_model

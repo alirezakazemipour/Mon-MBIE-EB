@@ -4,13 +4,14 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 import os
 import numpy as np
-from pprint import pprint  # noqa: F401
+import math
 
 from src.utils import dict_to_id
 from src.actor import MonEpsilonGreedy
 from src.critic import MonQTableCritic
 from src.experiment import MonExperiment
 from src.wrappers import monitor_wrappers
+import matplotlib.pyplot as plt
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="default")
@@ -65,7 +66,7 @@ def run(cfg: DictConfig) -> None:
         savepath = os.path.join(
             cfg.experiment.debugdir,
             group,
-            str(float(cfg.agent.critic.q0)),
+            cfg.agent.critic.q0,
         )
         os.makedirs(savepath, exist_ok=True)
         plot_agent(critic, env, savepath)
@@ -74,7 +75,7 @@ def run(cfg: DictConfig) -> None:
         filepath = os.path.join(
             cfg.experiment.datadir,
             group,
-            str(float(cfg.agent.critic.q0)),
+            cfg.agent.critic.q0,
         )
         os.makedirs(filepath, exist_ok=True)
         strat = cfg.agent.critic.strategy
@@ -89,3 +90,40 @@ def run(cfg: DictConfig) -> None:
 
 if __name__ == "__main__":
     run()
+    # algos = ["OFU", "EPS"]
+    # for algo in algos:
+    #     runs = []
+    #     for i in range(100):
+    #         x = np.load(
+    #             f"data/{algo}/iStatelessBinaryMonitor/OFU/reward_model_test_{i}.npy")
+    #         runs.append(x)
+    #     smoothed = []
+    #     for run in runs:
+    #         val = [run[0]]
+    #         for tmp in run[1:]:
+    #             val.append(0.9 * val[-1] + 0.1 * tmp)
+    #         smoothed.append(val)
+    #     mean_return = np.mean(np.asarray(smoothed), axis=0)
+    #     std_return = np.std(np.asarray(smoothed), axis=0)
+    #     lower_bound = mean_return - 2 * std_return / math.sqrt(100)
+    #     upper_bound = mean_return + 2 * std_return / math.sqrt(100)
+    #     plt.fill_between(np.arange(4000),
+    #                      lower_bound,
+    #                      upper_bound,
+    #                      alpha=0.25
+    #                      )
+    #     plt.plot(np.arange(4000),
+    #              mean_return,
+    #              alpha=1,
+    #              label=algo,
+    #              linewidth=3
+    #              )
+    # plt.axhline(0.951, linestyle='--', label="optimal", c="magenta")
+    # plt.xlabel("every 10 training steps")
+    # plt.ylabel("discounted (test?) return")
+    # plt.title(f" performance over {100} runs")
+    # plt.grid()
+    # plt.legend()
+    # plt.ylim([-2, 1.2])
+    #
+    # plt.show()
