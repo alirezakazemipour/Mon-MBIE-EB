@@ -42,7 +42,7 @@ def run(cfg: DictConfig) -> None:
 
     env = gymnasium.make(**cfg.environment)
     cfg.environment.id = cfg.environment.id.replace("-Stochastic", "")  # test with determ. rewards
-    cfg.environment.max_episode_steps = 10  # greedy policies need less than 10 steps to go to goal
+    # cfg.environment.max_episode_steps = 10  # greedy policies need less than 10 steps to go to goal
     env_test = gymnasium.make(**cfg.environment)
     env = getattr(monitor_wrappers, cfg.monitor.id)(env, **cfg.monitor)
     env_test = getattr(monitor_wrappers, cfg.monitor.id)(env_test, test=True, **cfg.monitor)
@@ -89,46 +89,46 @@ def run(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    # run()
-    algos = ["OFU_Solvable_NoPenalty", "OFU_Unsolvable_Cautious", "OFU_Solvable_Penalty"]
-    for algo in algos:
-        runs = []
-        for i in range(100):
-            x = np.load(
-                f"data/{algo}/iStatelessBinaryMonitor/OFU/reward_model_test_{i}.npy")
-            runs.append(x)
-        smoothed = []
-        for run in runs:
-            val = [run[0] if not np.isnan(run[0]) else np.nanmin(run)]
-            for tmp in run[1:]:
-                tmp = tmp if not np.isnan(tmp) else np.nanmin(run[1:])
-                val.append(0.9 * val[-1] + 0.1 * tmp)
-            smoothed.append(val)
-        mean_return = np.mean(np.asarray(smoothed), axis=0)
-        std_return = np.std(np.asarray(smoothed), axis=0)
-        lower_bound = mean_return - 1.96 * std_return / math.sqrt(100)
-        upper_bound = mean_return + 1.96 * std_return / math.sqrt(100)
-        plt.fill_between(np.arange(4000),
-                         lower_bound,
-                         upper_bound,
-                         alpha=0.25
-                         )
-        plt.plot(np.arange(4000),
-                 mean_return,
-                 alpha=1,
-                 label=algo,
-                 linewidth=3
-                 )
-    plt.axhline(0.951, linestyle='--', label="optimal-Penalty", c="magenta")
-    plt.axhline(0.99, linestyle='--', label="optimal-NoPenalty", c="olive")
-    plt.xlabel("every 10 training steps")
-    plt.ylabel("discounted (test?) return")
-    plt.title(f" performance over {100} runs")
-    plt.grid()
-    plt.legend()
-    plt.ylim([0.925, 0.96])
-    plt.xlim([425, 625])
-    # plt.ylim([-0.1, 1.1])
-
-    plt.show()
-
+    run()
+    # algos = ["OFU_Solvable_NoPenalty", "OFU_Unsolvable_Cautious", "OFU_Solvable_Penalty"]
+    # for algo in algos:
+    #     runs = []
+    #     for i in range(100):
+    #         x = np.load(
+    #             f"data/{algo}/iStatelessBinaryMonitor/OFU/reward_model_test_{i}.npy")
+    #         runs.append(x)
+    #     smoothed = []
+    #     for run in runs:
+    #         val = [run[0] if not np.isnan(run[0]) else np.nanmin(run)]
+    #         for tmp in run[1:]:
+    #             tmp = tmp if not np.isnan(tmp) else np.nanmin(run[1:])
+    #             val.append(0.9 * val[-1] + 0.1 * tmp)
+    #         smoothed.append(val)
+    #     mean_return = np.mean(np.asarray(smoothed), axis=0)
+    #     std_return = np.std(np.asarray(smoothed), axis=0)
+    #     lower_bound = mean_return - 1.96 * std_return / math.sqrt(100)
+    #     upper_bound = mean_return + 1.96 * std_return / math.sqrt(100)
+    #     plt.fill_between(np.arange(4000),
+    #                      lower_bound,
+    #                      upper_bound,
+    #                      alpha=0.25
+    #                      )
+    #     plt.plot(np.arange(4000),
+    #              mean_return,
+    #              alpha=1,
+    #              label=algo,
+    #              linewidth=3
+    #              )
+    # plt.axhline(0.951, linestyle='--', label="optimal-Penalty", c="magenta")
+    # plt.axhline(0.99, linestyle='--', label="optimal-NoPenalty", c="olive")
+    # plt.xlabel("every 10 training steps")
+    # plt.ylabel("discounted (test?) return")
+    # plt.title(f" performance over {100} runs")
+    # plt.grid()
+    # plt.legend()
+    # plt.ylim([0.925, 0.96])
+    # plt.xlim([425, 625])
+    # # plt.ylim([-0.1, 1.1])
+    #
+    # plt.show()
+    #
