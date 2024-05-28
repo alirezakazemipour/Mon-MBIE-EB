@@ -176,7 +176,7 @@ class MonQCritic(Critic):
 
         for se in range(self.n_obs_env):
             for ae in range(self.n_act_env):
-                if np.sum(c_joint_bar[se, :, ae, :]) < 0.001:
+                if np.sum(c_joint_bar[se, :, ae, :]) < 0.01:
                     self._q_joint[se, :, ae, :] = -100
                     continue
                 if self._n_env[se, ae] == 0:
