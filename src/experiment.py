@@ -122,6 +122,7 @@ class MonExperiment:
                 act = self._actor(obs["env"], obs["mon"])
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env.step(act)
+
                 step_loss = self._critic.update(
                     np.asarray([obs["env"]]),
                     np.asarray([obs["mon"]]),

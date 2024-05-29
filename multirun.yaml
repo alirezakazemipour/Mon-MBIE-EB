@@ -25,7 +25,7 @@ hydra:
       experiment: short
       experiment.hide_progress_bar: true
       experiment.datadir: data
-      experiment.rng_seed: range(0, 20)
+      experiment.rng_seed: range(8, 30)
       monitor: button
   help:
     app_name: ${hydra.job.name}
@@ -159,11 +159,11 @@ monitor:
   id: ButtonMonitor
 experiment:
   training_steps: 10000
-  testing_episodes: 10
+  testing_episodes: 100
   testing_frequency: 10
   datadir: null
   debugdir: null
-  rng_seed: 1
+  rng_seed: 15
   hide_progress_bar: false
 wandb:
   mode: disabled

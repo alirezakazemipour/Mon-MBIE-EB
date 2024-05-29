@@ -31,15 +31,6 @@ def run(cfg: DictConfig) -> None:
         **cfg.wandb,
     )
 
-    if cfg.monitor.id in [
-        "StatelessBinaryMonitor",
-        "LimitedUseMonitor",
-        "LimitedUseBonusMonitor",
-    ]:  # these are fully deterministic monitors
-        cfg.experiment.testing_episodes = 1
-    if cfg.monitor.id in ["ToySwitchMonitor"]:  # on/off initial monitor state
-        cfg.experiment.testing_episodes = 2
-
     env = gymnasium.make(**cfg.environment)
     cfg.environment.id = cfg.environment.id.replace("-Stochastic", "")  # test with determ. rewards
     # cfg.environment.max_episode_steps = 10  # greedy policies need less than 10 steps to go to goal
@@ -58,7 +49,7 @@ def run(cfg: DictConfig) -> None:
     experiment = MonExperiment(env, env_test, actor, critic, **cfg.experiment)
 
     return_train_history, return_test_history = experiment.train()
-    # experiment.test()
+    experiment.test()
 
     if cfg.experiment.debugdir is not None:
         from plot_gridworld_agent import plot_agent
@@ -89,14 +80,14 @@ def run(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    # run()
+    run()
     # algos = ["OFU_Solvable_NoPenalty", "OFU_Unsolvable_Cautious", "OFU_Solvable_Penalty"]
     algos = ["river_swim"]
     for algo in algos:
         runs = []
-        for i in range(20):
+        for i in range(7):
             x = np.load(
-                f"data/{algo}/iButtonMonitor/OFU/reward_model_train_{i}.npy")
+                f"data/{algo}/iButtonMonitor/OFU/reward_model_test_{i}.npy")
             runs.append(x)
         smoothed = []
         for run in runs:
@@ -107,24 +98,23 @@ if __name__ == "__main__":
             smoothed.append(val)
         mean_return = np.mean(np.asarray(smoothed), axis=0)
         std_return = np.std(np.asarray(smoothed), axis=0)
-        lower_bound = mean_return - std_return
-        upper_bound = mean_return + std_return
-        plt.fill_between(np.arange(10000),
+        lower_bound = mean_return - 1.96 * std_return / math.sqrt(7)
+        upper_bound = mean_return + 1.96 * std_return / math.sqrt(7)
+        plt.fill_between(np.arange(1000),
                          lower_bound,
                          upper_bound,
                          alpha=0.25
                          )
-        plt.plot(np.arange(10000),
+        plt.plot(np.arange(1000),
                  mean_return,
                  alpha=1,
                  label=algo,
                  linewidth=3
                  )
-    plt.axhline(21, linestyle='--', label="optimal", c="magenta")
+    # plt.axhline(20.88, linestyle='--', label="optimal", c="magenta")
     plt.xlabel("every 10 training steps")
     plt.ylabel("discounted (test?) return")
     plt.title(f" performance over {100} runs")
     plt.grid()
     plt.legend()
     plt.show()
-
