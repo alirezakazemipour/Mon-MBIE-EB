@@ -45,9 +45,9 @@ GRIDS = {
         [EMPTY, GOOD],
     ],
     "3x3_empty": [
-        [EMPTY, EMPTY, EMPTY],
-        [EMPTY, EMPTY, EMPTY],
         [EMPTY, EMPTY, GOOD],
+        [EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY],
     ],
     "3x3_empty_loop": [
         [EMPTY, LEFT, EMPTY],
@@ -568,7 +568,7 @@ class RiverSwim(Gridworld):
             else:
                 if r < 0.05:
                     action = LEFT
-                elif r < 0.6:
+                elif r < 0.65:
                     action = STAY
 
         obs, _, _, truncated, info = Gridworld._step(self, action)

@@ -1,7 +1,7 @@
 defaults:
   - environment: river_swim
   - agent: default
-  - monitor: button
+  - monitor: full
   - experiment: short
   - _self_
   - override hydra/hydra_logging: disabled
@@ -18,7 +18,7 @@ wandb:
 experiment:
   datadir: null
   debugdir: null
-  rng_seed: 15
+  rng_seed: 6
   hide_progress_bar: False
 
 # This will prevent the creation of the 'output' and 'multirun' subfolders,

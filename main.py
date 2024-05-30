@@ -79,12 +79,13 @@ def run(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    run()
+    # run()
+    # exit()
     # algos = ["OFU_Solvable_NoPenalty", "OFU_Unsolvable_Cautious", "OFU_Solvable_Penalty"]
     algos = ["river_swim"]
     for algo in algos:
         runs = []
-        for i in range(7):
+        for i in range(10):
             x = np.load(
                 f"data/{algo}/iButtonMonitor/OFU/reward_model_test_{i}.npy")
             runs.append(x)
@@ -97,14 +98,14 @@ if __name__ == "__main__":
             smoothed.append(val)
         mean_return = np.mean(np.asarray(smoothed), axis=0)
         std_return = np.std(np.asarray(smoothed), axis=0)
-        lower_bound = mean_return - 1.96 * std_return / math.sqrt(7)
-        upper_bound = mean_return + 1.96 * std_return / math.sqrt(7)
-        plt.fill_between(np.arange(1000),
+        lower_bound = mean_return - 1.96 * std_return / math.sqrt(10)
+        upper_bound = mean_return + 1.96 * std_return / math.sqrt(10)
+        plt.fill_between(np.arange(100),
                          lower_bound,
                          upper_bound,
                          alpha=0.25
                          )
-        plt.plot(np.arange(1000),
+        plt.plot(np.arange(100),
                  mean_return,
                  alpha=1,
                  label=algo,

@@ -25,7 +25,7 @@ hydra:
       experiment: short
       experiment.hide_progress_bar: true
       experiment.datadir: data
-      experiment.rng_seed: range(8, 30)
+      experiment.rng_seed: range(0, 10)
       monitor: button
   help:
     app_name: ${hydra.job.name}
@@ -134,7 +134,7 @@ hydra:
     output_dir: ???
     choices:
       experiment: short
-      monitor: button
+      monitor: full
       agent: default
       environment: river_swim
       hydra/env: default
@@ -156,14 +156,14 @@ agent:
     q0: OFU
     strategy: reward_model
 monitor:
-  id: ButtonMonitor
+  id: FullMonitor
 experiment:
   training_steps: 10000
   testing_episodes: 100
-  testing_frequency: 10
+  testing_frequency: 100
   datadir: null
   debugdir: null
-  rng_seed: 8
+  rng_seed: 6
   hide_progress_bar: false
 wandb:
   mode: disabled
