@@ -163,7 +163,7 @@ experiment:
   testing_frequency: 10
   datadir: null
   debugdir: null
-  rng_seed: 15
+  rng_seed: 8
   hide_progress_bar: false
 wandb:
   mode: disabled
