@@ -136,7 +136,7 @@ hydra:
       experiment: short
       monitor: full
       agent: default
-      environment: river_swim
+      environment: medium
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -148,7 +148,8 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Monitor/RiverSwim-6-v0
+  id: Gym-Grid/Gridworld-Empty-3x3-v0
+  max_episode_steps: 50
   render_mode: null
 agent:
   critic:

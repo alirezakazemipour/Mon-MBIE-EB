@@ -62,7 +62,6 @@ class MonQCritic(Critic):
         self.n_act_mon = None
 
         self._nr_env = None
-        self._no_env = None
         self._nd_env = None
         self._n_env = None
         self._nr_mon = None
@@ -88,7 +87,6 @@ class MonQCritic(Critic):
             self._nr_env[obs_env, act_env] += rwd_env
             self._nc_joint[obs_env, obs_mon, act_env, act_mon] += 1
 
-        self._no_env[obs_env, act_env] += 1
         self._n_joint[obs_env, obs_mon, act_env, act_mon] += 1
         self._nr_mon[obs_env, obs_mon, act_env, act_mon] += rwd_mon
         self._np_joint[obs_env, obs_mon, act_env, act_mon, next_obs_env, next_obs_mon] += 1
@@ -213,7 +211,6 @@ class MonQCritic(Critic):
 
     def reset(self):
         self._nr_env = np.zeros((self.n_obs_env, self.n_act_env))
-        self._no_env = np.zeros((self.n_obs_env, self.n_act_env))
         self._nd_env = np.zeros((self.n_obs_env, self.n_act_env))
         self._n_env = np.zeros((self.n_obs_env, self.n_act_env))
         self._nr_mon = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
@@ -246,7 +243,6 @@ class MonQTableCritic(MonQCritic):
         self.action_shape = (n_act_env, n_act_mon)
 
         self._nr_env = np.zeros((n_obs_env, n_act_env))
-        self._no_env = np.zeros((n_obs_env, n_act_env))
         self._nd_env = np.zeros((n_obs_env, n_act_env))
         self._n_env = np.zeros((n_obs_env, n_act_env))
         self._nr_mon = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon))

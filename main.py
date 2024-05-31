@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 @hydra.main(version_base=None, config_path="configs", config_name="default")
 def run(cfg: DictConfig) -> None:
     config = OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)
-    # pprint(config)
 
     group = dict_to_id(cfg.environment) + "/" + dict_to_id(cfg.monitor)
     wandb.init(
@@ -32,8 +31,6 @@ def run(cfg: DictConfig) -> None:
     )
 
     env = gymnasium.make(**cfg.environment)
-    cfg.environment.id = cfg.environment.id.replace("-Stochastic", "")  # test with determ. rewards
-    # cfg.environment.max_episode_steps = 10  # greedy policies need less than 10 steps to go to goal
     env_test = gymnasium.make(**cfg.environment)
     env = getattr(monitor_wrappers, cfg.monitor.id)(env, **cfg.monitor)
     env_test = getattr(monitor_wrappers, cfg.monitor.id)(env_test, test=True, **cfg.monitor)
@@ -49,6 +46,7 @@ def run(cfg: DictConfig) -> None:
     experiment = MonExperiment(env, env_test, actor, critic, **cfg.experiment)
 
     return_train_history, return_test_history = experiment.train()
+    experiment.test()
 
     if cfg.experiment.debugdir is not None:
         from plot_gridworld_agent import plot_agent
@@ -79,8 +77,8 @@ def run(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    # run()
-    # exit()
+    run()
+    exit()
     # algos = ["OFU_Solvable_NoPenalty", "OFU_Unsolvable_Cautious", "OFU_Solvable_Penalty"]
     algos = ["river_swim"]
     for algo in algos:
