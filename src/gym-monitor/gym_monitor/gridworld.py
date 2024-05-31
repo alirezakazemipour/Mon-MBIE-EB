@@ -559,24 +559,21 @@ class RiverSwim(Gridworld):
         original_action = action
         r = self.np_random.random()
         if action == RIGHT:
-            if state == first:
-                if r < 0.4:
+            if state == first or state == last:
+                if r <= 0.4:
                     action = LEFT  # or stay, is equivalent
-            elif state == last:
-                if r < 0.4:
-                    action = LEFT
             else:
-                if r < 0.05:
-                    action = LEFT
-                elif r < 0.65:
-                    action = STAY
+                if r <= 0.05:
+                    action = self.np_random.choice([LEFT, STAY, RIGHT])
+                elif r <= 0.6:
+                    action = self.np_random.choice([STAY, RIGHT])
 
         obs, _, _, truncated, info = Gridworld._step(self, action)
         terminated = False  # infinite horizon
         self.last_action = original_action
 
         reward = 0.0
-        if state == last and action == RIGHT and original_action == RIGHT:
+        if state == last and action == RIGHT:
             reward = 1.0
         elif state == first and action == LEFT and original_action == LEFT:
             reward = 0.01

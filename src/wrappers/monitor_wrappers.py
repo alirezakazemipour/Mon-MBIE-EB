@@ -188,7 +188,7 @@ class StatefulBinaryMonitor(Monitor):
         monitor_reset_prob (float): probability of the monitor resetting itself.
     """
 
-    def __init__(self, env, monitor_cost=0.02, monitor_reset_prob=0.0, **kwargs):
+    def __init__(self, env, monitor_cost=0.2, monitor_reset_prob=0.0, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,
@@ -236,7 +236,7 @@ class StatelessBinaryMonitor(Monitor):
         monitor_cost (float): cost for asking the monitor for rewards.
     """
 
-    def __init__(self, env, monitor_cost=0.02, **kwargs):
+    def __init__(self, env, monitor_cost=0.2, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,
@@ -269,7 +269,7 @@ class NMonitor(Monitor):
     Otherwise it does not observe the environment reward, but receives a smaller
     positive monitor reward.
     For example, if state = 2 and action = 2, the agent observes the environment
-    reward and gets reward_monitor = -0.02.
+    reward and gets reward_monitor = -0.2.
     If state = 2 and action != 2, the agent does not observe the reward but
     gets reward_monitor = 0.001.
 
@@ -280,7 +280,7 @@ class NMonitor(Monitor):
         monitor_bonus (float): reward for not observing the reward.
     """
 
-    def __init__(self, env, n_monitors=5, monitor_cost=0.02, monitor_bonus=0.001, **kwargs):
+    def __init__(self, env, n_monitors=5, monitor_cost=0.2, monitor_bonus=0.001, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,
@@ -333,7 +333,7 @@ class LevelMonitor(Monitor):
         monitor_cost (float): cost for leveling up the monitor state.
     """
 
-    def __init__(self, env, n_levels=4, monitor_cost=0.02, **kwargs):
+    def __init__(self, env, n_levels=4, monitor_cost=0.2, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,
@@ -386,7 +386,7 @@ class LimitedTimeMonitor(Monitor):
         monitor_reset_prob (float): probability of the monitor resetting itself.
     """
 
-    def __init__(self, env, monitor_reset_prob=0.02, **kwargs):
+    def __init__(self, env, monitor_reset_prob=0.2, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,
@@ -490,7 +490,7 @@ class ButtonMonitor(Monitor):
         env_action_push (int): the environment action to turn the monitor on/off.
     """
 
-    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=.0, button_cell_id=0, **kwargs):
+    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2, button_cell_id=0, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,

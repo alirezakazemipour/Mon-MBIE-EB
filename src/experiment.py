@@ -79,6 +79,7 @@ class MonExperiment:
             )  # fmt: skip
             self._critic.calc_opti_q()
             ep_seed = cantor_pairing(self._rng_seed, tot_episodes)
+            rng = np.random.default_rng(ep_seed)
             obs, _ = self._env.reset(seed=ep_seed)
             ep_return_env = 0.0
             ep_return_proxy = 0.0
@@ -119,7 +120,7 @@ class MonExperiment:
 
                 tot_steps += 1
                 ucrl_t += 1
-                act = self._actor(obs["env"], obs["mon"])
+                act = self._actor(obs["env"], obs["mon"], rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env.step(act)
 
@@ -179,9 +180,10 @@ class MonExperiment:
             proxy_rwd_was_available = False
             ep_seed = cantor_pairing(self._rng_seed, ep)
             obs, _ = self._env_test.reset(seed=ep_seed)
+            rng = np.random.default_rng(ep_seed)
             ep_steps = 0
             while True:
-                act = self._actor(obs["env"], obs["mon"])
+                act = self._actor(obs["env"], obs["mon"], rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env_test.step(act)
                 ep_return_env[ep] += (self._gamma**ep_steps) * rwd["env"]
