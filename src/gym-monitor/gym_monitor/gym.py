@@ -130,7 +130,7 @@ def register_envs():
     register(
         id="RiverSwim-6-v0",
         entry_point="gym_monitor.gridworld:RiverSwim",
-        max_episode_steps=200,
+        max_episode_steps=100,
         kwargs={
             "grid": "river_swim_6",
         },
