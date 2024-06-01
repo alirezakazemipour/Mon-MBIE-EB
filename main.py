@@ -5,7 +5,7 @@ from omegaconf import DictConfig, OmegaConf
 import os
 import numpy as np
 import math
-
+from tqdm import tqdm
 from src.utils import dict_to_id
 from src.actor import MonEpsilonGreedy
 from src.critic import MonQTableCritic
@@ -34,6 +34,31 @@ def run(cfg: DictConfig) -> None:
     env_test = gymnasium.make(**cfg.environment)
     env = getattr(monitor_wrappers, cfg.monitor.id)(env, **cfg.monitor)
     env_test = getattr(monitor_wrappers, cfg.monitor.id)(env_test, test=True, **cfg.monitor)
+
+    ret = []
+    for i in tqdm(range(10000)):
+        np.random.seed(i)
+        ret_e = 0
+        obs, _ = env.reset(seed=i)
+        t = 0
+        while True:
+            while obs["mon"] == 1:
+                a = {"env": 0, "mon": 0}
+                obs, r, term, trunc, _ = env.step(a)
+                ret_e += (0.99 ** t) * (r["env"] + r["mon"])
+                t+= 1
+
+            a = {"env": 1, "mon": 0}
+            obs, r, term, trunc, _ = env.step(a)
+            ret_e += (0.99 ** t) * (r["env"] + r["mon"])
+            if term or trunc:
+                ret.append(ret_e)
+                break
+            t += 1
+
+    print(np.mean(ret))
+    print(np.std(ret))
+    exit()
 
     critic = MonQTableCritic(
         env.observation_space["env"].n,
@@ -77,16 +102,18 @@ def run(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    run()
-    exit()
+    # run()
+    # exit()
     # algos = ["OFU_Solvable_NoPenalty", "OFU_Unsolvable_Cautious", "OFU_Solvable_Penalty"]
-    algos = ["river_swim"]
+    algos = ["data/iGym-Monitor/RiverSwim-6-v0_rmNone"]
     for algo in algos:
         runs = []
-        for i in range(10):
+        for i in range(100):
             x = np.load(
-                f"data/{algo}/iButtonMonitor/OFU/reward_model_test_{i}.npy")
+                f"{algo}/iButtonMonitor/OFU/reward_model_test_{i}.npy")
             runs.append(x)
+        # print(np.argmin(np.nansum(np.asarray(runs), axis=-1)))
+        # exit()
         smoothed = []
         for run in runs:
             val = [run[0] if not np.isnan(run[0]) else np.nanmin(run)]
@@ -96,20 +123,26 @@ if __name__ == "__main__":
             smoothed.append(val)
         mean_return = np.mean(np.asarray(smoothed), axis=0)
         std_return = np.std(np.asarray(smoothed), axis=0)
-        lower_bound = mean_return - 1.96 * std_return / math.sqrt(10)
-        upper_bound = mean_return + 1.96 * std_return / math.sqrt(10)
-        plt.fill_between(np.arange(100),
+        lower_bound = mean_return - 1.96 * std_return / math.sqrt(100)
+        upper_bound = mean_return + 1.96 * std_return / math.sqrt(100)
+        plt.fill_between(np.arange(200),
                          lower_bound,
                          upper_bound,
                          alpha=0.25
                          )
-        plt.plot(np.arange(100),
+        plt.plot(np.arange(200),
                  mean_return,
                  alpha=1,
                  label=algo,
                  linewidth=3
                  )
-    # plt.axhline(20.88, linestyle='--', label="optimal", c="magenta")
+    plt.axhline(19.03, linestyle='--', label="optimal", c="magenta")
+    plt.fill_between(np.arange(200),
+                     19.03 - 4.62,
+                     19.03 + 4.62,
+                     alpha=0.25,
+                     color="magenta"
+                     )
     plt.xlabel("every 10 training steps")
     plt.ylabel("discounted (test?) return")
     plt.title(f" performance over {100} runs")

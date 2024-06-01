@@ -3,7 +3,6 @@ import gymnasium as gym
 from gymnasium.error import DependencyNotInstalled
 from typing import Optional
 from collections import defaultdict
-from tqdm import tqdm
 
 LEFT = 0
 DOWN = 1
@@ -46,9 +45,9 @@ GRIDS = {
         [EMPTY, GOOD],
     ],
     "3x3_empty": [
+        [EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY],
         [EMPTY, EMPTY, GOOD],
-        [EMPTY, EMPTY, EMPTY],
-        [EMPTY, EMPTY, EMPTY],
     ],
     "3x3_empty_loop": [
         [EMPTY, LEFT, EMPTY],
@@ -213,13 +212,13 @@ class Gridworld(gym.Env):
     }
 
     def __init__(
-            self,
-            render_mode: Optional[str] = None,
-            grid: Optional[str] = "3x3_empty",
-            random_action_prob: Optional[float] = 0.0,
-            reward_noise_std: Optional[float] = 0.0,
-            nonzero_reward_noise_std: Optional[float] = 0.0,
-            **kwargs,
+        self,
+        render_mode: Optional[str] = None,
+        grid: Optional[str] = "3x3_empty",
+        random_action_prob: Optional[float] = 0.0,
+        reward_noise_std: Optional[float] = 0.0,
+        nonzero_reward_noise_std: Optional[float] = 0.0,
+        **kwargs,
     ):
         self.grid_key = grid
         self.grid = np.asarray(GRIDS[self.grid_key])
@@ -270,41 +269,41 @@ class Gridworld(gym.Env):
     def _step(self, action: int):
         terminated = False
         reward = REWARDS[self.grid[self.agent_pos]]
-        # if self.grid[self.agent_pos] in [GOOD, GOOD_SMALL]:
-        #     if action == STAY:  # positive rewards are collected only with STAY
-        #         terminated = True
-        #     else:
-        #         reward = 0
-        # if self.reward_noise_std > 0.0:
-        #     reward += self.np_random.normal() * self.reward_noise_std
-        # if reward != 0.0 and self.nonzero_reward_noise_std > 0.0:
-        #     reward += self.np_random.normal() * self.nonzero_reward_noise_std
+        if self.grid[self.agent_pos] in [GOOD, GOOD_SMALL]:
+            if action == STAY:  # positive rewards are collected only with STAY
+                terminated = True
+            else:
+                reward = 0
+        if self.reward_noise_std > 0.0:
+            reward += self.np_random.normal() * self.reward_noise_std
+        if reward != 0.0 and self.nonzero_reward_noise_std > 0.0:
+            reward += self.np_random.normal() * self.nonzero_reward_noise_std
 
         self.last_pos = self.agent_pos
-        # if self.np_random.random() < self.random_action_prob:
-        #     action = self.action_space.sample()
+        if self.np_random.random() < self.random_action_prob:
+            action = self.action_space.sample()
         self.last_action = action
-        # if self.grid[self.agent_pos] == QCKSND and self.np_random.random() > 0.1:
-        #     pass  # fail to move in quicksand
-        # else:
-        #     if (
-        #             self.grid[self.agent_pos] == LEFT and action != LEFT or
-        #             self.grid[self.agent_pos] == RIGHT and action != RIGHT or
-        #             self.grid[self.agent_pos] == UP and action != UP or
-        #             self.grid[self.agent_pos] == DOWN and action != DOWN
-        #     ):  # fmt: skip
-        #         pass  # fail to move in one-direction cell
-        #     else:
-        self.agent_pos = _move(
-            self.agent_pos[0],
-            self.agent_pos[1],
-            action,
-            self.n_rows,
-            self.n_cols
-        )  # fmt: skip
+        if self.grid[self.agent_pos] == QCKSND and self.np_random.random() > 0.1:
+            pass  # fail to move in quicksand
+        else:
+            if (
+                self.grid[self.agent_pos] == LEFT and action != LEFT or
+                self.grid[self.agent_pos] == RIGHT and action != RIGHT or
+                self.grid[self.agent_pos] == UP and action != UP or
+                self.grid[self.agent_pos] == DOWN and action != DOWN
+            ):  # fmt: skip
+                pass  # fail to move in one-direction cell
+            else:
+                self.agent_pos = _move(
+                    self.agent_pos[0],
+                    self.agent_pos[1],
+                    action,
+                    self.n_rows,
+                    self.n_cols
+                )  # fmt: skip
 
-        # if self.grid[self.agent_pos] == WALL:
-        #     self.agent_pos = self.last_pos
+        if self.grid[self.agent_pos] == WALL:
+            self.agent_pos = self.last_pos
 
         return self.get_state(), reward, terminated, False, {}
 
@@ -345,7 +344,7 @@ class Gridworld(gym.Env):
                 self.window_surface = pygame.Surface(self.window_size)
 
         assert (
-                self.window_surface is not None
+            self.window_surface is not None
         ), "Something went wrong with pygame. This should never happen."  # fmt: skip
 
         if self.clock is None:
@@ -577,135 +576,9 @@ class RiverSwim(Gridworld):
         self.last_action = original_action
 
         reward = 0.0
-        if state == last and original_action == RIGHT:
+        if state == last and action == RIGHT and original_action == RIGHT:
             reward = 1.0
-        elif state == first and original_action == LEFT:
+        elif state == first and action == LEFT and original_action == LEFT:
             reward = 0.01
 
         return obs, reward, terminated, truncated, info
-
-
-class RiverSwim2(gym.Env):
-    """
-    Based on: https://github.com/iosband/TabulaRL
-    optimal return: 80.34 +- 10.54
-    optimal discounted return: 23.4 +- 4.83
-    Simone's: 23.4 +- 4.83
-    """
-    metadata = {
-        "render_modes": ["human", "rgb_array", "ansi", "binary"],
-        "render_fps": 30,
-    }
-
-    def __init__(
-            self,
-            epLen: Optional[int] = 100,
-            nState: Optional[int] = 6,
-            **kwargs,
-    ):
-        self.nAction = 2
-        self.observation_space = gym.spaces.Discrete(nState)
-        self.action_space = gym.spaces.Discrete(self.nAction)
-        self.nState = nState
-        self.epLen = epLen
-        self.R = {}
-        self.P = {}
-
-        for s in range(nState):
-            for a in range(self.nAction):
-                self.R[s, a] = (0, 0)
-                self.P[s, a] = np.zeros(nState)
-
-        # Rewards
-        self.R[0, 0] = (0.1, 0)
-        self.R[nState - 1, 1] = (1, 0)
-
-        # Transitions
-        for s in range(nState):
-            self.P[s, 0][max(0, s - 1)] = 1.
-
-        for s in range(1, nState - 1):
-            self.P[s, 1][min(nState - 1, s + 1)] = 0.35
-            self.P[s, 1][s] = 0.6
-            self.P[s, 1][max(0, s - 1)] = 0.05
-
-        self.P[0, 1][0] = 0.4
-        self.P[0, 1][1] = 0.6
-        self.P[nState - 1, 1][nState - 1] = 0.6
-        self.P[nState - 1, 1][nState - 2] = 0.4
-
-        self.state = None
-        self.timestep = None
-
-    def reset(self, seed: int = None, **kwargs):
-        super().reset(seed=seed, **kwargs)
-        self.state = self.np_random.integers(1, 3)
-        self.timestep = 0
-        return self.state, {}
-
-    def step(self, action: int):
-        """
-           Move one step in the environment
-
-           Args:
-           action - int - chosen action
-
-           Returns:
-           reward - double - reward
-           newState - int - new state
-           pContinue - 0/1 - flag for end of the episode
-           """
-        if self.R[self.state, action][1] < 1e-9:
-            # Hack for no noise
-            reward = self.R[self.state, action][0]
-        else:
-            reward = self.np_random.normal(loc=self.R[self.state, action][0],
-                                           scale=self.R[self.state, action][1]
-                                           )
-        next_state = self.np_random.choice(self.nState, p=self.P[self.state, action])
-
-        # Update the environment
-        self.state = next_state
-        self.timestep += 1
-
-        if self.timestep == self.epLen:
-            truncated = True
-            self.reset()
-        else:
-            truncated = False
-
-        return next_state, reward, False, truncated, {}
-
-    def get_state(self):
-        return self.state
-
-    def close(self):
-        super().close()
-
-
-if __name__ == "__main__":
-    ret = []
-    for i in tqdm(range(100000)):
-        # np.random.seed(i)
-        ret_e = 0
-        env1 = gym.make("Gym-Monitor/RiverSwim-6-v0")
-        env2 = gym.make("Gym-Monitor/RiverSwim-6-v1")
-        env1.observation_space.seed(i)
-        env2.observation_space.seed(i)
-        env1.action_space.seed(i)
-        env2.action_space.seed(i)
-        obs1, _ = env1.reset(seed=i)
-        obs2, _ = env2.reset(seed=i)
-        t = 0
-        while True:
-            a = 1
-            n_o1, r1, term1, trunc1, _ = env1.step(a)
-            n_o2, r2, term2, trunc2, _ = env2.step(a)
-            ret_e += (0.99 ** t) * r1
-            if term1 or trunc1:
-                ret.append(ret_e)
-                break
-            t += 1
-
-    print(np.mean(ret))
-    print(np.std(ret))

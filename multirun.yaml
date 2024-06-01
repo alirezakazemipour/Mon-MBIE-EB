@@ -25,7 +25,7 @@ hydra:
       experiment: short
       experiment.hide_progress_bar: true
       experiment.datadir: data
-      experiment.rng_seed: range(0, 10)
+      experiment.rng_seed: range(0, 87)
       monitor: button
   help:
     app_name: ${hydra.job.name}
@@ -134,9 +134,9 @@ hydra:
     output_dir: ???
     choices:
       experiment: short
-      monitor: full
+      monitor: button
       agent: default
-      environment: medium
+      environment: river_swim
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -148,8 +148,7 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Grid/Gridworld-Empty-3x3-v0
-  max_episode_steps: 50
+  id: Gym-Monitor/RiverSwim-6-v0
   render_mode: null
 agent:
   critic:
@@ -157,14 +156,14 @@ agent:
     q0: OFU
     strategy: reward_model
 monitor:
-  id: FullMonitor
+  id: ButtonMonitor
 experiment:
-  training_steps: 10000
+  training_steps: 20000
   testing_episodes: 100
   testing_frequency: 100
   datadir: null
   debugdir: null
-  rng_seed: 6
+  rng_seed: 25
   hide_progress_bar: false
 wandb:
   mode: disabled
