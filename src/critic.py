@@ -36,10 +36,10 @@ class MonQCritic(Critic):
 
     def __init__(self,
                  gamma: float,
-                 A=0.0004,
-                 B=0.0004,
-                 C=0.0001,
-                 D=0.0004,
+                 A=0.4,
+                 B=0.4,
+                 C=0.1,
+                 D=0.4,
                  **kwargs,
                  ):
         """
