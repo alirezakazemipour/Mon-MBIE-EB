@@ -35,30 +35,30 @@ def run(cfg: DictConfig) -> None:
     env = getattr(monitor_wrappers, cfg.monitor.id)(env, **cfg.monitor)
     env_test = getattr(monitor_wrappers, cfg.monitor.id)(env_test, test=True, **cfg.monitor)
 
-    ret = []
-    for i in tqdm(range(10000)):
-        np.random.seed(i)
-        ret_e = 0
-        obs, _ = env.reset(seed=i)
-        t = 0
-        while True:
-            while obs["mon"] == 1:
-                a = {"env": 0, "mon": 0}
-                obs, r, term, trunc, _ = env.step(a)
-                ret_e += (0.99 ** t) * (r["env"] + r["mon"])
-                t+= 1
-
-            a = {"env": 1, "mon": 0}
-            obs, r, term, trunc, _ = env.step(a)
-            ret_e += (0.99 ** t) * (r["env"] + r["mon"])
-            if term or trunc:
-                ret.append(ret_e)
-                break
-            t += 1
-
-    print(np.mean(ret))
-    print(np.std(ret))
-    exit()
+    # ret = []
+    # for i in tqdm(range(10000)):
+    #     np.random.seed(i)
+    #     ret_e = 0
+    #     obs, _ = env.reset(seed=i)
+    #     t = 0
+    #     while True:
+    #         while obs["mon"] == 1:
+    #             a = {"env": 0, "mon": 0}
+    #             obs, r, term, trunc, _ = env.step(a)
+    #             ret_e += (0.99 ** t) * (r["env"] + r["mon"])
+    #             t += 1
+    #
+    #         a = {"env": 1, "mon": 0}
+    #         obs, r, term, trunc, _ = env.step(a)
+    #         ret_e += (0.99 ** t) * (r["env"] + r["mon"])
+    #         if term or trunc:
+    #             ret.append(ret_e)
+    #             break
+    #         t += 1
+    #
+    # print(np.mean(ret))
+    # print(np.std(ret))
+    # exit()
 
     critic = MonQTableCritic(
         env.observation_space["env"].n,
@@ -102,15 +102,22 @@ def run(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    # run()
-    # exit()
-    # algos = ["OFU_Solvable_NoPenalty", "OFU_Unsolvable_Cautious", "OFU_Solvable_Penalty"]
-    algos = ["data/iGym-Monitor/RiverSwim-6-v0_rmNone"]
+    run()
+    exit()
+    algos = ["Alireza", "Simone", "Eps"]
+    # algos = ["iGym-Monitor/Gridworld-Penalty-3x3-v0_mes50_rmNone/iStatelessBinaryMonitor/OFU"]
     for algo in algos:
         runs = []
         for i in range(100):
-            x = np.load(
-                f"{algo}/iButtonMonitor/OFU/reward_model_test_{i}.npy")
+            if algo == "Alireza":
+                x = np.load(
+                    f"data/{algo}/reward_model_test_{i}.npy")
+            elif algo == "Simone":
+                x = np.load(
+                    f"data/{algo}/q_visit_-10.0_0.0_1.0_0.01_{i}.npz")["test/return"]
+            else:
+                x = np.load(
+                    f"data/{algo}/eps_greedy_-10.0_0.0_1.0_0.01_{i}.npz")["test/return"]
             runs.append(x)
         # print(np.argmin(np.nansum(np.asarray(runs), axis=-1)))
         # exit()
@@ -125,25 +132,25 @@ if __name__ == "__main__":
         std_return = np.std(np.asarray(smoothed), axis=0)
         lower_bound = mean_return - 1.96 * std_return / math.sqrt(100)
         upper_bound = mean_return + 1.96 * std_return / math.sqrt(100)
-        plt.fill_between(np.arange(200),
+        plt.fill_between(np.arange(len(mean_return)),
                          lower_bound,
                          upper_bound,
                          alpha=0.25
                          )
-        plt.plot(np.arange(200),
+        plt.plot(np.arange(len(mean_return)),
                  mean_return,
                  alpha=1,
                  label=algo,
                  linewidth=3
                  )
     plt.axhline(19.03, linestyle='--', label="optimal", c="magenta")
-    plt.fill_between(np.arange(200),
+    plt.fill_between(np.arange(len(mean_return)),
                      19.03 - 4.62,
                      19.03 + 4.62,
                      alpha=0.25,
                      color="magenta"
                      )
-    plt.xlabel("every 10 training steps")
+    plt.xlabel("every 100 training steps")
     plt.ylabel("discounted (test?) return")
     plt.title(f" performance over {100} runs")
     plt.grid()

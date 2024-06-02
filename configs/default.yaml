@@ -1,5 +1,5 @@
 defaults:
-  - environment: river_swim
+  - environment: medium
   - agent: default
   - monitor: button
   - experiment: short
