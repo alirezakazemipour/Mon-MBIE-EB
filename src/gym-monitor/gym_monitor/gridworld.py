@@ -124,7 +124,7 @@ def _move(row, col, a, nrow, ncol):
         pass
     else:
         raise ValueError("illegal action")
-    return (row, col)
+    return row, col
 
 
 class Gridworld(gym.Env):
@@ -267,7 +267,6 @@ class Gridworld(gym.Env):
         self.last_pos = None
 
     def _step(self, action: int):
-        terminated = False
 
         self.last_pos = self.agent_pos
         if self.np_random.random() < self.random_action_prob:
@@ -295,6 +294,7 @@ class Gridworld(gym.Env):
         if self.grid[self.agent_pos] == WALL:
             self.agent_pos = self.last_pos
 
+        terminated = False
         reward = REWARDS[self.grid[self.agent_pos]]
         if self.grid[self.agent_pos] in [GOOD, GOOD_SMALL]:
             if action == STAY:  # positive rewards are collected only with STAY
