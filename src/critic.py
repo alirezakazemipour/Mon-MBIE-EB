@@ -243,6 +243,6 @@ class MonQTableCritic(MonQCritic):
         self._n_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon))
         self._np_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon, n_obs_env, n_obs_mon))
         self._nc_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon))
-        self._q_joint = np.ones((n_obs_env, n_obs_mon, n_act_env, n_act_mon)) * 1 / (1 - self.gamma)
+        self._q_joint = np.ones((n_obs_env, n_obs_mon, n_act_env, n_act_mon)) * 40#1 / (1 - self.gamma)
 
         self.reset()

@@ -175,7 +175,7 @@ class MonExperiment:
         ep_return_env = np.zeros(self._testing_episodes)
         ep_return_proxy = np.zeros(self._testing_episodes)
         ep_return_mon = np.zeros(self._testing_episodes)
-
+        # print(self._critic.s_star)
         for ep in range(self._testing_episodes):
             proxy_rwd_was_available = False
             ep_seed = cantor_pairing(self._rng_seed, ep)

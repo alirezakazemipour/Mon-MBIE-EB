@@ -101,16 +101,16 @@ def run(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    run()
-    exit()
+    # run()
+    # exit()
     # algos = ["Alireza", "Simone", "Eps"]
     algos = ["iGym-Monitor/Gridworld-Penalty-3x3-v0_mes50_rmNone/iButtonMonitor/OFU"]
     for algo in algos:
         runs = []
-        for i in range(100):
+        for i in range(100, 200):
             if algo == "iGym-Monitor/Gridworld-Penalty-3x3-v0_mes50_rmNone/iButtonMonitor/OFU":
                 x = np.load(
-                    f"data/{algo}/reward_model_train_{i}.npy")
+                    f"data/{algo}/reward_model_test_{i}.npy")
             elif algo == "Simone":
                 x = np.load(
                     f"data/{algo}/q_visit_-10.0_0.0_1.0_0.01_{i}.npz")["test/return"]
@@ -136,13 +136,13 @@ if __name__ == "__main__":
                          upper_bound,
                          alpha=0.25
                          )
+        plt.axhline(0.961, linestyle='--', label="optimal", c="magenta")
         plt.plot(np.arange(len(mean_return)),
                  mean_return,
                  alpha=1,
                  label="OFU",
                  linewidth=3
                  )
-    plt.axhline(0.841, linestyle='--', label="optimal", c="magenta")
     # plt.fill_between(np.arange(len(mean_return)),
     #                  19.03 - 4.62,
     #                  19.03 + 4.62,
@@ -154,10 +154,11 @@ if __name__ == "__main__":
     plt.title(f" performance over {100} runs")
     plt.grid()
 
+    # for k in range(10, 20):
     plt.plot(np.arange(len(mean_return)),
-             smoothed[58],
+             smoothed[57],
              alpha=1,
-             label="seed " + str(58),
+             label="seed " + str(158),
              linewidth=3
              )
     plt.legend()
