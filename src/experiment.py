@@ -77,9 +77,9 @@ class MonExperiment:
                 f"train {last_ep_return:.3f} / "
                 f"test {np.mean(test_return):.3f} "
             )  # fmt: skip
-            self._critic.calc_opti_q()
             ep_seed = cantor_pairing(self._rng_seed, tot_episodes)
             rng = np.random.default_rng(ep_seed)
+            self._critic.calc_opti_q(rng)
             obs, _ = self._env.reset(seed=ep_seed)
             ep_return_env = 0.0
             ep_return_proxy = 0.0
@@ -172,9 +172,9 @@ class MonExperiment:
         return return_train_history, return_test_history
 
     def test(self):
-        ep_return_env = np.zeros((self._testing_episodes))
-        ep_return_proxy = np.zeros((self._testing_episodes))
-        ep_return_mon = np.zeros((self._testing_episodes))
+        ep_return_env = np.zeros(self._testing_episodes)
+        ep_return_proxy = np.zeros(self._testing_episodes)
+        ep_return_mon = np.zeros(self._testing_episodes)
 
         for ep in range(self._testing_episodes):
             proxy_rwd_was_available = False

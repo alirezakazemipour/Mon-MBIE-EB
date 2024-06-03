@@ -5,6 +5,7 @@ from omegaconf import DictConfig
 from copy import deepcopy as dc
 import src.parameter as parameter
 from src.approximator import Table
+from src.utils import random_argmax
 
 
 class Critic(ABC):
@@ -69,6 +70,7 @@ class MonQCritic(Critic):
         self._np_joint = None
         self._nc_joint = None
         self._q_joint = None
+        self.s_star = None
 
     def update(self,
                obs_env,
@@ -96,7 +98,7 @@ class MonQCritic(Critic):
 
         return 0
 
-    def calc_opti_q(self, ):
+    def calc_opti_q(self, rng):
         r_env_bar = np.ones((self.n_obs_env, self.n_act_env))
         for s in range(self.n_obs_env):
             for a in range(self.n_act_env):
@@ -129,7 +131,8 @@ class MonQCritic(Critic):
                             p_joint_hat[*s, *a] = self._np_joint[*s, *a] / self._n_joint[*s, *a]
 
         v_joint = np.max(self._q_joint, axis=(-2, -1))
-        s_star = np.unravel_index(np.argmax(v_joint, axis=None), v_joint.shape)
+        s_star = random_argmax(v_joint, rng)
+        self.s_star = s_star
         for se in range(self.n_obs_env):
             for ae in range(self.n_act_env):
                 for sm in range(self.n_obs_mon):
