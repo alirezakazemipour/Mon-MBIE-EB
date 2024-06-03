@@ -36,10 +36,10 @@ class MonQCritic(Critic):
 
     def __init__(self,
                  gamma: float,
-                 A=0.1,
-                 B=0.1,
-                 C=0.1,
-                 D=0.1,
+                 A=0.0001,
+                 B=0.0001,
+                 C=0.0001,
+                 D=0.0001,
                  **kwargs,
                  ):
         """
@@ -101,9 +101,8 @@ class MonQCritic(Critic):
         for s in range(self.n_obs_env):
             for a in range(self.n_act_env):
                 if self._n_env[s, a] != 0:
-                    r_env_bar[s, a] = (self._nr_env[s, a] / self._n_env[s, a] +
-                                       math.sqrt(math.log(self._n_env[s].sum(-1))) * self.A / math.sqrt(
-                                self._n_env[s, a]))
+                    ucb = math.sqrt(math.log(self._n_env[s].sum(-1))) * self.A / math.sqrt(self._n_env[s, a])
+                    r_env_bar[s, a] = self._nr_env[s, a] / self._n_env[s, a] + ucb
 
         r_mon_bar = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
         for se in range(self.n_obs_env):
@@ -113,11 +112,9 @@ class MonQCritic(Critic):
                         s = se, sm
                         a = ae, am
                         if self._n_joint[*s, *a] != 0:
-                            r_mon_bar[*s, *a] = (self._nr_mon[*s, *a] / self._n_joint[*s, *a] +
-                                                 math.sqrt(
-                                                     math.log(self._n_joint[*s].sum((-1, -2)))) * self.B / math.sqrt(
-                                        self._n_joint[*s, *a])
-                                                 )
+                            ucb = math.sqrt(math.log(self._n_joint[*s].sum((-1, -2)))) * self.B / math.sqrt(
+                                self._n_joint[*s, *a])
+                            r_mon_bar[*s, *a] = self._nr_mon[*s, *a] / self._n_joint[*s, *a] + ucb
 
         p_joint_hat = np.ones((self.n_obs_env, self.n_obs_mon, self.n_act_env,
                                self.n_act_mon, self.n_obs_env, self.n_obs_mon)
@@ -140,15 +137,11 @@ class MonQCritic(Critic):
                         s = se, sm
                         a = ae, am
                         if self._n_joint[*s, *a] != 0:
-                            if p_joint_hat[*s, *a, *s_star] + math.sqrt(
-                                    math.log(self._n_joint[*s].sum((-1, -2)))) * 0.5 * self.C / math.sqrt(
-                                self._n_joint[*s, *a]) <= 1:
-                                p_joint_hat[*s, *a, *s_star] += math.sqrt(
-                                    math.log(self._n_joint[*s].sum((-1, -2)))) * 0.5 * self.C / math.sqrt(
-                                    self._n_joint[*s, *a])
-                                residual = -0.5 * math.sqrt(
-                                    math.log(self._n_joint[*s].sum((-1, -2)))) * self.C / math.sqrt(
-                                    self._n_joint[*s, *a])
+                            ucb = math.sqrt(math.log(self._n_joint[*s].sum((-1, -2)))) * 0.5 * self.C / math.sqrt(
+                                self._n_joint[*s, *a])
+                            if p_joint_hat[*s, *a, *s_star] + ucb <= 1:
+                                p_joint_hat[*s, *a, *s_star] += ucb
+                                residual = -ucb
                             else:
                                 residual = p_joint_hat[*s, *a, *s_star] - 1
                                 p_joint_hat[*s, *a, *s_star] = 1
@@ -178,13 +171,12 @@ class MonQCritic(Critic):
                         s = se, sm
                         a = ae, am
                         if self._n_joint[*s, *a] != 0:
-                            c_joint_bar[*s, *a] = np.clip(
-                                self._nc_joint[*s, *a] / self._n_joint[*s, *a] + math.sqrt(
-                                    math.log(self._n_joint[*s].sum((-1, -2)))) * self.D / math.sqrt(
-                                    self._n_joint[*s, *a])
-                                , 0,
-                                1
-                            )
+                            ucb = math.sqrt(math.log(self._n_joint[*s].sum((-1, -2)))) * self.D / math.sqrt(
+                                                                                                  self._n_joint[*s, *a])
+                            c_joint_bar[*s, *a] = np.clip(self._nc_joint[*s, *a] / self._n_joint[*s, *a] + ucb,
+                                                          0,
+                                                          1
+                                                          )
 
         for se in range(self.n_obs_env):
             for ae in range(self.n_act_env):
@@ -192,7 +184,7 @@ class MonQCritic(Critic):
                     self._q_joint[se, :, ae, :] = -1 / (1 - self.gamma)
                     continue
                 if self._n_env[se, ae] == 0:
-                    self._q_joint[se, :, ae, :] = 1 / (1 - self.gamma)
+                    self._q_joint[se, :, ae, :] = 2  # 1 / (1 - self.gamma)
                     continue
                 w = math.sqrt(math.log(self._n_env[se].sum(-1))) * self.A / math.sqrt(self._n_env[se, ae])
                 for sm in range(self.n_obs_mon):
@@ -200,7 +192,7 @@ class MonQCritic(Critic):
                         s = se, sm
                         a = ae, am
                         if self._n_joint[*s, *a] == 0:
-                            self._q_joint[*s, *a] = 1 / (1 - self.gamma)
+                            self._q_joint[*s, *a] = 2  # 1 / (1 - self.gamma)
                             continue
                         else:
                             self._q_joint[*s, *a] = (r_env_bar[se, ae] + r_mon_bar[*s, *a] + w * c_joint_bar[*s, *a]
@@ -219,7 +211,7 @@ class MonQCritic(Critic):
                                   )
         self._nc_joint = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
         self._q_joint = np.ones(
-            (self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon)) * 1 / (1 - self.gamma)
+            (self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon)) * 2  # 1 / (1 - self.gamma)
 
 
 class MonQTableCritic(MonQCritic):
@@ -248,6 +240,6 @@ class MonQTableCritic(MonQCritic):
         self._n_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon))
         self._np_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon, n_obs_env, n_obs_mon))
         self._nc_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon))
-        self._q_joint = np.ones((n_obs_env, n_obs_mon, n_act_env, n_act_mon)) * 1 / (1 - self.gamma)
+        self._q_joint = np.ones((n_obs_env, n_obs_mon, n_act_env, n_act_mon)) * 2  # 1 / (1 - self.gamma)
 
         self.reset()

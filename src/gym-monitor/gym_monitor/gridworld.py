@@ -228,7 +228,7 @@ class Gridworld(gym.Env):
 
         self.n_rows, self.n_cols = self.grid.shape
         self.observation_space = gym.spaces.Discrete(self.n_cols * self.n_rows)
-        self.action_space = gym.spaces.Discrete(5)
+        self.action_space = gym.spaces.Discrete(4)
         self.agent_pos = None
         self.last_action = None
 
@@ -297,10 +297,11 @@ class Gridworld(gym.Env):
         terminated = False
         reward = REWARDS[self.grid[self.agent_pos]]
         if self.grid[self.agent_pos] in [GOOD, GOOD_SMALL]:
-            if action == STAY:  # positive rewards are collected only with STAY
-                terminated = True
-            else:
-                reward = 0
+            terminated = True
+            # if action == STAY:  # positive rewards are collected only with STAY
+            #     terminated = True
+            # else:
+            #     reward = 0
         if self.reward_noise_std > 0.0:
             reward += self.np_random.normal() * self.reward_noise_std
         if reward != 0.0 and self.nonzero_reward_noise_std > 0.0:
