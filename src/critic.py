@@ -39,7 +39,7 @@ class MonQCritic(Critic):
                  A=0.001,
                  B=0.001,
                  C=0.1,
-                 D=0.001,
+                 D=0.1,
                  **kwargs,
                  ):
         """

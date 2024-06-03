@@ -71,7 +71,6 @@ def run(cfg: DictConfig) -> None:
     experiment = MonExperiment(env, env_test, actor, critic, **cfg.experiment)
 
     return_train_history, return_test_history = experiment.train()
-    experiment.test()
 
     if cfg.experiment.debugdir is not None:
         from plot_gridworld_agent import plot_agent
