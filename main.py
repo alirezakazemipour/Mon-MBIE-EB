@@ -101,13 +101,13 @@ def run(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    # run()
-    # exit()
+    run()
+    exit()
     # algos = ["Alireza", "Simone", "Eps"]
     algos = ["iGym-Monitor/Gridworld-Penalty-3x3-v0_mes50_rmNone/iButtonMonitor/OFU"]
     for algo in algos:
         runs = []
-        for i in range(100, 200):
+        for i in range(100):
             if algo == "iGym-Monitor/Gridworld-Penalty-3x3-v0_mes50_rmNone/iButtonMonitor/OFU":
                 x = np.load(
                     f"data/{algo}/reward_model_test_{i}.npy")
@@ -155,11 +155,11 @@ if __name__ == "__main__":
     plt.grid()
 
     # for k in range(10, 20):
-    plt.plot(np.arange(len(mean_return)),
-             smoothed[57],
-             alpha=1,
-             label="seed " + str(158),
-             linewidth=3
-             )
+    # plt.plot(np.arange(len(mean_return)),
+    #          smoothed[58],
+    #          alpha=1,
+    #          label="seed " + str(58),
+    #          linewidth=3
+    #          )
     plt.legend()
     plt.show()

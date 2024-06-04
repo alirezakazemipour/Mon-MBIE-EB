@@ -25,7 +25,7 @@ hydra:
       experiment: short
       experiment.hide_progress_bar: true
       experiment.datadir: data
-      experiment.rng_seed: range(100, 200)
+      experiment.rng_seed: range(0, 100)
       monitor: button
   help:
     app_name: ${hydra.job.name}
@@ -134,7 +134,7 @@ hydra:
     output_dir: ???
     choices:
       experiment: short
-      monitor: button
+      monitor: binary_stateless
       agent: default
       environment: medium
       hydra/env: default
@@ -157,7 +157,7 @@ agent:
     q0: OFU
     strategy: reward_model
 monitor:
-  id: ButtonMonitor
+  id: StatelessBinaryMonitor
 experiment:
   training_steps: 40000
   testing_episodes: 100

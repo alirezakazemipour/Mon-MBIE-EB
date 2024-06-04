@@ -7,5 +7,5 @@ params:
   experiment: short
   experiment.hide_progress_bar: True
   experiment.datadir: data
-  experiment.rng_seed: range(100, 200)
+  experiment.rng_seed: range(0, 100)
   monitor: button
