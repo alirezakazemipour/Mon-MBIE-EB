@@ -55,9 +55,9 @@ GRIDS = {
         [EMPTY, EMPTY, GOOD],
     ],
     "3x3_penalty": [
+        [EMPTY, BAD, GOOD],
         [EMPTY, BAD, EMPTY],
-        [EMPTY, BAD, EMPTY],
-        [EMPTY, EMPTY, GOOD],
+        [EMPTY, EMPTY, EMPTY],
     ],
     "10x10_empty": [[EMPTY for _ in range(10)] for _ in range(10)],
     "6x6_distract": [[EMPTY for _ in range(6)] for _ in range(6)],

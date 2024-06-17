@@ -37,10 +37,10 @@ class MonQCritic(Critic):
 
     def __init__(self,
                  gamma: float,
-                 A=0.4,
-                 B=0.4,
-                 C=0.1,
-                 D=0.4,
+                 A=0.001,
+                 B=0.001,
+                 C=0.001,
+                 D=0.001,
                  **kwargs,
                  ):
         """
@@ -198,7 +198,7 @@ class MonQCritic(Critic):
                             self._q_joint[*s, *a] = 1 / (1 - self.gamma)
                             continue
                         else:
-                            self._q_joint[*s, *a] = (r_env_bar[se, ae] + r_mon_bar[*s, *a]
+                            self._q_joint[*s, *a] = (r_env_bar[se, ae] + r_mon_bar[*s, *a] + w * c_joint_bar[*s, *a]
                                                      + self.gamma * np.ravel(p_joint_hat[*s, *a]).T @ np.ravel(v_joint)
                                                      * (1 - self._nd_env[se, ae])
                                                      )

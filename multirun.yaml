@@ -21,12 +21,12 @@ hydra:
     _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
     max_batch_size: null
     params:
-      environment: river_swim
+      environment: medium
       experiment: short
       experiment.hide_progress_bar: true
       experiment.datadir: data
       experiment.rng_seed: range(0, 100)
-      monitor: button
+      monitor: binary_stateless
   help:
     app_name: ${hydra.job.name}
     header: '${hydra.help.app_name} is powered by Hydra.
@@ -134,9 +134,9 @@ hydra:
     output_dir: ???
     choices:
       experiment: short
-      monitor: button
+      monitor: binary_stateless
       agent: default
-      environment: river_swim
+      environment: medium
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -148,7 +148,8 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Monitor/RiverSwim-6-v0
+  id: Gym-Monitor/Gridworld-Penalty-3x3-v0
+  max_episode_steps: 50
   render_mode: null
 agent:
   critic:
@@ -156,9 +157,9 @@ agent:
     q0: OFU
     strategy: reward_model
 monitor:
-  id: ButtonMonitor
+  id: StatelessBinaryMonitor
 experiment:
-  training_steps: 20000
+  training_steps: 30000
   testing_episodes: 100
   testing_frequency: 100
   datadir: null
