@@ -3,7 +3,7 @@
 _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
 max_batch_size: null
 params:
-  environment: medium
+  environment: river_swim
   experiment: short
   experiment.hide_progress_bar: True
   experiment.datadir: data

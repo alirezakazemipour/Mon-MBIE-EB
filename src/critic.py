@@ -198,7 +198,7 @@ class MonQCritic(Critic):
                             self._q_joint[*s, *a] = 1 / (1 - self.gamma)
                             continue
                         else:
-                            self._q_joint[*s, *a] = (r_env_bar[se, ae] + r_mon_bar[*s, *a] + w * math.log(c_joint_bar[*s, *a] + 1e-6)
+                            self._q_joint[*s, *a] = (r_env_bar[se, ae] + r_mon_bar[*s, *a]
                                                      + self.gamma * np.ravel(p_joint_hat[*s, *a]).T @ np.ravel(v_joint)
                                                      * (1 - self._nd_env[se, ae])
                                                      )
