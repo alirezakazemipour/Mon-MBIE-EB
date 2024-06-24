@@ -296,7 +296,7 @@ class NMonitor(Monitor):
 
     def _monitor_step(self, action, env_reward):
         assert (
-            action["mon"] < self.action_space["mon"].n
+                action["mon"] < self.action_space["mon"].n
         ), "illegal monitor action"  # fmt: skip
 
         if action["mon"] == self.monitor_state:
@@ -348,7 +348,7 @@ class LevelMonitor(Monitor):
 
     def _monitor_step(self, action, env_reward):
         assert (
-            action["mon"] < self.action_space["mon"].n
+                action["mon"] < self.action_space["mon"].n
         ), "illegal monitor action"  # fmt: skip
 
         monitor_reward = 0.0
@@ -537,3 +537,41 @@ class ButtonMonitor(Monitor):
         truncated = env_truncated
 
         return obs, reward, terminated, truncated, env_info
+
+
+class Unsolvable(Monitor):
+    """
+    Simple monitor where the action is "turn on monitor" / "do nothing".
+    The monitor is always off. The reward is seen only when the agent asks for it.
+    The monitor reward is a constant penalty given if the agent asks to see the reward.
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment,
+        monitor_cost (float): cost for asking the monitor for rewards.
+    """
+
+    def __init__(self, env, monitor_cost=0.2, **kwargs):
+        Monitor.__init__(self, env, **kwargs)
+        self.action_space = spaces.Dict({
+            "env": env.action_space,
+            "mon": spaces.Discrete(2),
+        })  # fmt: skip
+        self.observation_space = spaces.Dict({
+            "env": env.observation_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.monitor_state = 0  # off
+        self.monitor_cost = monitor_cost
+
+    def _monitor_step(self, action, env_reward):
+        env_obs = self.env.unwrapped.get_state()
+
+        if action["mon"] == 1 and env_obs != 1 and env_obs != 4:
+            proxy_reward = env_reward
+            monitor_reward = -self.monitor_cost
+        else:
+            proxy_reward = np.nan
+            monitor_reward = 0.0
+        monitor_obs = self.monitor_state
+        monitor_terminated = False
+        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated

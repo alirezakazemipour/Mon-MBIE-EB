@@ -37,10 +37,10 @@ class MonQCritic(Critic):
 
     def __init__(self,
                  gamma: float,
-                 A=0.4,
-                 B=0.4,
-                 C=0.1,
-                 D=0.4,
+                 A=0.004,
+                 B=0.004,
+                 C=0.001,
+                 D=0.004,
                  **kwargs,
                  ):
         """
@@ -105,6 +105,9 @@ class MonQCritic(Critic):
                 if self._n_env[s, a] != 0:
                     ucb = math.sqrt(math.log(self._n_env[s].sum(-1))) * self.A / math.sqrt(self._n_env[s, a])
                     r_env_bar[s, a] = self._nr_env[s, a] / self._n_env[s, a] + ucb
+                    self._w_env[s, a] = ucb
+                else:
+                    self._w_env[s, a] = np.inf
 
         r_mon_bar = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
         for se in range(self.n_obs_env):
@@ -175,15 +178,20 @@ class MonQCritic(Critic):
                         a = ae, am
                         if self._n_joint[*s, *a] != 0:
                             ucb = math.sqrt(math.log(self._n_joint[*s].sum((-1, -2)))) * self.D / math.sqrt(
-                                                                                                  self._n_joint[*s, *a])
+                                self._n_joint[*s, *a])
                             c_joint_bar[*s, *a] = np.clip(self._nc_joint[*s, *a] / self._n_joint[*s, *a] + ucb,
                                                           0,
                                                           1
                                                           )
+                            self._w_rho[*s, *a] = math.sqrt(
+                                math.log(self._n_joint[*s].sum((-1, -2)))) * self.D / math.sqrt(
+                                self._n_joint[*s, *a])
+                        else:
+                            self._w_rho[*s, *a] = np.inf
 
         for se in range(self.n_obs_env):
             for ae in range(self.n_act_env):
-                if np.mean(c_joint_bar[se, :, ae, :]) < 0.01:
+                if np.sum(c_joint_bar[se, :, ae, :]) + np.sum(self._w_rho[se, :, ae, :]) < self._w_env[se, ae]:
                     self._q_joint[se, :, ae, :] = -1 / (1 - self.gamma)
                     continue
                 if self._n_env[se, ae] == 0:
@@ -205,6 +213,7 @@ class MonQCritic(Critic):
 
     def reset(self):
         self._nr_env = np.zeros((self.n_obs_env, self.n_act_env))
+        self._w_env = np.zeros((self.n_obs_env, self.n_act_env))
         self._nd_env = np.zeros((self.n_obs_env, self.n_act_env))
         self._n_env = np.zeros((self.n_obs_env, self.n_act_env))
         self._nr_mon = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
@@ -213,6 +222,7 @@ class MonQCritic(Critic):
                                    self.n_obs_env, self.n_obs_mon)
                                   )
         self._nc_joint = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
+        self._w_rho = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
         self._q_joint = np.ones(
             (self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon)) * 1 / (1 - self.gamma)
 
@@ -237,12 +247,14 @@ class MonQTableCritic(MonQCritic):
         self.action_shape = (n_act_env, n_act_mon)
 
         self._nr_env = np.zeros((n_obs_env, n_act_env))
+        self._w_env = np.zeros((n_obs_env, n_act_env))
         self._nd_env = np.zeros((n_obs_env, n_act_env))
         self._n_env = np.zeros((n_obs_env, n_act_env))
         self._nr_mon = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon))
         self._n_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon))
         self._np_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon, n_obs_env, n_obs_mon))
         self._nc_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon))
+        self._w_rho = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
         self._q_joint = np.ones((n_obs_env, n_obs_mon, n_act_env, n_act_mon)) * 1 / (1 - self.gamma)
 
         self.reset()
