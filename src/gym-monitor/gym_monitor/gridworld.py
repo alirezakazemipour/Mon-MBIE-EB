@@ -45,9 +45,9 @@ GRIDS = {
         [EMPTY, GOOD],
     ],
     "3x3_empty": [
-        [EMPTY, EMPTY, EMPTY],
-        [EMPTY, EMPTY, EMPTY],
         [EMPTY, EMPTY, GOOD],
+        [EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY],
     ],
     "3x3_empty_loop": [
         [EMPTY, LEFT, EMPTY],

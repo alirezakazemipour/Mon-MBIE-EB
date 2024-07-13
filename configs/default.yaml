@@ -1,5 +1,5 @@
 defaults:
-  - environment: medium
+  - environment: easy
   - agent: default
   - monitor: unsolvable
   - experiment: short
