@@ -1,6 +1,5 @@
 import gymnasium as gym
 import numpy as np
-import wandb
 from tqdm import tqdm
 import warnings
 
@@ -105,7 +104,6 @@ class MonExperiment:
                             "test/return_mon": test_return_mon.mean(),
                             "test/return": (test_return_env + test_return_mon).mean(),
                         }
-                    wandb.log(test_dict, step=tot_steps, commit=False)
                     return_test_history.append(test_dict["test/return"])
 
                 train_dict = {
@@ -115,7 +113,6 @@ class MonExperiment:
                     "train/return": last_ep_return_env + last_ep_return_mon,
                     "train/loss": last_ep_loss,
                 }
-                wandb.log(train_dict, step=tot_steps, commit=False)
                 return_train_history.append(train_dict["train/return"])
 
                 tot_steps += 1

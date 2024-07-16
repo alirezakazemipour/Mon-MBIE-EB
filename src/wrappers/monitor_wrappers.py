@@ -3,6 +3,7 @@ from gymnasium import spaces
 import numpy as np
 from abc import abstractmethod
 
+
 class Monitor(gymnasium.Wrapper):
     """
     Generic class for monitors that DO NOT depend on the environment state.
@@ -551,6 +552,7 @@ class Unsolvable(Monitor):
 
     def __init__(self, env, monitor_cost=0.2, **kwargs):
         Monitor.__init__(self, env, **kwargs)
+        self.prob = kwargs["prob"]
         self.action_space = spaces.Dict({
             "env": env.action_space,
             "mon": spaces.Discrete(2),
@@ -566,8 +568,11 @@ class Unsolvable(Monitor):
         env_obs = self.env.unwrapped.get_state()
 
         s = self.np_random.random()
-        if action["mon"] == 1 and s < 0.01:
+        if action["mon"] == 1 and s < self.prob:
             proxy_reward = env_reward
+            monitor_reward = -self.monitor_cost
+        elif action["mon"] == 1 and s >= self.prob:
+            proxy_reward = np.nan
             monitor_reward = -self.monitor_cost
         else:
             proxy_reward = np.nan
