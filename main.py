@@ -75,11 +75,11 @@ def run(cfg: DictConfig) -> None:
 if __name__ == "__main__":
     # run()
     # exit()
-    algos = ["PO_0.3", "FO", "PO_0.1"]
+    algos = ["PO"]
     for algo in algos:
         runs = []
         for i in range(10):
-            x = np.load(f"data/{algo}/Riverswim-6-v0/Unsolvable/test_{i}.npy")
+            x = np.load(f"data/{algo}/Gridworld-Empty-3x3-v0/Unsolvable/test_{i}.npy")
             runs.append(x)
         # print(np.argmin(np.nansum(np.asarray(runs), axis=-1)))
         # exit()
@@ -111,7 +111,7 @@ if __name__ == "__main__":
 #                  alpha=0.15,
 #                  color="magenta"
 #                  )
-plt.axhline(20, linestyle='--', label="optimal", c="magenta")
+plt.axhline(.98, linestyle='--', label="optimal", c="magenta")
 # plt.axhline(0.941, linestyle='--', label="cautious", c="olive")
 plt.xlabel("training steps (x 100)")
 plt.ylabel("discounted test return")
