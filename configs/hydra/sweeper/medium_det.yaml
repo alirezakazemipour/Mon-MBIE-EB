@@ -11,7 +11,7 @@ params:
   monitor: unsolvable
   monitor.prob: 0.1
   agent.critic.q0: 2
-  agent.critic.ucb_re: 0.004
-  agent.critic.ucb_rm: 0.004
+  agent.critic.ucb_re: 0.001
+  agent.critic.ucb_rm: 0.001
   agent.critic.ucb_p: 0.001
   agent.critic.beta: 1e-2

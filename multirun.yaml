@@ -29,8 +29,8 @@ hydra:
       monitor: unsolvable
       monitor.prob: 0.1
       agent.critic.q0: 2
-      agent.critic.ucb_re: 0.004
-      agent.critic.ucb_rm: 0.004
+      agent.critic.ucb_re: 0.001
+      agent.critic.ucb_rm: 0.001
       agent.critic.ucb_p: 0.001
       agent.critic.beta: 0.01
   help:
@@ -142,7 +142,7 @@ hydra:
       experiment: short
       monitor: unsolvable
       agent: default
-      environment: river_swim
+      environment: easy
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -154,21 +154,22 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Monitor/RiverSwim-6-v0
+  id: Gym-Monitor/Gridworld-Empty-3x3-v0
+  max_episode_steps: 50
   render_mode: null
 agent:
   critic:
     gamma: 0.99
-    q0: 100
+    q0: 1.5
     beta: 0.01
-    ucb_re: 1
-    ucb_rm: 1
-    ucb_p: 1
+    ucb_re: 0.001
+    ucb_rm: 0.001
+    ucb_p: 0.001
 monitor:
   id: Unsolvable
   prob: 0.3
 experiment:
-  training_steps: 30000
+  training_steps: 35000
   testing_episodes: 100
   testing_frequency: 100
   datadir: null

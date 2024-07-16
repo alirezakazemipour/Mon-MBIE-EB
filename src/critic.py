@@ -101,7 +101,7 @@ class MonQCritic(Critic):
                 if self._n_tot_env[se, ae] == 0:
                     self._q_joint[se, :, ae, :] = self.q0
                     continue
-                t_n = math.log(self._n_tot_env.sum()) / math.sqrt(self._n_tot_env[se].sum()) + math.log(self._n_tot_env[se].sum()) / math.sqrt(self._n_tot_env[se, ae])
+                t_n = math.log(self._n_tot_env.sum()) / self._n_tot_env[se].sum() + math.log(self._n_tot_env[se].sum()) / self._n_tot_env[se, ae]
                 if self._n_env[se, ae] == 0 and t_n < self.beta:
                     self._q_joint[se, :, ae, :] = -1 / (1 - self.gamma)
                     continue
@@ -186,7 +186,7 @@ class MonQCritic(Critic):
             for ae in range(self.n_act_env):
                 if self._n_tot_env[se, ae] == 0:
                     continue
-                t_n = math.log(self._n_tot_env.sum()) / math.sqrt(self._n_tot_env[se].sum()) + math.log(self._n_tot_env[se].sum()) / math.sqrt(self._n_tot_env[se, ae])
+                t_n = math.log(self._n_tot_env.sum()) / self._n_tot_env[se].sum() + math.log(self._n_tot_env[se].sum()) / self._n_tot_env[se, ae]
                 if self._n_env[se, ae] == 0 and t_n < self.beta:
                     continue
                 elif self._n_env[se, ae] == 0 and t_n >= self.beta:

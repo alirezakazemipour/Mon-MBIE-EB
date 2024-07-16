@@ -1,5 +1,5 @@
 defaults:
-  - environment: river_swim
+  - environment: easy
   - agent: default
   - monitor: unsolvable
   - experiment: short

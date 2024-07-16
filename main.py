@@ -75,7 +75,7 @@ def run(cfg: DictConfig) -> None:
 if __name__ == "__main__":
     # run()
     # exit()
-    algos = ["PO"]
+    algos = ["NO", "NO-PO"]
     for algo in algos:
         runs = []
         for i in range(10):
@@ -111,7 +111,7 @@ if __name__ == "__main__":
 #                  alpha=0.15,
 #                  color="magenta"
 #                  )
-plt.axhline(.98, linestyle='--', label="optimal", c="magenta")
+plt.axhline(.941, linestyle='--', label="optimal", c="magenta")
 # plt.axhline(0.941, linestyle='--', label="cautious", c="olive")
 plt.xlabel("training steps (x 100)")
 plt.ylabel("discounted test return")
