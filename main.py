@@ -76,7 +76,7 @@ def run(cfg: DictConfig) -> None:
 if __name__ == "__main__":
     # run()
     # exit()
-    algos = ["FO", "NO"]
+    algos = ["NO"]
     for algo in algos:
         runs = []
         for i in range(30):

@@ -28,7 +28,7 @@ hydra:
       experiment.rng_seed: range(0, 30)
       monitor: unsolvable
       monitor.prob: 1
-      agent.critic.q0: 2
+      agent.critic.q0: 0.941
       agent.critic.ucb_re: 0.001
       agent.critic.ucb_rm: 0.001
       agent.critic.ucb_p: 0.001
