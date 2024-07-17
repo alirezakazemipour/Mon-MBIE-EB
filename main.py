@@ -22,27 +22,26 @@ def run(cfg: DictConfig) -> None:
     env_test = getattr(monitor_wrappers, cfg.monitor.id)(env_test, test=True, **cfg.monitor)
 
     # ret = []
-    # for i in tqdm(range(10000)):
+    # for i in tqdm(range(100000)):
     #     np.random.seed(i)
     #     ret_e = 0
     #     obs, _ = env.reset(seed=i)
     #     t = 0
     #     while True:
-    #         # while obs["mon"] == 1:
-    #         #     a = {"env": 0, "mon": 0}
-    #         #     obs, r, term, trunc, _ = env.step(a)
-    #         #     ret_e += (0.99 ** t) * (r["env"] + r["mon"])
-    #         #     t += 1
+    #         while obs["mon"] == 1:
+    #             a = {"env": 0, "mon": 0}
+    #             obs, r, term, trunc, _ = env.step(a)
+    #             ret_e += (0.99 ** t) * (r["env"] + r["mon"])
+    #             t += 1
     #
-    #         a = env.action_space.sample()
-    #         a["env"] = 0
+    #         a = {"env": 1, "mon": 0}
     #         obs, r, term, trunc, _ = env.step(a)
     #         ret_e += (0.99 ** t) * (r["env"] + r["mon"])
     #         if term or trunc:
     #             ret.append(ret_e)
     #             break
     #         t += 1
-
+    #
     # print(np.mean(ret))
     # print(np.std(ret))
     # exit()
@@ -58,14 +57,12 @@ def run(cfg: DictConfig) -> None:
     experiment = MonExperiment(env, env_test, actor, critic, **cfg.experiment)
 
     return_train_history, return_test_history = experiment.train()
-    # experiment.test()
 
     if cfg.experiment.datadir is not None:
-        filepath = os.path.join(
-            cfg.experiment.datadir,
-            cfg.environment.id,
-            cfg.monitor.id
-        )
+        filepath = os.path.join(cfg.experiment.datadir,
+                                cfg.environment.id,
+                                cfg.monitor.id + "_" + str(cfg.monitor.prob)
+                                )
         os.makedirs(filepath, exist_ok=True)
         seed = str(cfg.experiment.rng_seed)
         savepath = os.path.join(filepath, "train_" + seed)
@@ -73,14 +70,15 @@ def run(cfg: DictConfig) -> None:
         savepath = os.path.join(filepath, "test_" + seed)
         np.save(savepath, np.array(return_test_history))
 
+
 if __name__ == "__main__":
-    # run()
-    # exit()
-    algos = ["NO"]
+    run()
+    exit()
+    algos = ["FO", "PO", "PO_0.01"]
     for algo in algos:
         runs = []
-        for i in range(30):
-            x = np.load(f"data/{algo}/Gridworld-Empty-3x3-v0/Unsolvable/test_{i}.npy")
+        for i in range(5):
+            x = np.load(f"data/Gym-Monitor/RiverSwim-6-v0/{algo}/test_{i}.npy")
             runs.append(x)
         # print(np.argmin(np.nansum(np.asarray(runs), axis=-1)))
         # exit()
@@ -92,7 +90,7 @@ if __name__ == "__main__":
             smoothed.append(val)
         mean_return = np.mean(np.asarray(smoothed), axis=0)
         std_return = np.std(np.asarray(smoothed), axis=0)
-        lower_bound = mean_return - 1.96 * std_return  / math.sqrt(len(runs))
+        lower_bound = mean_return - 1.96 * std_return / math.sqrt(len(runs))
         upper_bound = mean_return + 1.96 * std_return / math.sqrt(len(runs))
         plt.fill_between(np.arange(len(mean_return)),
                          lower_bound,
@@ -111,7 +109,7 @@ if __name__ == "__main__":
 #                  alpha=0.15,
 #                  color="magenta"
 #                  )
-plt.axhline(.941, linestyle='--', label="optimal", c="magenta")
+plt.axhline(20, linestyle='--', label="optimal", c="magenta")
 # plt.axhline(0.941, linestyle='--', label="cautious", c="olive")
 plt.xlabel("training steps (x 100)")
 plt.ylabel("discounted test return")

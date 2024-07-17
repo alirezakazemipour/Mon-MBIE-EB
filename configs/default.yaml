@@ -1,7 +1,7 @@
 defaults:
-  - environment: easy
+  - environment: river_swim
   - agent: default
-  - monitor: unsolvable
+  - monitor: partial_obs_button
   - experiment: short
   - _self_
   - override hydra/hydra_logging: disabled

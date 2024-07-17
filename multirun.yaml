@@ -21,17 +21,17 @@ hydra:
     _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
     max_batch_size: null
     params:
-      environment: easy
+      environment: river_swim
       experiment: short
       experiment.hide_progress_bar: true
       experiment.datadir: data
       experiment.rng_seed: range(0, 30)
-      monitor: unsolvable
-      monitor.prob: 1
-      agent.critic.q0: 0.941
-      agent.critic.ucb_re: 0.001
-      agent.critic.ucb_rm: 0.001
-      agent.critic.ucb_p: 0.001
+      monitor: partial_obs_ask
+      monitor.prob: 1, 0.1
+      agent.critic.q0: 100
+      agent.critic.ucb_re: 1
+      agent.critic.ucb_rm: 1
+      agent.critic.ucb_p: 1
       agent.critic.beta: 0.01
   help:
     app_name: ${hydra.job.name}
@@ -106,7 +106,7 @@ hydra:
   overrides:
     hydra:
     - hydra/launcher=joblib
-    - hydra/sweeper=medium_det
+    - hydra/sweeper=river_swim_sweeper
     - hydra.mode=MULTIRUN
     task: []
   job:
@@ -140,22 +140,21 @@ hydra:
     output_dir: ???
     choices:
       experiment: short
-      monitor: unsolvable
+      monitor: partial_obs_button
       agent: default
-      environment: easy
+      environment: river_swim
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
       hydra/hydra_logging: disabled
       hydra/hydra_help: default
       hydra/help: default
-      hydra/sweeper: medium_det
+      hydra/sweeper: river_swim_sweeper
       hydra/launcher: joblib
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Monitor/Gridworld-Empty-3x3-v0
-  max_episode_steps: 50
+  id: Gym-Monitor/RiverSwim-6-v0
   render_mode: null
 agent:
   critic:
@@ -166,10 +165,10 @@ agent:
     ucb_rm: 0.001
     ucb_p: 0.001
 monitor:
-  id: Unsolvable
+  id: PartialObsButton
   prob: 1
 experiment:
-  training_steps: 35000
+  training_steps: 25000
   testing_episodes: 100
   testing_frequency: 100
   datadir: null

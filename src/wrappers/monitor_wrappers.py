@@ -1,7 +1,7 @@
 import gymnasium
 from gymnasium import spaces
 import numpy as np
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 
 
 class Monitor(gymnasium.Wrapper):
@@ -471,7 +471,71 @@ class BatteryMonitor(Monitor):
         return self.monitor_battery, proxy_reward, monitor_reward, monitor_terminated
 
 
-class ButtonMonitor(Monitor):
+class PartialObsAsk(StatelessBinaryMonitor):
+    """
+    Simple monitor where the action is "turn on monitor" / "do nothing".
+    The monitor is always off. The reward is seen only when the agent asks for it.
+    The monitor reward is a constant penalty given if the agent asks to see the reward.
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment,
+        monitor_cost (float): cost for asking the monitor for rewards.
+    """
+
+    def __init__(self, env, **kwargs):
+        StatelessBinaryMonitor.__init__(self, env, **kwargs)
+        self.prob = kwargs["prob"]
+
+    def _monitor_step(self, action, env_reward):
+
+        s = self.np_random.random()
+        if action["mon"] == 1 and s < self.prob:
+            proxy_reward = env_reward
+            monitor_reward = -self.monitor_cost
+
+        elif action["mon"] == 1 and s >= self.prob:
+            proxy_reward = np.nan
+            monitor_reward = -self.monitor_cost
+        else:
+            proxy_reward = np.nan
+            monitor_reward = 0.0
+        monitor_obs = self.monitor_state
+        monitor_terminated = False
+        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
+
+
+class NeverObsAsk(StatelessBinaryMonitor):
+    """
+    Simple monitor where the action is "turn on monitor" / "do nothing".
+    The monitor is always off. The reward is seen only when the agent asks for it.
+    The monitor reward is a constant penalty given if the agent asks to see the reward.
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment,
+        monitor_cost (float): cost for asking the monitor for rewards.
+    """
+
+    def __init__(self, env, **kwargs):
+        Monitor.__init__(self, env, **kwargs)
+
+    def _monitor_step(self, action, env_reward):
+        env_obs = self.env.unwrapped.get_state()
+
+        if action["mon"] == 1 and env_obs != 1 and env_obs != 4:
+            proxy_reward = env_reward
+            monitor_reward = -self.monitor_cost
+        elif action["mon"] == 1 and (env_obs == 1 or env_obs == 4):
+            proxy_reward = np.nan
+            monitor_reward = -self.monitor_cost
+        else:
+            proxy_reward = np.nan
+            monitor_reward = 0.0
+        monitor_obs = self.monitor_state
+        monitor_terminated = False
+        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
+
+
+class PartialObsButton(Monitor, ABC):
     """
     Monitor for Gridworlds.
     The monitor is turned on/off by doing LEFT (environment action) where a button is.
@@ -504,6 +568,7 @@ class ButtonMonitor(Monitor):
         self.monitor_state = 0
         self.monitor_cost = monitor_cost
         self.monitor_end_cost = monitor_end_cost
+        self.prob = kwargs["prob"]
 
     def step(self, action):
         env_obs = self.env.unwrapped.get_state()
@@ -517,8 +582,12 @@ class ButtonMonitor(Monitor):
 
         monitor_reward = 0.0
         proxy_reward = np.nan
+        s = self.np_random.random()
         if self.monitor_state == 1:
-            proxy_reward = env_reward
+            if s < self.prob:
+                proxy_reward = env_reward
+            else:
+                proxy_reward = np.nan
             monitor_reward += -self.monitor_cost
             if env_terminated:
                 monitor_reward += -self.monitor_end_cost
@@ -537,50 +606,3 @@ class ButtonMonitor(Monitor):
         truncated = env_truncated
 
         return obs, reward, terminated, truncated, env_info
-
-
-class Unsolvable(Monitor):
-    """
-    Simple monitor where the action is "turn on monitor" / "do nothing".
-    The monitor is always off. The reward is seen only when the agent asks for it.
-    The monitor reward is a constant penalty given if the agent asks to see the reward.
-
-    Args:
-        env (gymnasium.Env): the Gymnasium environment,
-        monitor_cost (float): cost for asking the monitor for rewards.
-    """
-
-    def __init__(self, env, monitor_cost=0.2, **kwargs):
-        Monitor.__init__(self, env, **kwargs)
-        self.prob = kwargs["prob"]
-        self.action_space = spaces.Dict({
-            "env": env.action_space,
-            "mon": spaces.Discrete(2),
-        })  # fmt: skip
-        self.observation_space = spaces.Dict({
-            "env": env.observation_space,
-            "mon": spaces.Discrete(1),
-        })  # fmt: skip
-        self.monitor_state = 0  # off
-        self.monitor_cost = monitor_cost
-
-    def _monitor_step(self, action, env_reward):
-        env_obs = self.env.unwrapped.get_state()
-
-        s = self.np_random.random()
-        if action["mon"] == 1 and s < self.prob:
-            if env_obs != 1 and env_obs != 4:
-                proxy_reward = env_reward
-                monitor_reward = -self.monitor_cost
-            else:
-                proxy_reward = np.nan
-                monitor_reward = -self.monitor_cost
-        elif action["mon"] == 1 and s >= self.prob:
-            proxy_reward = np.nan
-            monitor_reward = -self.monitor_cost
-        else:
-            proxy_reward = np.nan
-            monitor_reward = 0.0
-        monitor_obs = self.monitor_state
-        monitor_terminated = False
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
