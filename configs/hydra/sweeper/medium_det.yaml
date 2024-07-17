@@ -7,9 +7,9 @@ params:
   experiment: short
   experiment.hide_progress_bar: True
   experiment.datadir: data
-  experiment.rng_seed: range(0, 10)
+  experiment.rng_seed: range(0, 30)
   monitor: unsolvable
-  monitor.prob: 0.1
+  monitor.prob: 1
   agent.critic.q0: 2
   agent.critic.ucb_re: 0.001
   agent.critic.ucb_rm: 0.001

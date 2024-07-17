@@ -34,7 +34,8 @@ def run(cfg: DictConfig) -> None:
     #         #     ret_e += (0.99 ** t) * (r["env"] + r["mon"])
     #         #     t += 1
     #
-    #         a = {"env": 1, "mon": 0}
+    #         a = env.action_space.sample()
+    #         a["env"] = 0
     #         obs, r, term, trunc, _ = env.step(a)
     #         ret_e += (0.99 ** t) * (r["env"] + r["mon"])
     #         if term or trunc:
@@ -75,25 +76,24 @@ def run(cfg: DictConfig) -> None:
 if __name__ == "__main__":
     # run()
     # exit()
-    algos = ["NO", "NO-PO"]
+    algos = ["FO", "NO"]
     for algo in algos:
         runs = []
-        for i in range(10):
+        for i in range(30):
             x = np.load(f"data/{algo}/Gridworld-Empty-3x3-v0/Unsolvable/test_{i}.npy")
             runs.append(x)
         # print(np.argmin(np.nansum(np.asarray(runs), axis=-1)))
         # exit()
         smoothed = []
         for run in runs:
-            val = [run[0] if not np.isnan(run[0]) else np.nanmin(run)]
+            val = [run[0]]
             for tmp in run[1:]:
-                tmp = tmp if not np.isnan(tmp) else np.nanmin(run[1:])
                 val.append(0.9 * val[-1] + 0.1 * tmp)
             smoothed.append(val)
         mean_return = np.mean(np.asarray(smoothed), axis=0)
         std_return = np.std(np.asarray(smoothed), axis=0)
-        lower_bound = mean_return - 1.96 * std_return / math.sqrt(10)
-        upper_bound = mean_return + 1.96 * std_return / math.sqrt(10)
+        lower_bound = mean_return - 1.96 * std_return  / math.sqrt(len(runs))
+        upper_bound = mean_return + 1.96 * std_return / math.sqrt(len(runs))
         plt.fill_between(np.arange(len(mean_return)),
                          lower_bound,
                          upper_bound,

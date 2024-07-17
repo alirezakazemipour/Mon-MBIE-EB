@@ -67,7 +67,6 @@ class MonExperiment:
 
         return_train_history = []
         return_test_history = []
-        ucrl_t = 1
         while tot_steps < self._training_steps:
             pbar.update(tot_steps - pbar.n)
             last_ep_return = last_ep_return_env + last_ep_return_mon
@@ -116,7 +115,6 @@ class MonExperiment:
                 return_train_history.append(train_dict["train/return"])
 
                 tot_steps += 1
-                ucrl_t += 1
                 act = self._actor(obs["env"], obs["mon"], rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env.step(act)
