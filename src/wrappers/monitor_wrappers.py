@@ -504,7 +504,7 @@ class PartialObsAsk(StatelessBinaryMonitor):
         return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
 
 
-class NeverObsAsk(StatelessBinaryMonitor):
+class NeverPartialObsAsk(StatelessBinaryMonitor):
     """
     Simple monitor where the action is "turn on monitor" / "do nothing".
     The monitor is always off. The reward is seen only when the agent asks for it.
@@ -517,14 +517,19 @@ class NeverObsAsk(StatelessBinaryMonitor):
 
     def __init__(self, env, **kwargs):
         Monitor.__init__(self, env, **kwargs)
+        self.prob = kwargs["prob"]
 
     def _monitor_step(self, action, env_reward):
         env_obs = self.env.unwrapped.get_state()
 
-        if action["mon"] == 1 and env_obs != 1 and env_obs != 4:
-            proxy_reward = env_reward
+        s = self.np_random.random()
+        if action["mon"] == 1 and s < self.prob:
+            if env_obs != 1 and env_obs != 4:
+                proxy_reward = env_reward
+            else:
+                proxy_reward = np.nan
             monitor_reward = -self.monitor_cost
-        elif action["mon"] == 1 and (env_obs == 1 or env_obs == 4):
+        elif action["mon"] == 1 and s >= self.prob:
             proxy_reward = np.nan
             monitor_reward = -self.monitor_cost
         else:
@@ -554,7 +559,7 @@ class PartialObsButton(Monitor, ABC):
         env_action_push (int): the environment action to turn the monitor on/off.
     """
 
-    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2, button_cell_id=0, **kwargs):
+    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2, button_cell_id=8, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,
@@ -592,7 +597,80 @@ class PartialObsButton(Monitor, ABC):
             if env_terminated:
                 monitor_reward += -self.monitor_end_cost
 
-        if action["env"] == 0 and env_obs == self.button_cell_id:  # 0 is LEFT
+        if action["env"] == 1 and env_obs == self.button_cell_id:  # 0 is LEFT
+            if self.monitor_state == 1:
+                self.monitor_state = 0
+            elif self.monitor_state == 0:
+                self.monitor_state = 1
+        monitor_obs = self.monitor_state
+        monitor_terminated = False
+
+        obs = {"env": env_next_obs, "mon": monitor_obs}
+        reward = {"env": env_reward, "mon": monitor_reward, "proxy": proxy_reward}
+        terminated = env_terminated or monitor_terminated
+        truncated = env_truncated
+
+        return obs, reward, terminated, truncated, env_info
+
+
+class NeverPartialObsButton(Monitor, ABC):
+    """
+    Monitor for Gridworlds.
+    The monitor is turned on/off by doing LEFT (environment action) where a button is.
+    If the monitor is on, the agent receives negative monitor rewards and observes
+    the environment rewards.
+    Ending an episode with the monitor on results in a large penalty.
+    The monitor on/off state at the beginning of an episode is random.
+    The position of the button can be specified by an argument (top-left by default).
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment,
+        monitor_cost (float): cost for monitor being active,
+        monitor_end_cost (float): cost for ending an episode (by termination,
+            not truncation) with the monitor active,
+        button_cell_id (int): position of the monitor,
+        env_action_push (int): the environment action to turn the monitor on/off.
+    """
+
+    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2, button_cell_id=8, **kwargs):
+        Monitor.__init__(self, env, **kwargs)
+        self.action_space = spaces.Dict({
+            "env": env.action_space,
+            "mon": spaces.Discrete(1),  # no monitor action
+        })  # fmt: skip
+        self.observation_space = spaces.Dict({
+            "env": env.observation_space,
+            "mon": spaces.Discrete(2),  # monitor on/off
+        })  # fmt: skip
+        self.button_cell_id = button_cell_id
+        self.monitor_state = 0
+        self.monitor_cost = monitor_cost
+        self.monitor_end_cost = monitor_end_cost
+        self.prob = kwargs["prob"]
+
+    def step(self, action):
+        env_obs = self.env.unwrapped.get_state()
+        (
+            env_next_obs,
+            env_reward,
+            env_terminated,
+            env_truncated,
+            env_info,
+        ) = self.env.step(action["env"])
+
+        monitor_reward = 0.0
+        proxy_reward = np.nan
+        s = self.np_random.random()
+        if self.monitor_state == 1:
+            if s < self.prob:
+                proxy_reward = env_reward
+            else:
+                proxy_reward = np.nan
+            monitor_reward += -self.monitor_cost
+            if env_terminated:
+                monitor_reward += -self.monitor_end_cost
+
+        if action["env"] == 1 and env_obs == self.button_cell_id:  # 0 is LEFT
             if self.monitor_state == 1:
                 self.monitor_state = 0
             elif self.monitor_state == 0:
