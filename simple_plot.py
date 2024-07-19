@@ -44,11 +44,11 @@ plt.ylabel("discounted test return")
 plt.title(f" performance over {len(runs)} runs")
 plt.grid()
 plt.legend()
-for i in range(20, 21):
-    plt.plot(np.arange(len(mean_return)),
-             smoothed[i],
-             label=algo,
-             linewidth=3
-             )
+# for i in range(30):
+#     plt.plot(np.arange(len(mean_return)),
+#              smoothed[i],
+#              label=algo,
+#              linewidth=3
+#              )
 plt.show()
 

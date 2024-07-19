@@ -122,7 +122,7 @@ class MonQCritic(Critic):
         for s in range(self.n_obs_env):
             for a in range(self.n_act_env):
                 if self._n_env[s, a] != 0:
-                    ucb = self.A * math.sqrt(1 / self._n_tot_env[s, a])
+                    ucb = self.A * math.sqrt(1 / self._n_env[s, a])
                     r_env_bar[s, a] = self._nr_env[s, a] / self._n_env[s, a] + ucb
 
         r_mon_bar = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
