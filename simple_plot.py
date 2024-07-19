@@ -2,7 +2,13 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
-algos = ["PartialObsButton_0.1_cedar", "PartialObsButton_0.1"]#, "PartialObsButton_0.1", "PartialObsButton_0.01"]
+algos = [
+    # "PartialObsButton_0.1_0.5_0.1",
+    #      "PartialObsButton_0.1_0.05_0.01",
+    # "PartialObsButton_0.1_0.05_0.1",
+    # "PartialObsButton_0.1_0.05_0.01",
+    "PartialObsButton_0.1_0.05_0.05_0.005_0.01"
+]
 for algo in algos:
     runs = []
     for i in range(30):
@@ -51,4 +57,3 @@ plt.legend()
 #              linewidth=3
 #              )
 plt.show()
-

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from omegaconf import DictConfig
 from src.utils import random_argmax
 
-
+f = lambda x: 1 + x * math.log(x) ** 2
 class Critic(ABC):
     @abstractmethod
     def __init__(self, **kwargs):
@@ -122,7 +122,9 @@ class MonQCritic(Critic):
         for s in range(self.n_obs_env):
             for a in range(self.n_act_env):
                 if self._n_env[s, a] != 0:
-                    ucb = self.A * math.sqrt(1 / self._n_env[s, a])
+                    t = self._n_env[s].sum()
+                    f_t = f(t)
+                    ucb = self.A * math.sqrt(math.log(f_t) / self._n_env[s, a])
                     r_env_bar[s, a] = self._nr_env[s, a] / self._n_env[s, a] + ucb
 
         r_mon_bar = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
@@ -133,7 +135,9 @@ class MonQCritic(Critic):
                         s = se, sm
                         a = ae, am
                         if self._n_joint[*s, *a] != 0:
-                            ucb = self.B * math.sqrt(1 / self._n_joint[*s, *a])
+                            t = self._n_joint[*s].sum((-2, -1))
+                            f_t = f(t)
+                            ucb = self.B * math.sqrt(math.log(f_t) / self._n_joint[*s, *a])
                             r_mon_bar[*s, *a] = self._nr_mon[*s, *a] / self._n_joint[*s, *a] + ucb
 
         p_joint_hat = np.ones((self.n_obs_env, self.n_obs_mon, self.n_act_env,
@@ -159,7 +163,9 @@ class MonQCritic(Critic):
                         s = se, sm
                         a = ae, am
                         if self._n_joint[*s, *a] != 0:
-                            ucb = 0.5 * self.C * math.sqrt(1 / self._n_joint[*s, *a])
+                            t = self._n_joint[*s].sum((-2, -1))
+                            f_t = f(t)
+                            ucb = 0.5 * self.C * math.sqrt(math.log(f_t) / self._n_joint[*s, *a])
                             if p_joint_hat[*s, *a, *s_star] + ucb <= 1:
                                 p_joint_hat[*s, *a, *s_star] += ucb
                                 residual = -ucb

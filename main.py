@@ -58,8 +58,10 @@ def run(cfg: DictConfig) -> None:
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,
                                 cfg.environment.id,
-                                cfg.monitor.id + "_" + str(cfg.monitor.prob) + "_" + str(cfg.agent.critic.ucb_p) + "_" + str(cfg.agent.critic.beta)
-                                )
+                                cfg.monitor.id + "_" + str(cfg.monitor.prob) + "_" + str(
+                                    cfg.agent.critic.ucb_re) + "_" + str(cfg.agent.critic.ucb_rm) + "_" + str(
+                                    cfg.agent.critic.ucb_p) + "_" + str(cfg.agent.critic.beta)
+        )
         os.makedirs(filepath, exist_ok=True)
         seed = str(cfg.experiment.rng_seed)
         savepath = os.path.join(filepath, "train_" + seed)

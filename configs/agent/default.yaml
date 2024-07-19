@@ -3,5 +3,5 @@ critic:
   q0: 88
   beta: 1e-2
   ucb_re: 0.05
-  ucb_rm: 0.5
-  ucb_p: 0.05
+  ucb_rm: 0.05
+  ucb_p: 0.005
