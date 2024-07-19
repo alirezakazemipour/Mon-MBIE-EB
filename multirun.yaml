@@ -26,13 +26,13 @@ hydra:
       experiment.hide_progress_bar: true
       experiment.datadir: data
       experiment.rng_seed: range(0, 30)
-      monitor: partial_obs_ask
-      monitor.prob: 0.1
+      monitor: partial_obs_button, partial_obs_ask
+      monitor.prob: 1, 0.1
       agent.critic.q0: 88
       agent.critic.ucb_re: 0.05
       agent.critic.ucb_rm: 0.5
-      agent.critic.ucb_p: 0.5
-      agent.critic.beta: 0.01
+      agent.critic.ucb_p: 0.5, 0.05
+      agent.critic.beta: 1e-2, 1e-1
   help:
     app_name: ${hydra.job.name}
     header: '${hydra.help.app_name} is powered by Hydra.
@@ -140,7 +140,7 @@ hydra:
     output_dir: ???
     choices:
       experiment: short
-      monitor: partial_obs_ask
+      monitor: partial_obs_button
       agent: default
       environment: river_swim
       hydra/env: default
@@ -160,12 +160,12 @@ agent:
   critic:
     gamma: 0.99
     q0: 88
-    beta: 0.1
-    ucb_re: 0.01
+    beta: 0.01
+    ucb_re: 0.05
     ucb_rm: 0.5
-    ucb_p: 0.5
+    ucb_p: 0.05
 monitor:
-  id: PartialObsAsk
+  id: PartialObsButton
   prob: 0.1
 experiment:
   training_steps: 25000
@@ -173,7 +173,7 @@ experiment:
   testing_frequency: 100
   datadir: null
   debugdir: null
-  rng_seed: 23
+  rng_seed: 7
   hide_progress_bar: false
 wandb:
   mode: disabled

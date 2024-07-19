@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
-algos = ["PartialObsAsk_0.1"]#, "PartialObsButton_0.1", "PartialObsButton_0.01"]
+algos = ["PartialObsButton_0.1_cedar", "PartialObsButton_0.1"]#, "PartialObsButton_0.1", "PartialObsButton_0.01"]
 for algo in algos:
     runs = []
     for i in range(30):
@@ -37,7 +37,7 @@ for algo in algos:
 #                  alpha=0.15,
 #                  color="magenta"
 #                  )
-plt.axhline(20.02, linestyle='--', label="optimal", c="magenta")
+plt.axhline(19.11, linestyle='--', label="optimal", c="magenta")
 # plt.axhline(0.941, linestyle='--', label="cautious", c="olive")
 plt.xlabel("training steps (x 100)")
 plt.ylabel("discounted test return")

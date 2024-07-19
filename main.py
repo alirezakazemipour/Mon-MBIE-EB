@@ -53,12 +53,12 @@ def run(cfg: DictConfig) -> None:
     experiment = MonExperiment(env, env_test, actor, critic, **cfg.experiment)
 
     return_train_history, return_test_history = experiment.train()
-    experiment.test()
+    # experiment.test()
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,
                                 cfg.environment.id,
-                                cfg.monitor.id + "_" + str(cfg.monitor.prob)
+                                cfg.monitor.id + "_" + str(cfg.monitor.prob) + "_" + str(cfg.agent.critic.ucb_p) + "_" + str(cfg.agent.critic.beta)
                                 )
         os.makedirs(filepath, exist_ok=True)
         seed = str(cfg.experiment.rng_seed)
