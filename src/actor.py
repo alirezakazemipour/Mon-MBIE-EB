@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from omegaconf import DictConfig
 
 from src.utils import random_argmax
-import src.parameter as parameter
 from src.critic import Critic
 
 

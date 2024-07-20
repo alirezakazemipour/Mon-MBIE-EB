@@ -2,16 +2,25 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
+n_runs = 100
 algos = [
-    # "PartialObsButton_0.1_0.5_0.1",
-    #      "PartialObsButton_0.1_0.05_0.01",
-    # "PartialObsButton_0.1_0.05_0.1",
-    # "PartialObsButton_0.1_0.05_0.01",
-    "PartialObsButton_0.1_0.05_0.05_0.005_0.01"
+    # "PartialObsAsk_0.01_0.05_0.5_0.05_0.01",
+    # "PartialObsAsk_0.1_0.05_0.5_0.05_0.01",
+    # "PartialObsAsk_0.25_0.05_0.5_0.05_0.01",
+    # "PartialObsAsk_0.5_0.05_0.5_0.05_0.01",
+    # "PartialObsAsk_0.75_0.05_0.5_0.05_0.01",
+    # "PartialObsAsk_1_0.05_0.5_0.05_0.01",
+    "PartialObsButton_0.01_0.05_0.05_0.005_0.01",
+"PartialObsButton_0.1_0.05_0.05_0.005_0.01",
+"PartialObsButton_0.25_0.05_0.05_0.005_0.01",
+"PartialObsButton_0.5_0.05_0.05_0.005_0.01",
+"PartialObsButton_0.75_0.05_0.05_0.005_0.01",
+"PartialObsButton_1_0.05_0.05_0.005_0.01",
+
 ]
 for algo in algos:
     runs = []
-    for i in range(30):
+    for i in range(n_runs):
         x = np.load(f"data/Gym-Monitor/RiverSwim-6-v0/{algo}/test_{i}.npy")
         runs.append(x)
     # print(np.argmin(np.asarray(runs).sum(-1)))
@@ -24,8 +33,8 @@ for algo in algos:
         smoothed.append(val)
     mean_return = np.mean(np.asarray(smoothed), axis=0)
     std_return = np.std(np.asarray(smoothed), axis=0)
-    lower_bound = mean_return - 1.96 * std_return / math.sqrt(len(runs))
-    upper_bound = mean_return + 1.96 * std_return / math.sqrt(len(runs))
+    lower_bound = mean_return - 1.96 * std_return / math.sqrt(n_runs)
+    upper_bound = mean_return + 1.96 * std_return / math.sqrt(n_runs)
     plt.fill_between(np.arange(len(mean_return)),
                      lower_bound,
                      upper_bound,
