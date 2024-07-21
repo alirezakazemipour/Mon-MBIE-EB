@@ -663,7 +663,10 @@ class NeverPartialObsButton(Monitor, ABC):
         s = self.np_random.random()
         if self.monitor_state == 1:
             if s < self.prob:
-                proxy_reward = env_reward
+                if env_obs != 1 and env_obs != 4:
+                    proxy_reward = env_reward
+                else:
+                    proxy_reward = np.nan
             else:
                 proxy_reward = np.nan
             monitor_reward += -self.monitor_cost
