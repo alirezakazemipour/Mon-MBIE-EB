@@ -2,10 +2,14 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
-n_runs = 5
+n_runs = 100
 algos = [
-    "PartialObsButton_0.1_0.0005_0.0005_0.0005_0.01",
-    "PartialObsButton_1_0.0005_0.0005_0.0005_0.01"
+    "NeverPartialObsButton_0.1_0.0005_0.0005_0.0005_0.01",
+    # "PartialObsAsk_0.01_0.05_0.5_0.05_0.01",
+    # "PartialObsAsk_0.5_0.05_0.5_0.05_0.01",
+    # "PartialObsAsk_0.25_0.05_0.5_0.05_0.01",
+    # "PartialObsAsk_0.75_0.05_0.5_0.05_0.01",
+    "NeverPartialObsButton_1_0.0005_0.0005_0.0005_0.01",
 ]
 for algo in algos:
     runs = []
@@ -29,10 +33,11 @@ for algo in algos:
                      upper_bound,
                      alpha=0.25
                      )
+    prob = min(float(algo[22:26].replace("_", "")) * 100, 100)
     plt.plot(np.arange(len(mean_return)),
              mean_return,
              alpha=1,
-             label=algo,
+             label=f"{prob}%",
              linewidth=3
              )
 # plt.fill_between(np.arange(len(mean_return)),
@@ -41,11 +46,11 @@ for algo in algos:
 #                  alpha=0.15,
 #                  color="magenta"
 #                  )
-plt.axhline(0.941, linestyle='--', label="optimal", c="magenta")
+plt.axhline(.447, linestyle='--', label="cautious", c="magenta")
 # plt.axhline(0.941, linestyle='--', label="cautious", c="olive")
 plt.xlabel("training steps (x 100)")
 plt.ylabel("discounted test return")
-plt.title(f" performance over {len(runs)} runs")
+plt.title(f" button monitor - over {len(runs)} runs")
 plt.grid()
 plt.legend()
 # for i in range(30):
