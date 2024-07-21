@@ -21,17 +21,17 @@ hydra:
     _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
     max_batch_size: null
     params:
-      environment: river_swim
+      environment: grid
       experiment: short
       experiment.hide_progress_bar: true
       experiment.datadir: data
-      experiment.rng_seed: range(0, 30)
-      monitor: partial_obs_button
-      monitor.prob: 1
-      agent.critic.q0: 88
-      agent.critic.ucb_re: 0.05
-      agent.critic.ucb_rm: 0.05
-      agent.critic.ucb_p: 0.005
+      experiment.rng_seed: range(0, 5)
+      monitor: partial_obs_ask, partial_obs_button, never_partial_obs_ask, never_partial_obs_button
+      monitor.prob: 1, 0.1
+      agent.critic.q0: 0.97
+      agent.critic.ucb_re: 0.0005
+      agent.critic.ucb_rm: 0.0005
+      agent.critic.ucb_p: 0.0005
       agent.critic.beta: 0.01
   help:
     app_name: ${hydra.job.name}
@@ -140,9 +140,9 @@ hydra:
     output_dir: ???
     choices:
       experiment: short
-      monitor: partial_obs_button
+      monitor: never_partial_obs_ask
       agent: default
-      environment: river_swim
+      environment: grid
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -154,26 +154,27 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Monitor/RiverSwim-6-v0
+  id: Gym-Monitor/Gridworld-Penalty-3x3-v0
+  max_episode_steps: 50
   render_mode: null
 agent:
   critic:
     gamma: 0.99
-    q0: 88
+    q0: 1
     beta: 0.01
-    ucb_re: 0.05
-    ucb_rm: 0.05
-    ucb_p: 0.005
+    ucb_re: 0.0005
+    ucb_rm: 0.0005
+    ucb_p: 0.0005
 monitor:
-  id: PartialObsButton
-  prob: 0.1
+  id: NeverPartialObsAsk
+  prob: 1
 experiment:
-  training_steps: 15000
+  training_steps: 30000
   testing_episodes: 100
   testing_frequency: 100
   datadir: null
   debugdir: null
-  rng_seed: 7
+  rng_seed: 29
   hide_progress_bar: false
 wandb:
   mode: disabled

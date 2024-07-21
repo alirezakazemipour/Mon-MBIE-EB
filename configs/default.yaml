@@ -1,7 +1,7 @@
 defaults:
-  - environment: river_swim
+  - environment: grid
   - agent: default
-  - monitor: partial_obs_button
+  - monitor: never_partial_obs_ask
   - experiment: short
   - _self_
   - override hydra/hydra_logging: disabled

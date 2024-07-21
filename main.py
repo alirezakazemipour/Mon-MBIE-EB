@@ -53,7 +53,7 @@ def run(cfg: DictConfig) -> None:
     experiment = MonExperiment(env, env_test, actor, critic, **cfg.experiment)
 
     return_train_history, return_test_history = experiment.train()
-    # experiment.test()
+    experiment.test()
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,

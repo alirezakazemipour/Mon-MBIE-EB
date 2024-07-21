@@ -3,15 +3,15 @@
 _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
 max_batch_size: null
 params:
-  environment: river_swim
+  environment: grid
   experiment: short
   experiment.hide_progress_bar: True
   experiment.datadir: data
-  experiment.rng_seed: range(0, 30)
-  monitor: partial_obs_button
-  monitor.prob: 1
-  agent.critic.q0: 88
-  agent.critic.ucb_re: 0.05
-  agent.critic.ucb_rm: 0.05
-  agent.critic.ucb_p: 0.005
+  experiment.rng_seed: range(0, 100)
+  monitor: partial_obs_ask, partial_obs_button, never_partial_obs_ask, never_partial_obs_button
+  monitor.prob: 1, 0.1
+  agent.critic.q0: .97
+  agent.critic.ucb_re: 5e-4
+  agent.critic.ucb_rm: 5e-4
+  agent.critic.ucb_p: 5e-4
   agent.critic.beta: 1e-2
