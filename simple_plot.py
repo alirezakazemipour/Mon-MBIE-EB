@@ -4,12 +4,12 @@ import numpy as np
 
 n_runs = 100
 algos = [
-    "NeverPartialObsButton_0.1_0.0005_0.0005_0.0005_0.01",
+    "PartialObsAsk_0.1_0.0005_0.0005_0.0005_0.01",
     # "PartialObsAsk_0.01_0.05_0.5_0.05_0.01",
     # "PartialObsAsk_0.5_0.05_0.5_0.05_0.01",
     # "PartialObsAsk_0.25_0.05_0.5_0.05_0.01",
     # "PartialObsAsk_0.75_0.05_0.5_0.05_0.01",
-    "NeverPartialObsButton_1_0.0005_0.0005_0.0005_0.01",
+    "PartialObsAsk_1_0.0005_0.0005_0.0005_0.01",
 ]
 for algo in algos:
     runs = []

@@ -1,5 +1,5 @@
 defaults:
-  - environment: grid_stoch
+  - environment: grid_det
   - agent: default
   - monitor: partial_obs_ask
   - experiment: short
