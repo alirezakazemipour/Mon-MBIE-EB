@@ -3,7 +3,7 @@
 _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
 max_batch_size: null
 params:
-  environment: grid
+  environment: grid_det
   experiment: short
   experiment.hide_progress_bar: True
   experiment.datadir: data
