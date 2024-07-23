@@ -49,6 +49,7 @@ class Monitor(gymnasium.Wrapper):
 
         Truncated and info remain the same as self.env.step().
         """
+        last_env_obs = self.env.unwrapped.get_state()
         (
             env_obs,
             env_reward,
@@ -62,15 +63,12 @@ class Monitor(gymnasium.Wrapper):
             proxy_reward,
             monitor_reward,
             monitor_terminated,
-        ) = self._monitor_step(action, env_reward)
+        ) = self._monitor_step(action, env_reward, last_env_obs)
 
         obs = {"env": env_obs, "mon": monitor_obs}
         reward = {"env": env_reward, "mon": monitor_reward, "proxy": proxy_reward}
         terminated = env_terminated or monitor_terminated
         truncated = env_truncated
-
-        if self.observability < 1.0 and self.np_random.random() > self.observability:
-            reward["proxy"] = np.nan
 
         return obs, reward, terminated, truncated, env_info
 
@@ -519,12 +517,14 @@ class NeverPartialObsAsk(StatelessBinaryMonitor):
         StatelessBinaryMonitor.__init__(self, env, **kwargs)
         self.prob = kwargs["prob"]
 
-    def _monitor_step(self, action, env_reward):
-        env_obs = self.env.unwrapped.get_state()
+    def _monitor_step(self, action, env_reward, env_obs):
+        env_next_obs = self.env.unwrapped.get_state()
+
 
         s = self.np_random.random()
         if action["mon"] == 1 and s < self.prob:
-            if env_obs != 1 and env_obs != 4:
+            tmp = env_obs == 0 and action["env"] == 2 and env_next_obs == 3
+            if env_next_obs != 1 and env_next_obs != 4 and not tmp:
                 proxy_reward = env_reward
             else:
                 proxy_reward = np.nan
@@ -663,7 +663,7 @@ class NeverPartialObsButton(Monitor, ABC):
         s = self.np_random.random()
         if self.monitor_state == 1:
             if s < self.prob:
-                if env_next_obs != 1 and env_next_obs != 4:
+                if env_next_obs != 1 and env_next_obs != 4 or (env_obs == 0 and action == 2 and env_next_obs == 3):
                     proxy_reward = env_reward
                 else:
                     proxy_reward = np.nan

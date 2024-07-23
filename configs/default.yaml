@@ -1,7 +1,7 @@
 defaults:
-  - environment: grid_det
+  - environment: grid_stoch
   - agent: default
-  - monitor: partial_obs_ask
+  - monitor: never_partial_obs_ask
   - experiment: short
   - _self_
   - override hydra/hydra_logging: disabled

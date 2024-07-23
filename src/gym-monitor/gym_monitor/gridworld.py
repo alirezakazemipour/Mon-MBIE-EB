@@ -599,10 +599,6 @@ class StochasticMiniGrid(Gridworld):
             action = self.action_space.sample()
         self.last_action = action
 
-        if self.agent_pos == (0, 0) and action == RIGHT:
-            if self.np_random.random() < 0.3:
-                action = DOWN
-
         if self.grid[self.agent_pos] == QCKSND and self.np_random.random() > 0.1:
             pass  # fail to move in quicksand
         else:
@@ -636,5 +632,9 @@ class StochasticMiniGrid(Gridworld):
             reward += self.np_random.normal() * self.reward_noise_std
         if reward != 0.0 and self.nonzero_reward_noise_std > 0.0:
             reward += self.np_random.normal() * self.nonzero_reward_noise_std
+
+        if self.last_pos == (0, 0) and action == RIGHT:
+            if self.np_random.random() < 0.3:
+                self.agent_pos = (1, 0)
 
         return self.get_state(), reward, terminated, False, {}
