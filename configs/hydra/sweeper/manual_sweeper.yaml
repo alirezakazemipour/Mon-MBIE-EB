@@ -8,10 +8,12 @@ params:
   experiment.hide_progress_bar: True
   experiment.datadir: data
   experiment.rng_seed: range(0, 100)
-  monitor: partial_obs_ask, partial_obs_button, never_partial_obs_ask, never_partial_obs_button
-  monitor.prob: 1, 0.1
-  agent.critic.q0: .97
-  agent.critic.ucb_re: 5e-4
-  agent.critic.ucb_rm: 5e-4
-  agent.critic.ucb_p: 5e-4
+  monitor: full
+  ++monitor.prob: 1
+  agent.critic.q0: 0.97
+  agent.critic.ucb_re: 0.004
+  agent.critic.ucb_rm: 0.004
+  agent.critic.ucb_p: 0
   agent.critic.beta: 1e-2
+  ++monitor.button_cell_id: 0
+

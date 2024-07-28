@@ -4,17 +4,17 @@ import numpy as np
 
 n_runs = 100
 algos = [
-    "PartialObsButton_0.1_0.0005_0.0005_0.0005_0.01",
+    "FullMonitor_1_0.4_0.4_0_0.01",
     # "PartialObsAsk_0.01_0.05_0.5_0.05_0.01",
     # "PartialObsAsk_0.5_0.05_0.5_0.05_0.01",
     # "PartialObsAsk_0.25_0.05_0.5_0.05_0.01",
     # "PartialObsAsk_0.75_0.05_0.5_0.05_0.01",
-    "PartialObsButton_1_0.0005_0.0005_0.0005_0.01",
+    # "PartialObsButton_1_0.0005_0.0005_0.0005_0.01",
 ]
 for algo in algos:
     runs = []
     for i in range(n_runs):
-        x = np.load(f"data/Gym-Monitor/Gridworld-Penalty-3x3-v0/{algo}/test_{i}.npy")
+        x = np.load(f"data/iGym-Grid/Gridworld-Penalty-3x3-v0/{algo}/test_{i}.npy")
         runs.append(x)
     # print(np.argmin(np.asarray(runs).sum(-1)))
     # exit()
@@ -46,7 +46,7 @@ for algo in algos:
 #                  alpha=0.15,
 #                  color="magenta"
 #                  )
-plt.axhline(.447, linestyle='--', label="cautious", c="magenta")
+# plt.axhline(.447, linestyle='--', label="cautious", c="magenta")
 # plt.axhline(0.941, linestyle='--', label="cautious", c="olive")
 plt.xlabel("training steps (x 100)")
 plt.ylabel("discounted test return")

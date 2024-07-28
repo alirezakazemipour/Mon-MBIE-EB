@@ -49,7 +49,6 @@ class Monitor(gymnasium.Wrapper):
 
         Truncated and info remain the same as self.env.step().
         """
-        last_env_obs = self.env.unwrapped.get_state()
         (
             env_obs,
             env_reward,
@@ -63,7 +62,7 @@ class Monitor(gymnasium.Wrapper):
             proxy_reward,
             monitor_reward,
             monitor_terminated,
-        ) = self._monitor_step(action, env_reward, last_env_obs)
+        ) = self._monitor_step(action, env_reward)
 
         obs = {"env": env_obs, "mon": monitor_obs}
         reward = {"env": env_reward, "mon": monitor_reward, "proxy": proxy_reward}
@@ -559,7 +558,7 @@ class PartialObsButton(Monitor, ABC):
         env_action_push (int): the environment action to turn the monitor on/off.
     """
 
-    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2, button_cell_id=8, **kwargs):
+    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,
@@ -569,7 +568,7 @@ class PartialObsButton(Monitor, ABC):
             "env": env.observation_space,
             "mon": spaces.Discrete(2),  # monitor on/off
         })  # fmt: skip
-        self.button_cell_id = button_cell_id
+        self.button_cell_id = kwargs["button_cell_id"]
         self.monitor_state = 0
         self.monitor_cost = monitor_cost
         self.monitor_end_cost = monitor_end_cost
@@ -597,7 +596,14 @@ class PartialObsButton(Monitor, ABC):
             if env_terminated:
                 monitor_reward += -self.monitor_end_cost
 
-        if action["env"] == 1 and env_obs == self.button_cell_id:  # 0 is LEFT
+        if self.button_cell_id == 8:
+            tmp = 1
+        elif self.button_cell_id == 0:
+            tmp = 0
+        else:
+            raise RuntimeError
+
+        if action["env"] == tmp and env_obs == self.button_cell_id:
             if self.monitor_state == 1:
                 self.monitor_state = 0
             elif self.monitor_state == 0:
@@ -632,7 +638,7 @@ class NeverPartialObsButton(Monitor, ABC):
         env_action_push (int): the environment action to turn the monitor on/off.
     """
 
-    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2, button_cell_id=8, **kwargs):
+    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,
@@ -642,7 +648,7 @@ class NeverPartialObsButton(Monitor, ABC):
             "env": env.observation_space,
             "mon": spaces.Discrete(2),  # monitor on/off
         })  # fmt: skip
-        self.button_cell_id = button_cell_id
+        self.button_cell_id = kwargs["button_cell_id"]
         self.monitor_state = 0
         self.monitor_cost = monitor_cost
         self.monitor_end_cost = monitor_end_cost
@@ -673,7 +679,14 @@ class NeverPartialObsButton(Monitor, ABC):
             if env_terminated:
                 monitor_reward += -self.monitor_end_cost
 
-        if action["env"] == 1 and env_obs == self.button_cell_id:  # 0 is LEFT
+        if self.button_cell_id == 8:
+            tmp = 1
+        elif self.button_cell_id == 0:
+            tmp = 0
+        else:
+            raise RuntimeError
+
+        if action["env"] == tmp and env_obs == self.button_cell_id:  # 0 is LEFT
             if self.monitor_state == 1:
                 self.monitor_state = 0
             elif self.monitor_state == 0:
