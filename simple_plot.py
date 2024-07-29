@@ -4,17 +4,36 @@ import numpy as np
 
 n_runs = 100
 algos = [
-    "FullMonitor_1_0.4_0.4_0_0.01",
-    # "PartialObsAsk_0.01_0.05_0.5_0.05_0.01",
-    # "PartialObsAsk_0.5_0.05_0.5_0.05_0.01",
-    # "PartialObsAsk_0.25_0.05_0.5_0.05_0.01",
-    # "PartialObsAsk_0.75_0.05_0.5_0.05_0.01",
-    # "PartialObsButton_1_0.0005_0.0005_0.0005_0.01",
+    # "MDP",
+    ("NeverPartialObsButton_1", "blue", "100%"),
+    # ("NeverPartialObsAsk_0.75", "red", "75%"),
+    # ("NeverPartialObsAsk_0.5", "green", "50%"),
+    # ("NeverPartialObsAsk_0.25", "orange", "25%"),
+    ("NeverPartialObsButton_0.1", "brown", "10%")
 ]
-for algo in algos:
+plt.style.use('ggplot')
+fig, ax = plt.subplots(figsize=(6.4, 4.8))
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+
+SMALL_SIZE = 8
+MEDIUM_SIZE = 24
+BIGGER_SIZE = 26
+
+plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+plt.rc('axes', titlesize=MEDIUM_SIZE)     # fontsize of the axes title
+plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
+plt.rc('legend', fontsize=17)    # legend fontsize
+plt.rc('figure', titlesize=BIGGER_SIZE)
+
+
+for conf in algos:
+    algo, color, legend = conf
     runs = []
     for i in range(n_runs):
-        x = np.load(f"data/iGym-Grid/Gridworld-Penalty-3x3-v0/{algo}/test_{i}.npy")
+        x = np.load(f"data/mine/grid/{algo}/test_{i}.npy")[:350]
         runs.append(x)
     # print(np.argmin(np.asarray(runs).sum(-1)))
     # exit()
@@ -28,18 +47,20 @@ for algo in algos:
     std_return = np.std(np.asarray(smoothed), axis=0)
     lower_bound = mean_return - 1.96 * std_return / math.sqrt(n_runs)
     upper_bound = mean_return + 1.96 * std_return / math.sqrt(n_runs)
-    plt.fill_between(np.arange(len(mean_return)),
-                     lower_bound,
-                     upper_bound,
-                     alpha=0.25
-                     )
-    prob = min(float(algo[22:26].replace("_", "")) * 100, 100)
-    plt.plot(np.arange(len(mean_return)),
-             mean_return,
-             alpha=1,
-             label=f"{prob}%",
-             linewidth=3
-             )
+    ax.fill_between(np.arange(len(mean_return)),
+                    lower_bound,
+                    upper_bound,
+                    alpha=0.25,
+                    color=color
+                    )
+    # prob = min(float(algo[22:26].replace("_", "")) * 100, 100)
+    ax.plot(np.arange(len(mean_return)),
+            mean_return,
+            alpha=1,
+            linewidth=3,
+            c=color,
+            label=legend
+            )
 # plt.fill_between(np.arange(len(mean_return)),
 #                  20 - 4.5,
 #                  20 + 4.5,
@@ -48,15 +69,18 @@ for algo in algos:
 #                  )
 # plt.axhline(.447, linestyle='--', label="cautious", c="magenta")
 # plt.axhline(0.941, linestyle='--', label="cautious", c="olive")
-plt.xlabel("training steps (x 100)")
-plt.ylabel("discounted test return")
-plt.title(f" button monitor - over {len(runs)} runs")
-plt.grid()
-plt.legend()
-# for i in range(30):
-#     plt.plot(np.arange(len(mean_return)),
-#              smoothed[i],
-#              label=algo,
-#              linewidth=3
-#              )
-plt.show()
+# plt.xlabel("training steps (x100)", weight="bold")
+plt.axhline(0.447, linestyle="--", color="k", linewidth=3, label="cautious")
+ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
+plt.title(f"EOP", weight="bold")
+ax.legend(loc="lower right")
+ax.xaxis.set_tick_params(labelsize=20)
+ax.yaxis.set_tick_params(labelsize=20)
+
+
+# plt.show()
+plt.savefig("/Users/alirezakazemipour/Desktop/button_grid.pdf",
+            format="pdf",
+            bbox_inches="tight"
+            )
+
