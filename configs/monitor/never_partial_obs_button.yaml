@@ -1,2 +1,4 @@
 id: NeverPartialObsButton
 prob: 1
+button_cell_id: 0
+button_flip_act: 0

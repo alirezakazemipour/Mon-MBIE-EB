@@ -4,7 +4,8 @@ from abc import ABC, abstractmethod
 from omegaconf import DictConfig
 from src.utils import random_argmax
 
-f = lambda x: 1 + x * math.log(x) ** 2
+f = lambda t: 1 + t * math.log(t) ** 2
+
 class Critic(ABC):
     @abstractmethod
     def __init__(self, **kwargs):
@@ -101,14 +102,14 @@ class MonQCritic(Critic):
                 if self._n_tot_env[se, ae] == 0:
                     self._q_joint[se, :, ae, :] = self.q0
                     continue
-                t_n = math.log(self._n_tot_env.sum()) / self._n_tot_env[se].sum() + math.log(
-                    self._n_tot_env[se].sum()) / self._n_tot_env[se, ae]
-                if self._n_env[se, ae] == 0 and t_n < self.beta:
-                    self._q_joint[se, :, ae, :] = -1 / (1 - self.gamma)
-                    continue
-                elif self._n_env[se, ae] == 0 and t_n >= self.beta:
-                    self._q_joint[se, :, ae, :] = self.q0
-                    continue
+                # t_n = math.log(self._n_tot_env.sum()) / self._n_tot_env[se].sum() + math.log(
+                #     self._n_tot_env[se].sum()) / self._n_tot_env[se, ae]
+                # if self._n_env[se, ae] == 0 and t_n < self.beta:
+                #     self._q_joint[se, :, ae, :] = -self.q0
+                #     continue
+                # elif self._n_env[se, ae] == 0 and t_n >= self.beta:
+                #     self._q_joint[se, :, ae, :] = self.q0
+                #     continue
                 else:
                     for sm in range(self.n_obs_mon):
                         for am in range(self.n_act_mon):
@@ -165,7 +166,7 @@ class MonQCritic(Critic):
                         if self._n_joint[*s, *a] != 0:
                             t = self._n_joint[*s].sum((-2, -1))
                             f_t = f(t)
-                            ucb = 0.5 * self.C * math.sqrt(math.log(f_t) / self._n_joint[*s, *a])
+                            ucb = 0.5 * self.C * math.sqrt(1 / self._n_joint[*s, *a])
                             if p_joint_hat[*s, *a, *s_star] + ucb <= 1:
                                 p_joint_hat[*s, *a, *s_star] += ucb
                                 residual = -ucb

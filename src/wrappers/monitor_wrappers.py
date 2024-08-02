@@ -1,7 +1,8 @@
 import gymnasium
 from gymnasium import spaces
 import numpy as np
-from abc import abstractmethod, ABC
+from abc import abstractmethod
+import pygame
 
 
 class Monitor(gymnasium.Wrapper):
@@ -25,12 +26,38 @@ class Monitor(gymnasium.Wrapper):
     def _monitor_step(self, action, env_reward):
         pass
 
+    @abstractmethod
+    def _monitor_set_state(self, state):
+        pass
+
+    @abstractmethod
+    def _monitor_get_state(self):
+        pass
+
+    def set_state(self, state):
+        self.env.unwrapped.set_state(state["env"])
+        self._monitor_set_state(state["mon"])
+
+    def get_state(self):
+        return {"env": self.env.unwrapped.get_state(), "mon": self._monitor_get_state()}
+
     def reset(self, seed=None, **kwargs):
         self.action_space.seed(seed)
         self.observation_space.seed(seed)
         env_obs, env_info = self.env.reset(seed=seed, **kwargs)
         self.monitor_state = self.observation_space["mon"].sample()
         return {"env": env_obs, "mon": self.monitor_state}, env_info
+
+    def render(self):
+        """
+        Make the screen flash if the agent observes a reward.
+        Works only if the environment is rendered with pygame.
+        """
+
+        surf = pygame.display.get_surface()
+        if surf is not None:
+            surf.fill((255, 255, 255, 128), rect=None, special_flags=0)
+            pygame.display.update()
 
     def step(self, action):
         """
@@ -69,6 +96,12 @@ class Monitor(gymnasium.Wrapper):
         terminated = env_terminated or monitor_terminated
         truncated = env_truncated
 
+        if self.observability < 1.0 and self.np_random.random() > self.observability:
+            reward["proxy"] = np.nan
+
+        if self.render_mode == "human" and not np.isnan(reward["proxy"]):
+            self.render()
+
         return obs, reward, terminated, truncated, env_info
 
 
@@ -93,12 +126,14 @@ class FullMonitor(Monitor):
             "mon": spaces.Discrete(1),
         })  # fmt: skip
 
+    def _monitor_set_state(self, state):
+        return
+
+    def _monitor_get_state(self):
+        return np.array(0)
+
     def _monitor_step(self, action, env_reward):
-        monitor_reward = 0.0
-        proxy_reward = env_reward
-        monitor_obs = 0
-        monitor_terminated = False
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
+        return self._monitor_get_state(), env_reward, 0.0, False
 
 
 class RandomNonZeroMonitor(Monitor):
@@ -124,15 +159,19 @@ class RandomNonZeroMonitor(Monitor):
         })  # fmt: skip
         self.prob = prob
 
+    def _monitor_set_state(self, state):
+        return
+
+    def _monitor_get_state(self):
+        return np.array(0)
+
     def _monitor_step(self, action, env_reward):
         monitor_reward = 0.0
         if env_reward != 0 and self.np_random.random() < self.prob:
             proxy_reward = np.nan
         else:
             proxy_reward = env_reward
-        monitor_obs = 0
-        monitor_terminated = False
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
 
 
 class RandomMonitor(Monitor):
@@ -159,70 +198,22 @@ class RandomMonitor(Monitor):
         })  # fmt: skip
         self.prob = env.np_random.random((env.observation_space.n, env.action_space.n))
 
+    def _monitor_set_state(self, state):
+        return
+
+    def _monitor_get_state(self):
+        return np.array(0)
+
     def _monitor_step(self, action, env_reward):
         monitor_reward = 0.0
         if self.np_random.random() < self.prob[self.unwrapped.get_state(), action["env"]]:
             proxy_reward = np.nan
         else:
             proxy_reward = env_reward
-        monitor_obs = 0
-        monitor_terminated = False
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
 
 
-class StatefulBinaryMonitor(Monitor):
-    """
-    Simple monitor where the action is "turn on monitor" / "do nothing".
-    The monitor state is also binary ("monitor on" / "monitor off").
-    The monitor reward is a constant penalty given if the monitor is on or turned on.
-
-    The monitor can turn off itself randomly at every time step (default probability is 0).
-    If the monitor is on or being turned on, the environment reward is observed.
-
-    Args:
-        env (gymnasium.Env): the Gymnasium environment,
-        monitor_cost (float): cost for monitor being active,
-        monitor_reset_prob (float): probability of the monitor resetting itself.
-    """
-
-    def __init__(self, env, monitor_cost=0.2, monitor_reset_prob=0.0, **kwargs):
-        Monitor.__init__(self, env, **kwargs)
-        self.action_space = spaces.Dict({
-            "env": env.action_space,
-            "mon": spaces.Discrete(2),
-        })  # fmt: skip
-        self.observation_space = spaces.Dict({
-            "env": env.observation_space,
-            "mon": spaces.Discrete(2),
-        })  # fmt: skip
-        self.monitor_state = 0  # off
-        self.monitor_reset_prob = monitor_reset_prob
-        self.monitor_cost = monitor_cost
-
-    def _monitor_step(self, action, env_reward):
-        if action["mon"] == 1:
-            self.monitor_state = 1
-        elif action["mon"] == 0:
-            pass
-        else:
-            raise ValueError("illegal monitor action")
-
-        if self.monitor_state == 1:
-            proxy_reward = env_reward
-            monitor_reward = -self.monitor_cost
-        else:
-            proxy_reward = np.nan
-            monitor_reward = 0.0
-
-        if self.np_random.random() < self.monitor_reset_prob:
-            self.monitor_state = 0
-        monitor_obs = self.monitor_state
-        monitor_terminated = False
-
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
-
-
-class StatelessBinaryMonitor(Monitor):
+class Ask(Monitor):
     """
     Simple monitor where the action is "turn on monitor" / "do nothing".
     The monitor is always off. The reward is seen only when the agent asks for it.
@@ -243,8 +234,13 @@ class StatelessBinaryMonitor(Monitor):
             "env": env.observation_space,
             "mon": spaces.Discrete(1),
         })  # fmt: skip
-        self.monitor_state = 0  # off
         self.monitor_cost = monitor_cost
+
+    def _monitor_set_state(self, state):
+        return
+
+    def _monitor_get_state(self):
+        return np.array(0)
 
     def _monitor_step(self, action, env_reward):
         if action["mon"] == 1:
@@ -253,9 +249,7 @@ class StatelessBinaryMonitor(Monitor):
         else:
             proxy_reward = np.nan
             monitor_reward = 0.0
-        monitor_obs = self.monitor_state
-        monitor_terminated = False
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
 
 
 class NMonitor(Monitor):
@@ -291,9 +285,15 @@ class NMonitor(Monitor):
         self.monitor_cost = monitor_cost
         self.monitor_bonus = monitor_bonus
 
+    def _monitor_set_state(self, state):
+        self.monitor_state = state
+
+    def _monitor_get_state(self):
+        return np.array(self.monitor_state)
+
     def _monitor_step(self, action, env_reward):
         assert (
-                action["mon"] < self.action_space["mon"].n
+            action["mon"] < self.action_space["mon"].n
         ), "illegal monitor action"  # fmt: skip
 
         if action["mon"] == self.monitor_state:
@@ -304,10 +304,8 @@ class NMonitor(Monitor):
             monitor_reward = self.monitor_bonus
 
         self.monitor_state = self.observation_space["mon"].sample()
-        monitor_obs = self.monitor_state
-        monitor_terminated = False
 
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
 
 
 class LevelMonitor(Monitor):
@@ -343,9 +341,15 @@ class LevelMonitor(Monitor):
         self.monitor_state = 0
         self.monitor_cost = monitor_cost
 
+    def _monitor_set_state(self, state):
+        self.monitor_state = state
+
+    def _monitor_get_state(self):
+        return np.array(self.monitor_state)
+
     def _monitor_step(self, action, env_reward):
         assert (
-                action["mon"] < self.action_space["mon"].n
+            action["mon"] < self.action_space["mon"].n
         ), "illegal monitor action"  # fmt: skip
 
         monitor_reward = 0.0
@@ -365,10 +369,7 @@ class LevelMonitor(Monitor):
             else:
                 self.monitor_state = 0  # reset level
 
-        monitor_obs = self.monitor_state
-        monitor_terminated = False
-
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
 
 
 class LimitedTimeMonitor(Monitor):
@@ -396,12 +397,18 @@ class LimitedTimeMonitor(Monitor):
         self.monitor_state = 1
         self.monitor_reset_prob = monitor_reset_prob
 
+    def _monitor_set_state(self, state):
+        self.monitor_state = state
+
+    def _monitor_get_state(self):
+        return np.array(self.monitor_state)
+
     def reset(self, seed=None, **kwargs):
         self.action_space.seed(seed)
         self.observation_space.seed(seed)
         env_obs, env_info = self.env.reset(seed=seed, **kwargs)
         self.monitor_state = 1  # monitor starts on
-        return {"env": env_obs, "mon": self.monitor_state}, env_info
+        return {"env": env_obs, "mon": self._monitor_get_state()}, env_info
 
     def _monitor_step(self, action, env_reward):
         monitor_reward = 0.0
@@ -412,10 +419,8 @@ class LimitedTimeMonitor(Monitor):
 
         if self.np_random.random() < self.monitor_reset_prob:
             self.monitor_state = 0
-        monitor_obs = self.monitor_state
-        monitor_terminated = False
 
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
 
 
 class BatteryMonitor(Monitor):
@@ -449,7 +454,13 @@ class BatteryMonitor(Monitor):
         self.observation_space.seed(seed)
         env_obs, env_info = self.env.reset(seed=seed, **kwargs)
         self.monitor_battery = self.max_battery  # battery full
-        return {"env": env_obs, "mon": self.monitor_battery}, env_info
+        return {"env": env_obs, "mon": self._monitor_get_state()}, env_info
+
+    def _monitor_set_state(self, state):
+        self.monitor_battery = state
+
+    def _monitor_get_state(self):
+        return np.array(self.monitor_battery)
 
     def _monitor_step(self, action, env_reward):
         proxy_reward = np.nan
@@ -465,81 +476,10 @@ class BatteryMonitor(Monitor):
         else:
             raise ValueError("illegal monitor action")
 
-        return self.monitor_battery, proxy_reward, monitor_reward, monitor_terminated
+        return self._monitor_get_state(), proxy_reward, monitor_reward, monitor_terminated
 
 
-class PartialObsAsk(StatelessBinaryMonitor):
-    """
-    Simple monitor where the action is "turn on monitor" / "do nothing".
-    The monitor is always off. The reward is seen only when the agent asks for it.
-    The monitor reward is a constant penalty given if the agent asks to see the reward.
-
-    Args:
-        env (gymnasium.Env): the Gymnasium environment,
-        monitor_cost (float): cost for asking the monitor for rewards.
-    """
-
-    def __init__(self, env, **kwargs):
-        StatelessBinaryMonitor.__init__(self, env, **kwargs)
-        self.prob = kwargs["prob"]
-
-    def _monitor_step(self, action, env_reward):
-
-        s = self.np_random.random()
-        if action["mon"] == 1 and s < self.prob:
-            proxy_reward = env_reward
-            monitor_reward = -self.monitor_cost
-
-        elif action["mon"] == 1 and s >= self.prob:
-            proxy_reward = np.nan
-            monitor_reward = -self.monitor_cost
-        else:
-            proxy_reward = np.nan
-            monitor_reward = 0.0
-        monitor_obs = self.monitor_state
-        monitor_terminated = False
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
-
-
-class NeverPartialObsAsk(StatelessBinaryMonitor):
-    """
-    Simple monitor where the action is "turn on monitor" / "do nothing".
-    The monitor is always off. The reward is seen only when the agent asks for it.
-    The monitor reward is a constant penalty given if the agent asks to see the reward.
-
-    Args:
-        env (gymnasium.Env): the Gymnasium environment,
-        monitor_cost (float): cost for asking the monitor for rewards.
-    """
-
-    def __init__(self, env, **kwargs):
-        StatelessBinaryMonitor.__init__(self, env, **kwargs)
-        self.prob = kwargs["prob"]
-
-    def _monitor_step(self, action, env_reward, env_obs):
-        env_next_obs = self.env.unwrapped.get_state()
-
-
-        s = self.np_random.random()
-        if action["mon"] == 1 and s < self.prob:
-            tmp = env_obs == 0 and action["env"] == 2 and env_next_obs == 3
-            if env_next_obs != 1 and env_next_obs != 4 and not tmp:
-                proxy_reward = env_reward
-            else:
-                proxy_reward = np.nan
-            monitor_reward = -self.monitor_cost
-        elif action["mon"] == 1 and s >= self.prob:
-            proxy_reward = np.nan
-            monitor_reward = -self.monitor_cost
-        else:
-            proxy_reward = np.nan
-            monitor_reward = 0.0
-        monitor_obs = self.monitor_state
-        monitor_terminated = False
-        return monitor_obs, proxy_reward, monitor_reward, monitor_terminated
-
-
-class PartialObsButton(Monitor, ABC):
+class Button(Monitor):
     """
     Monitor for Gridworlds.
     The monitor is turned on/off by doing LEFT (environment action) where a button is.
@@ -558,7 +498,7 @@ class PartialObsButton(Monitor, ABC):
         env_action_push (int): the environment action to turn the monitor on/off.
     """
 
-    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2, **kwargs):
+    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2.0, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,
@@ -573,6 +513,12 @@ class PartialObsButton(Monitor, ABC):
         self.monitor_cost = monitor_cost
         self.monitor_end_cost = monitor_end_cost
         self.prob = kwargs["prob"]
+
+    def _monitor_set_state(self, state):
+        self.monitor_state = state
+
+    def _monitor_get_state(self):
+        return np.array(self.monitor_state)
 
     def step(self, action):
         env_obs = self.env.unwrapped.get_state()
@@ -595,108 +541,19 @@ class PartialObsButton(Monitor, ABC):
             monitor_reward += -self.monitor_cost
             if env_terminated:
                 monitor_reward += -self.monitor_end_cost
-
-        if self.button_cell_id == 8:
-            tmp = 1
-        elif self.button_cell_id == 0:
-            tmp = 0
-        else:
-            raise RuntimeError
-
-        if action["env"] == tmp and env_obs == self.button_cell_id:
+        if action["env"] == 0 and env_obs == self.button_cell_id:  # 0 is LEFT
             if self.monitor_state == 1:
                 self.monitor_state = 0
             elif self.monitor_state == 0:
                 self.monitor_state = 1
-        monitor_obs = self.monitor_state
         monitor_terminated = False
 
-        obs = {"env": env_next_obs, "mon": monitor_obs}
+        obs = {"env": env_next_obs, "mon": self._monitor_get_state()}
         reward = {"env": env_reward, "mon": monitor_reward, "proxy": proxy_reward}
         terminated = env_terminated or monitor_terminated
         truncated = env_truncated
 
-        return obs, reward, terminated, truncated, env_info
-
-
-class NeverPartialObsButton(Monitor, ABC):
-    """
-    Monitor for Gridworlds.
-    The monitor is turned on/off by doing LEFT (environment action) where a button is.
-    If the monitor is on, the agent receives negative monitor rewards and observes
-    the environment rewards.
-    Ending an episode with the monitor on results in a large penalty.
-    The monitor on/off state at the beginning of an episode is random.
-    The position of the button can be specified by an argument (top-left by default).
-
-    Args:
-        env (gymnasium.Env): the Gymnasium environment,
-        monitor_cost (float): cost for monitor being active,
-        monitor_end_cost (float): cost for ending an episode (by termination,
-            not truncation) with the monitor active,
-        button_cell_id (int): position of the monitor,
-        env_action_push (int): the environment action to turn the monitor on/off.
-    """
-
-    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2, **kwargs):
-        Monitor.__init__(self, env, **kwargs)
-        self.action_space = spaces.Dict({
-            "env": env.action_space,
-            "mon": spaces.Discrete(1),  # no monitor action
-        })  # fmt: skip
-        self.observation_space = spaces.Dict({
-            "env": env.observation_space,
-            "mon": spaces.Discrete(2),  # monitor on/off
-        })  # fmt: skip
-        self.button_cell_id = kwargs["button_cell_id"]
-        self.monitor_state = 0
-        self.monitor_cost = monitor_cost
-        self.monitor_end_cost = monitor_end_cost
-        self.prob = kwargs["prob"]
-
-    def step(self, action):
-        env_obs = self.env.unwrapped.get_state()
-        (
-            env_next_obs,
-            env_reward,
-            env_terminated,
-            env_truncated,
-            env_info,
-        ) = self.env.step(action["env"])
-
-        monitor_reward = 0.0
-        proxy_reward = np.nan
-        s = self.np_random.random()
-        if self.monitor_state == 1:
-            if s < self.prob:
-                if env_next_obs != 1 and env_next_obs != 4 or (env_obs == 0 and action == 2 and env_next_obs == 3):
-                    proxy_reward = env_reward
-                else:
-                    proxy_reward = np.nan
-            else:
-                proxy_reward = np.nan
-            monitor_reward += -self.monitor_cost
-            if env_terminated:
-                monitor_reward += -self.monitor_end_cost
-
-        if self.button_cell_id == 8:
-            tmp = 1
-        elif self.button_cell_id == 0:
-            tmp = 0
-        else:
-            raise RuntimeError
-
-        if action["env"] == tmp and env_obs == self.button_cell_id:  # 0 is LEFT
-            if self.monitor_state == 1:
-                self.monitor_state = 0
-            elif self.monitor_state == 0:
-                self.monitor_state = 1
-        monitor_obs = self.monitor_state
-        monitor_terminated = False
-
-        obs = {"env": env_next_obs, "mon": monitor_obs}
-        reward = {"env": env_reward, "mon": monitor_reward, "proxy": proxy_reward}
-        terminated = env_terminated or monitor_terminated
-        truncated = env_truncated
+        if self.render_mode == "human" and not np.isnan(reward["proxy"]):
+            self.render()
 
         return obs, reward, terminated, truncated, env_info

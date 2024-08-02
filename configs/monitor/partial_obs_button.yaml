@@ -1,4 +1,4 @@
-id: PartialObsButton
-prob: 0.4
+id: Button
+prob: 1
 button_cell_id: 0
-
+button_flip_act: 0

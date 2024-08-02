@@ -42,7 +42,7 @@ class Actor(ABC):
         self._train = True
 
 
-class MonEpsilonGreedy(Actor):
+class Greedy(Actor):
     def __init__(
         self,
         critic: Critic,

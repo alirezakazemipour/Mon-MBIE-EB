@@ -1,5 +1,5 @@
-id: Gym-Monitor/Gridworld-Penalty-3x3-v0
-max_episode_steps: 50
+id: Gym-Monitor/Gridworld-Quicksand-Distract-4x4-v0
+
 monitor:
   forbidden_states:
 #    - 2

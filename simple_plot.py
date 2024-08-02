@@ -5,11 +5,11 @@ import numpy as np
 n_runs = 100
 algos = [
     # "MDP",
-    ("NeverPartialObsButton_1", "blue", "100%"),
+    ("PartialObsAsk_1", "blue", "100%"),
     # ("NeverPartialObsAsk_0.75", "red", "75%"),
     # ("NeverPartialObsAsk_0.5", "green", "50%"),
     # ("NeverPartialObsAsk_0.25", "orange", "25%"),
-    ("NeverPartialObsButton_0.1", "brown", "10%")
+    ("PartialObsAsk_0.1", "brown", "10%")
 ]
 plt.style.use('ggplot')
 fig, ax = plt.subplots(figsize=(6.4, 4.8))
@@ -70,7 +70,7 @@ for conf in algos:
 # plt.axhline(.447, linestyle='--', label="cautious", c="magenta")
 # plt.axhline(0.941, linestyle='--', label="cautious", c="olive")
 # plt.xlabel("training steps (x100)", weight="bold")
-plt.axhline(0.447, linestyle="--", color="k", linewidth=3, label="cautious")
+plt.axhline(0.941, linestyle="--", color="k", linewidth=3, label="optimal")
 ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
 plt.title(f"EOP", weight="bold")
 ax.legend(loc="lower right")
@@ -79,7 +79,7 @@ ax.yaxis.set_tick_params(labelsize=20)
 
 
 # plt.show()
-plt.savefig("/Users/alirezakazemipour/Desktop/button_grid.pdf",
+plt.savefig("/Users/alirezakazemipour/Desktop/ask_grid.pdf",
             format="pdf",
             bbox_inches="tight"
             )

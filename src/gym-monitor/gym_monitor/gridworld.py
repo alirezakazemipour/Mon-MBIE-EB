@@ -4,12 +4,15 @@ from gymnasium.error import DependencyNotInstalled
 from typing import Optional
 from collections import defaultdict
 
+# region actions
 LEFT = 0
 DOWN = 1
 RIGHT = 2
 UP = 3
 STAY = 4
+# endregion
 
+# region
 # state IDs
 EMPTY = -1  # one-direction cell have ID corresponding to the allowed action (0, 1, 2, 3)
 QCKSND = -2
@@ -19,13 +22,15 @@ BAD = 11
 BAD_SMALL = 12
 WALL = -3
 
-REWARDS = defaultdict(lambda: 0)
-REWARDS[GOOD] = 1
-REWARDS[BAD] = -10
-REWARDS[GOOD_SMALL] = 0.1
-REWARDS[BAD_SMALL] = -0.1
+# endregion
 
-# rendering colors
+REWARDS = defaultdict(lambda: -1.0)
+REWARDS[GOOD] = 8
+REWARDS[BAD] = -10
+REWARDS[GOOD_SMALL] = -0.1
+REWARDS[BAD_SMALL] = -0.2
+
+# region rendering colors
 RED = (255, 0, 0)
 PALE_RED = (155, 0, 0)
 GREEN = (0, 255, 0)
@@ -36,6 +41,7 @@ PALE_YELLOW = (255, 255, 155)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (100, 100, 100)
+# endregion
 
 GRIDS = {
     "river_swim_6": [[EMPTY for _ in range(6)]],
@@ -115,7 +121,7 @@ GRIDS["6x6_distract"][-1][0] = GOOD_SMALL
 GRIDS["river_swim_6"][-1][-1] = GOOD
 GRIDS["river_swim_6"][0][0] = GOOD_SMALL
 
-
+# region _move
 def _move(row, col, a, nrow, ncol):
     if a == LEFT:
         col = max(col - 1, 0)
@@ -130,7 +136,7 @@ def _move(row, col, a, nrow, ncol):
     else:
         raise ValueError("illegal action")
     return row, col
-
+#endregion
 
 class Gridworld(gym.Env):
     """
@@ -305,7 +311,7 @@ class Gridworld(gym.Env):
             if action == STAY:  # positive rewards are collected only with STAY
                 terminated = True
             else:
-                reward = 0
+                reward = -1
         if self.reward_noise_std > 0.0:
             reward += self.np_random.normal() * self.reward_noise_std
         if reward != 0.0 and self.nonzero_reward_noise_std > 0.0:
@@ -581,9 +587,9 @@ class RiverSwim(Gridworld):
         terminated = False  # infinite horizon
         self.last_action = original_action
 
-        reward = 0.0
+        reward = -1
         if state == last and action == RIGHT and original_action == RIGHT:
-            reward = 1.0
+            reward = 10
         elif state == first and action == LEFT and original_action == LEFT:
             reward = 0.01
 
@@ -627,7 +633,7 @@ class StochasticMiniGrid(Gridworld):
             if action == STAY:  # positive rewards are collected only with STAY
                 terminated = True
             else:
-                reward = 0
+                reward = -1
         if self.reward_noise_std > 0.0:
             reward += self.np_random.normal() * self.reward_noise_std
         if reward != 0.0 and self.nonzero_reward_noise_std > 0.0:

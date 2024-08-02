@@ -9,19 +9,18 @@ from src.utils import set_rng_seed, cantor_pairing
 
 
 class MonExperiment:
-    def __init__(
-        self,
-        env: gym.Env,
-        env_test: gym.Env,
-        actor: Actor,
-        critic: Critic,
-        training_steps: int,
-        testing_episodes: int,
-        testing_frequency: int,
-        rng_seed: int = 1,
-        hide_progress_bar: bool = True,
-        **kwargs,
-    ):
+    def __init__(self,
+                 env: gym.Env,
+                 env_test: gym.Env,
+                 actor: Actor,
+                 critic: Critic,
+                 training_steps: int,
+                 testing_episodes: int,
+                 testing_frequency: int,
+                 rng_seed: int = 1,
+                 hide_progress_bar: bool = True,
+                 **kwargs,
+                 ):
         """
         Args:
             env (gymnasium.Env): environment used to collect training samples,
@@ -58,9 +57,7 @@ class MonExperiment:
         tot_steps = 0
         tot_episodes = 0
         last_ep_return_env = np.nan
-        last_ep_return_proxy = np.nan
         last_ep_return_mon = np.nan
-        last_ep_loss = np.nan
         test_return_env = np.nan
         test_return_mon = np.nan
         pbar = tqdm(total=self._training_steps, disable=self._hide_progress_bar)
@@ -71,46 +68,37 @@ class MonExperiment:
             pbar.update(tot_steps - pbar.n)
             last_ep_return = last_ep_return_env + last_ep_return_mon
             test_return = test_return_env + test_return_mon
-            pbar.set_description(
-                f"train {last_ep_return:.3f} / "
-                f"test {np.mean(test_return):.3f} "
-            )  # fmt: skip
+            pbar.set_description(f"train {last_ep_return:.3f} / "
+                                 f"test {np.mean(test_return):.3f} "
+                                 )
             ep_seed = cantor_pairing(self._rng_seed, tot_episodes)
             rng = np.random.default_rng(ep_seed)
             self._critic.calc_opti_q(rng)
             obs, _ = self._env.reset(seed=ep_seed)
             ep_return_env = 0.0
-            ep_return_proxy = 0.0
             ep_return_mon = 0.0
-            ep_loss = 0.0
             ep_steps = 0
-            proxy_rwd_was_available = False
-            update_was_done = False
             tot_episodes += 1
 
             while True:
                 if tot_steps % self._testing_frequency == 0:
                     self._actor.eval()
                     self._critic.eval()
-                    test_return_env, test_return_proxy, test_return_mon = self.test()
+                    test_return_env, test_return_mon = self.test()
                     self._actor.train()
                     self._critic.train()
                     with warnings.catch_warnings():  # ignore 'mean of empty slice'
                         warnings.simplefilter("ignore", category=RuntimeWarning)
-                        test_dict = {
-                            "test/return_env": test_return_env.mean(),
-                            "test/return_proxy": np.nanmean(test_return_proxy),
-                            "test/return_mon": test_return_mon.mean(),
-                            "test/return": (test_return_env + test_return_mon).mean(),
-                        }
+                        test_dict = {"test/return_env": test_return_env.mean(),
+                                     "test/return_mon": test_return_mon.mean(),
+                                     "test/return": (test_return_env + test_return_mon).mean(),
+                                     }
                     return_test_history.append(test_dict["test/return"])
 
                 train_dict = {
                     "train/return_env": last_ep_return_env,
-                    "train/return_proxy": last_ep_return_proxy,
                     "train/return_mon": last_ep_return_mon,
                     "train/return": last_ep_return_env + last_ep_return_mon,
-                    "train/loss": last_ep_loss,
                 }
                 return_train_history.append(train_dict["train/return"])
 
@@ -119,46 +107,33 @@ class MonExperiment:
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env.step(act)
 
-                step_loss = self._critic.update(
-                    np.asarray([obs["env"]]),
-                    np.asarray([obs["mon"]]),
-                    np.asarray([act["env"]]),
-                    np.asarray([act["mon"]]),
-                    np.asarray([rwd["env"]]),
-                    np.asarray([rwd["mon"]]),
-                    np.asarray([rwd["proxy"]]),
-                    np.asarray([term]),
-                    np.asarray([next_obs["env"]]),
-                    np.asarray([next_obs["mon"]]),
-                )
+                self._critic.update(np.asarray([obs["env"]]),
+                                    np.asarray([obs["mon"]]),
+                                    np.asarray([act["env"]]),
+                                    np.asarray([act["mon"]]),
+                                    np.asarray([rwd["env"]]),
+                                    np.asarray([rwd["mon"]]),
+                                    np.asarray([rwd["proxy"]]),
+                                    np.asarray([term]),
+                                    np.asarray([next_obs["env"]]),
+                                    np.asarray([next_obs["mon"]]),
+                                    )
                 self._actor.update()
 
-                ep_return_env += (self._gamma**ep_steps) * rwd["env"]
-                ep_return_mon += (self._gamma**ep_steps) * rwd["mon"]
-                if not np.isnan(rwd["proxy"]):
-                    proxy_rwd_was_available = True
-                    ep_return_proxy += (self._gamma**ep_steps) * rwd["proxy"]
-                if not np.isnan(step_loss):
-                    update_was_done = True
-                    ep_loss += step_loss
+                ep_return_env += rwd["env"]
+                ep_return_mon += rwd["mon"]
 
                 ep_steps += 1
                 obs = next_obs
 
                 if term or trunc:
-                    if not proxy_rwd_was_available:
-                        ep_return_proxy = np.nan
-                    if not update_was_done:
-                        ep_loss = np.nan
                     break
 
                 if tot_steps >= self._training_steps:
                     break
 
             last_ep_return_env = ep_return_env
-            last_ep_return_proxy = ep_return_proxy
             last_ep_return_mon = ep_return_mon
-            last_ep_loss = ep_loss
 
         self._env.close()
         self._env_test.close()
@@ -168,11 +143,8 @@ class MonExperiment:
 
     def test(self):
         ep_return_env = np.zeros(self._testing_episodes)
-        ep_return_proxy = np.zeros(self._testing_episodes)
         ep_return_mon = np.zeros(self._testing_episodes)
-        # print(self._critic.s_star)
         for ep in range(self._testing_episodes):
-            proxy_rwd_was_available = False
             ep_seed = cantor_pairing(self._rng_seed, ep)
             obs, _ = self._env_test.reset(seed=ep_seed)
             rng = np.random.default_rng(ep_seed)
@@ -181,16 +153,11 @@ class MonExperiment:
                 act = self._actor(obs["env"], obs["mon"], rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env_test.step(act)
-                ep_return_env[ep] += (self._gamma**ep_steps) * rwd["env"]
-                ep_return_mon[ep] += (self._gamma**ep_steps) * rwd["mon"]
-                if not np.isnan(rwd["proxy"]):
-                    proxy_rwd_was_available = True
-                    ep_return_proxy[ep] += (self._gamma**ep_steps) * rwd["proxy"]
+                ep_return_env[ep] += rwd["env"]
+                ep_return_mon[ep] += rwd["mon"]
                 if term or trunc:
-                    if not proxy_rwd_was_available:
-                        ep_return_proxy[ep] = np.nan
                     break
                 obs = next_obs
                 ep_steps += 1
 
-        return ep_return_env, ep_return_proxy, ep_return_mon
+        return ep_return_env, ep_return_mon
