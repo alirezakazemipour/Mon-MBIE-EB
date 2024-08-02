@@ -1,4 +1,5 @@
 id: Button
-prob: 1
+prob: 0.10
 button_cell_id: 0
 button_flip_act: 0
+forbidden_states: null

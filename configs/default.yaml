@@ -1,7 +1,7 @@
 defaults:
   - environment: river_swim
   - agent: default
-  - monitor: partial_obs_button
+  - monitor: button
   - experiment: short
   - _self_
   - override hydra/hydra_logging: disabled
@@ -9,11 +9,6 @@ defaults:
 
 environment:
   render_mode: null
-
-wandb:
-  mode: disabled
-  entity: ualberta-bowling
-  project: mmdp_simone
 
 experiment:
   datadir: null

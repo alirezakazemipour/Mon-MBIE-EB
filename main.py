@@ -15,7 +15,7 @@ def run(cfg: DictConfig) -> None:
     env = gymnasium.make(**cfg.environment)
     env_test = gymnasium.make(**cfg.environment)
     env = getattr(monitor_wrappers, cfg.monitor.id)(env,
-                                                    **{**cfg.monitor, **cfg.environment.monitor}
+                                                    **{**cfg.monitor, **cfg.environment.get("monitor", {})}
                                                     )
     env_test = getattr(monitor_wrappers, cfg.monitor.id)(env_test,
                                                          **{**cfg.monitor, **cfg.environment.monitor},

@@ -1,13 +1,4 @@
- id: Gym-Monitor/RiverSwim-6-v0
+ id: Gym-Grid/RiverSwim-6-v0
  monitor:
-   forbidden_states:
-     - 2
-     - 8
-     - 14
-     - 20
-     - 26
-     - 10
-     - 16
-     - 22
-     - 28
-     - 34
+   tmp:
+     tmp: null
