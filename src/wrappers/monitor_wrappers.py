@@ -159,7 +159,7 @@ class Ask(Monitor):
         self.observation_space = spaces.Dict({"env": env.observation_space, "mon": spaces.Discrete(1)})
         self.monitor_cost = monitor_cost
         self.prob = kwargs["prob"]
-        self.forbidden_states = kwargs["forbidden_states"]
+        self.forbidden_states = kwargs["forbidden_states"] if kwargs["forbidden_states"] is not None else []
 
     def _monitor_set_state(self, state):
         return

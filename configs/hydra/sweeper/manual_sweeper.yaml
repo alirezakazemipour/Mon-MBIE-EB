@@ -3,17 +3,11 @@
 _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
 max_batch_size: null
 params:
-  environment: grid_det
+  environment: river_swim
   experiment: short
   experiment.hide_progress_bar: True
   experiment.datadir: data
   experiment.rng_seed: range(0, 100)
-  monitor: full
-  ++monitor.prob: 1
-  agent.critic.q0: 0.97
-  agent.critic.ucb_re: 0.004
-  agent.critic.ucb_rm: 0.004
-  agent.critic.ucb_p: 0
-  agent.critic.beta: 1e-2
-  ++monitor.button_cell_id: 0
+  monitor: ask, button
+  monitor.prob: 1.00, 0.75, 0.50, 0.25, 0.10, 0.01
 

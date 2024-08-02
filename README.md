@@ -65,7 +65,7 @@ In the Q-function pic (right), the heatmaps denote the value of the 4D Q-table, 
 ## Sweeps
 For a sweep over multiple jobs in parallel with Joblib, run
 ```
-python main.py -m hydra/launcher=joblib hydra/sweeper=medium_det
+python main.py -m hydra/launcher=joblib hydra/sweeper=manual_sweeper
 ```
 Custom sweeps are defined in `configs/hydra/sweeper/`.  
 You can further customize a sweep via command line. For example,

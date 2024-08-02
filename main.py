@@ -8,6 +8,7 @@ from src.actor import Greedy
 from src.critic import MonQTableCritic
 from src.experiment import MonExperiment
 from src.wrappers import monitor_wrappers
+import pickle
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="default")
@@ -57,14 +58,12 @@ def run(cfg: DictConfig) -> None:
     experiment = MonExperiment(env, env_test, actor, critic, **cfg.experiment)
 
     return_train_history, return_test_history = experiment.train()
-    experiment.test()
+    # experiment.test()
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,
                                 cfg.environment.id,
-                                cfg.monitor.id + "_" + str(cfg.monitor.prob) + "_" + str(
-                                    cfg.agent.critic.ucb_re) + "_" + str(cfg.agent.critic.ucb_rm) + "_" + str(
-                                    cfg.agent.critic.ucb_p) + "_" + str(cfg.agent.critic.beta)
+                                cfg.monitor.id + "_" + str(cfg.monitor.prob)
                                 )
         os.makedirs(filepath, exist_ok=True)
         seed = str(cfg.experiment.rng_seed)
@@ -72,6 +71,10 @@ def run(cfg: DictConfig) -> None:
         np.save(savepath, np.array(return_train_history))
         savepath = os.path.join(filepath, "test_" + seed)
         np.save(savepath, np.array(return_test_history))
+        savepath = os.path.join(filepath, "configs.pkl")
+        if not os.path.isfile(savepath + ".npz"):
+            with open(savepath, 'wb') as f:
+                pickle.dump(cfg, f)
 
 
 if __name__ == "__main__":
