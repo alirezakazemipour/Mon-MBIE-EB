@@ -33,12 +33,12 @@ def run(cfg: DictConfig) -> None:
     #         while obs["mon"] == 1:
     #             a = {"env": 0, "mon": 0}
     #             obs, r, term, trunc, _ = env.step(a)
-    #             ret_e += (0.99 ** t) * (r["env"] + r["mon"])
+    #             ret_e += r["env"] + r["mon"]
     #             t += 1
     #
     #         a = {"env": 1, "mon": 0}
     #         obs, r, term, trunc, _ = env.step(a)
-    #         ret_e +=  (r["env"] + r["mon"])
+    #         ret_e += (r["env"] + r["mon"])
     #         if term or trunc:
     #             ret.append(ret_e)
     #             break
@@ -56,7 +56,6 @@ def run(cfg: DictConfig) -> None:
                              )
     actor = Greedy(critic)
     experiment = MonExperiment(env, env_test, actor, critic, **cfg.experiment)
-
     return_train_history, return_test_history = experiment.train()
     # experiment.test()
 
@@ -72,7 +71,7 @@ def run(cfg: DictConfig) -> None:
         savepath = os.path.join(filepath, "test_" + seed)
         np.save(savepath, np.array(return_test_history))
         savepath = os.path.join(filepath, "configs.pkl")
-        if not os.path.isfile(savepath + ".npz"):
+        if not os.path.isfile(savepath):
             with open(savepath, 'wb') as f:
                 pickle.dump(cfg, f)
 

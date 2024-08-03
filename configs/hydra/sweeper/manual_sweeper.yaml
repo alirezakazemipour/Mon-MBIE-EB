@@ -7,7 +7,12 @@ params:
   experiment: short
   experiment.hide_progress_bar: True
   experiment.datadir: data
-  experiment.rng_seed: range(0, 100)
+  experiment.rng_seed: range(0, 3)
   monitor: ask, button
-  monitor.prob: 1.00, 0.75, 0.50, 0.25, 0.10, 0.01
+  monitor.prob: 0.50, 0.25, 0.10
+  agent.critic.ucb_re: 0.4
+  agent.critic.ucb_rm: 0.4
+  agent.critic.ucb_p: 0
+  agent.critic.r_min: 0
+  agent.critic.r_max: 1
 

@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 from omegaconf import DictConfig
 from src.utils import random_argmax
 
-f = lambda t: 1 + t * math.log(t) ** 2
 
 class Critic(ABC):
     @abstractmethod
@@ -51,6 +50,7 @@ class MonQCritic(Critic):
         self.B = kwargs["ucb_rm"]
         self.C = kwargs["ucb_p"]
         self.beta = kwargs["beta"]
+        self.r_min, self.r_max = kwargs["r_min"], kwargs["r_max"]
 
         self.n_obs_env = None
         self.n_obs_mon = None
@@ -96,37 +96,29 @@ class MonQCritic(Critic):
         return 0
 
     def calc_opti_q(self, rng):
+        avg_rwd = np.zeros((self.n_obs_env, self.n_act_env))
+        for s in range(self.n_obs_env):
+            for a in range(self.n_act_env):
+                if self._n_env[s, a] != 0:
+                    avg_rwd[s, a] = self._nr_env[s, a] / self._n_env[s, a]
 
         for se in range(self.n_obs_env):
             for ae in range(self.n_act_env):
                 if self._n_tot_env[se, ae] == 0:
-                    self._q_joint[se, :, ae, :] = self.q0
                     continue
-                # t_n = math.log(self._n_tot_env.sum()) / self._n_tot_env[se].sum() + math.log(
-                #     self._n_tot_env[se].sum()) / self._n_tot_env[se, ae]
-                # if self._n_env[se, ae] == 0 and t_n < self.beta:
-                #     self._q_joint[se, :, ae, :] = -self.q0
-                #     continue
-                # elif self._n_env[se, ae] == 0 and t_n >= self.beta:
-                #     self._q_joint[se, :, ae, :] = self.q0
-                #     continue
-                else:
-                    for sm in range(self.n_obs_mon):
-                        for am in range(self.n_act_mon):
-                            s = se, sm
-                            a = ae, am
-                            if self._n_joint[*s, *a] == 0:
-                                self._q_joint[*s, *a] = self.q0
-                                continue
+                t_n = math.log(self._n_tot_env.sum()) / self._n_tot_env[se].sum() + math.log(
+                    self._n_tot_env[se].sum()) / self._n_tot_env[se, ae]
+                if self._n_env[se, ae] == 0 and t_n < self.beta:
+                    avg_rwd[se, ae] = self.r_min
+                elif self._n_env[se, ae] == 0 and t_n >= self.beta:
+                    avg_rwd[se, ae] = self.r_max
 
-        r_env_bar = np.ones((self.n_obs_env, self.n_act_env))
+        r_env_bar = np.zeros((self.n_obs_env, self.n_act_env))
         for s in range(self.n_obs_env):
             for a in range(self.n_act_env):
                 if self._n_env[s, a] != 0:
-                    t = self._n_env[s].sum()
-                    f_t = f(t)
-                    ucb = self.A * math.sqrt(math.log(f_t) / self._n_env[s, a])
-                    r_env_bar[s, a] = self._nr_env[s, a] / self._n_env[s, a] + ucb
+                    ucb = self.A * math.sqrt(1 / self._n_env[s, a])
+                    r_env_bar[s, a] = avg_rwd[s, a] + ucb
 
         r_mon_bar = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
         for se in range(self.n_obs_env):
@@ -136,12 +128,10 @@ class MonQCritic(Critic):
                         s = se, sm
                         a = ae, am
                         if self._n_joint[*s, *a] != 0:
-                            t = self._n_joint[*s].sum((-2, -1))
-                            f_t = f(t)
-                            ucb = self.B * math.sqrt(math.log(f_t) / self._n_joint[*s, *a])
+                            ucb = self.B * math.sqrt(1 / self._n_joint[*s, *a])
                             r_mon_bar[*s, *a] = self._nr_mon[*s, *a] / self._n_joint[*s, *a] + ucb
 
-        p_joint_hat = np.ones((self.n_obs_env, self.n_obs_mon, self.n_act_env,
+        p_joint_hat = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env,
                                self.n_act_mon, self.n_obs_env, self.n_obs_mon)
                               ) / self.n_obs_env / self.n_obs_mon
         for se in range(self.n_obs_env):
@@ -164,8 +154,6 @@ class MonQCritic(Critic):
                         s = se, sm
                         a = ae, am
                         if self._n_joint[*s, *a] != 0:
-                            t = self._n_joint[*s].sum((-2, -1))
-                            f_t = f(t)
                             ucb = 0.5 * self.C * math.sqrt(1 / self._n_joint[*s, *a])
                             if p_joint_hat[*s, *a, *s_star] + ucb <= 1:
                                 p_joint_hat[*s, *a, *s_star] += ucb
@@ -194,20 +182,14 @@ class MonQCritic(Critic):
         for se in range(self.n_obs_env):
             for ae in range(self.n_act_env):
                 if self._n_tot_env[se, ae] == 0:
-                    continue
-                t_n = math.log(self._n_tot_env.sum()) / self._n_tot_env[se].sum() + math.log(
-                    self._n_tot_env[se].sum()) / self._n_tot_env[se, ae]
-                if self._n_env[se, ae] == 0 and t_n < self.beta:
-                    continue
-                elif self._n_env[se, ae] == 0 and t_n >= self.beta:
-                    continue
+                    self._q_joint[se, :, ae, :] = self.q0
                 else:
                     for sm in range(self.n_obs_mon):
                         for am in range(self.n_act_mon):
                             s = se, sm
                             a = ae, am
                             if self._n_joint[*s, *a] == 0:
-                                continue
+                                self._q_joint[*s, *a] = self.q0
                             else:
                                 self._q_joint[*s, *a] = (r_env_bar[se, ae] + r_mon_bar[*s, *a]
                                                          + self.gamma * np.ravel(p_joint_hat[*s, *a]).T @ np.ravel(

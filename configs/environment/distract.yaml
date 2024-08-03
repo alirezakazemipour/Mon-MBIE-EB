@@ -1,4 +1,4 @@
-id: Gym-Monitor/Gridworld-Quicksand-Distract-4x4-v0
+id: Gym-Grid/Gridworld-Empty-Distract-6x6-v0
 
 monitor:
   forbidden_states:

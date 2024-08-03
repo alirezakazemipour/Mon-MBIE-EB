@@ -23,7 +23,7 @@ WALL = -3
 # endregion
 
 REWARDS = defaultdict(lambda: 0.0)
-REWARDS[GOOD] = 10
+REWARDS[GOOD] = 1
 REWARDS[BAD] = -10
 REWARDS[GOOD_SMALL] = 0.1
 REWARDS[BAD_SMALL] = -0.1
@@ -314,13 +314,12 @@ class Gridworld(gym.Env):
             self.agent_pos = self.last_pos
 
         terminated = False
-        reward = -1
-        reward += REWARDS[self.grid[self.agent_pos]]
+        reward = REWARDS[self.grid[self.agent_pos]]
         if self.grid[self.agent_pos] in [GOOD, GOOD_SMALL]:
             if action == STAY:  # positive rewards are collected only with STAY
                 terminated = True
             else:
-                reward = -1
+                reward = 0
         if self.reward_noise_std > 0.0:
             reward += self.np_random.normal() * self.reward_noise_std
         if reward != 0.0 and self.nonzero_reward_noise_std > 0.0:
@@ -599,10 +598,10 @@ class RiverSwim(Gridworld):
         terminated = False  # infinite horizon
         self.last_action = original_action
 
-        reward = -1
+        reward = 0
         if state == last and action == RIGHT and original_action == RIGHT:
-            reward += 1.0
+            reward = 1.0
         elif state == first and action == LEFT and original_action == LEFT:
-            reward += 0.01
+            reward = 0.01
 
         return obs, reward, terminated, truncated, info

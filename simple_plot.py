@@ -2,14 +2,15 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
-n_runs = 100
+n_runs = 30
 algos = [
     # "MDP",
-    ("PartialObsAsk_1", "blue", "100%"),
-    # ("NeverPartialObsAsk_0.75", "red", "75%"),
-    # ("NeverPartialObsAsk_0.5", "green", "50%"),
-    # ("NeverPartialObsAsk_0.25", "orange", "25%"),
-    ("PartialObsAsk_0.1", "brown", "10%")
+    ("Button_1.0", "blue", "100%"),
+    ("Button_0.75", "red", "75%"),
+    ("Button_0.5", "green", "50%"),
+    ("Button_0.25", "orange", "25%"),
+    ("Button_0.1", "brown", "10%"),
+    ("Button_0.01", "magenta", "1%")
 ]
 plt.style.use('ggplot')
 fig, ax = plt.subplots(figsize=(6.4, 4.8))
@@ -33,10 +34,9 @@ for conf in algos:
     algo, color, legend = conf
     runs = []
     for i in range(n_runs):
-        x = np.load(f"data/mine/grid/{algo}/test_{i}.npy")[:350]
+        x = np.load(f"data/Gym-Grid/RiverSwim-6-v0/{algo}/test_{i}.npy")
         runs.append(x)
-    # print(np.argmin(np.asarray(runs).sum(-1)))
-    # exit()
+
     smoothed = []
     for run in runs:
         val = [run[0]]
@@ -53,7 +53,6 @@ for conf in algos:
                     alpha=0.25,
                     color=color
                     )
-    # prob = min(float(algo[22:26].replace("_", "")) * 100, 100)
     ax.plot(np.arange(len(mean_return)),
             mean_return,
             alpha=1,
@@ -61,26 +60,23 @@ for conf in algos:
             c=color,
             label=legend
             )
-# plt.fill_between(np.arange(len(mean_return)),
-#                  20 - 4.5,
-#                  20 + 4.5,
-#                  alpha=0.15,
-#                  color="magenta"
-#                  )
-# plt.axhline(.447, linestyle='--', label="cautious", c="magenta")
-# plt.axhline(0.941, linestyle='--', label="cautious", c="olive")
-# plt.xlabel("training steps (x100)", weight="bold")
-plt.axhline(0.941, linestyle="--", color="k", linewidth=3, label="optimal")
+plt.axhline(-151.88, linestyle="--", color="k", linewidth=3, label="optimal")
 ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
 plt.title(f"EOP", weight="bold")
-ax.legend(loc="lower right")
+ax.legend(loc="upper left")
 ax.xaxis.set_tick_params(labelsize=20)
 ax.yaxis.set_tick_params(labelsize=20)
+# for i in range(25, 30):
+#     ax.plot(np.arange(len(mean_return)),
+#             smoothed[i],
+#             alpha=1,
+#             linewidth=3,
+#             c=np.random.rand(3,)
+#             )
 
-
-# plt.show()
-plt.savefig("/Users/alirezakazemipour/Desktop/ask_grid.pdf",
-            format="pdf",
-            bbox_inches="tight"
-            )
+plt.show()
+# plt.savefig("/Users/alirezakazemipour/Desktop/ask_grid.pdf",
+#             format="pdf",
+#             bbox_inches="tight"
+#             )
 

@@ -120,8 +120,8 @@ class MonExperiment:
                                     )
                 self._actor.update()
 
-                ep_return_env += rwd["env"]
-                ep_return_mon += rwd["mon"]
+                ep_return_env += (self._gamma ** ep_steps) * rwd["env"]
+                ep_return_mon += (self._gamma ** ep_steps) * rwd["mon"]
 
                 ep_steps += 1
                 obs = next_obs
@@ -153,8 +153,8 @@ class MonExperiment:
                 act = self._actor(obs["env"], obs["mon"], rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env_test.step(act)
-                ep_return_env[ep] += rwd["env"]
-                ep_return_mon[ep] += rwd["mon"]
+                ep_return_env[ep] += (self._gamma ** ep_steps) * rwd["env"]
+                ep_return_mon[ep] += (self._gamma ** ep_steps) * rwd["mon"]
                 if term or trunc:
                     break
                 obs = next_obs
