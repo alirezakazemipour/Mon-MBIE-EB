@@ -2,15 +2,15 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
-n_runs = 30
+n_runs = 3
 algos = [
     # "MDP",
-    ("Button_1.0", "blue", "100%"),
-    ("Button_0.75", "red", "75%"),
+    # ("Button_1.0", "blue", "100%"),
+    # ("Button_0.75", "red", "75%"),
     ("Button_0.5", "green", "50%"),
-    ("Button_0.25", "orange", "25%"),
-    ("Button_0.1", "brown", "10%"),
-    ("Button_0.01", "magenta", "1%")
+    # ("Button_0.25", "orange", "25%"),
+    # ("Button_0.1", "brown", "10%"),
+    # ("Button_0.01", "magenta", "1%")
 ]
 plt.style.use('ggplot')
 fig, ax = plt.subplots(figsize=(6.4, 4.8))
@@ -60,19 +60,19 @@ for conf in algos:
             c=color,
             label=legend
             )
-plt.axhline(-151.88, linestyle="--", color="k", linewidth=3, label="optimal")
+plt.axhline(19, linestyle="--", color="k", linewidth=3, label="optimal")
 ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
 plt.title(f"EOP", weight="bold")
 ax.legend(loc="upper left")
 ax.xaxis.set_tick_params(labelsize=20)
 ax.yaxis.set_tick_params(labelsize=20)
-# for i in range(25, 30):
-#     ax.plot(np.arange(len(mean_return)),
-#             smoothed[i],
-#             alpha=1,
-#             linewidth=3,
-#             c=np.random.rand(3,)
-#             )
+for i in range(0, 3):
+    ax.plot(np.arange(len(mean_return)),
+            smoothed[i],
+            alpha=1,
+            linewidth=3,
+            c=np.random.rand(3,)
+            )
 
 plt.show()
 # plt.savefig("/Users/alirezakazemipour/Desktop/ask_grid.pdf",

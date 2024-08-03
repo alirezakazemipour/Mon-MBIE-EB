@@ -12,7 +12,7 @@ params:
   monitor.prob: 0.50, 0.25, 0.10
   agent.critic.ucb_re: 0.4
   agent.critic.ucb_rm: 0.4
-  agent.critic.ucb_p: 0
+  agent.critic.ucb_p: 0.4
   agent.critic.r_min: 0
   agent.critic.r_max: 1
 
