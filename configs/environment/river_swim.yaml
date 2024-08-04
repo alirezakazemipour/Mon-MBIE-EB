@@ -1,7 +1,9 @@
 id: Gym-Grid/RiverSwim-6-v0
 monitor:
-  tmp:
-    tmp: null
+  button_cell_id: 0
+  button_flip_act: 0
+  forbidden_states:
+
 
 experiment:
   training_steps: 20000
