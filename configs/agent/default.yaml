@@ -2,7 +2,7 @@ critic:
   gamma: 0.99
   q0: 88
   beta: 1e-2
-  ucb_re: 0.4 # 0.4
+  ucb_re: 0.04 # 0.4
   ucb_rm: 0.4 # 0.4
   ucb_p: 0.4 # 0
   r_min: 0

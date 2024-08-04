@@ -7,9 +7,9 @@ algos = [
     # "MDP",
     # ("Button_1.0", "blue", "100%"),
     # ("Button_0.75", "red", "75%"),
-    ("Button_0.5", "green", "50%"),
-    # ("Button_0.25", "orange", "25%"),
-    # ("Button_0.1", "brown", "10%"),
+    ("Ask_0.5", "green", "50%"),
+    ("Ask_0.25", "orange", "25%"),
+    ("Ask_0.1", "brown", "10%"),
     # ("Button_0.01", "magenta", "1%")
 ]
 plt.style.use('ggplot')
@@ -66,13 +66,13 @@ plt.title(f"EOP", weight="bold")
 ax.legend(loc="upper left")
 ax.xaxis.set_tick_params(labelsize=20)
 ax.yaxis.set_tick_params(labelsize=20)
-for i in range(0, 3):
-    ax.plot(np.arange(len(mean_return)),
-            smoothed[i],
-            alpha=1,
-            linewidth=3,
-            c=np.random.rand(3,)
-            )
+# for i in range(1, 2):
+#     ax.plot(np.arange(len(mean_return)),
+#             smoothed[i],
+#             alpha=1,
+#             linewidth=3,
+#             c=np.random.rand(3,)
+#             )
 
 plt.show()
 # plt.savefig("/Users/alirezakazemipour/Desktop/ask_grid.pdf",
