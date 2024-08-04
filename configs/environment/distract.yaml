@@ -2,13 +2,13 @@ id: Gym-Grid/Gridworld-Empty-Distract-6x6-v0
 
 monitor:
   forbidden_states:
-#    - 2
-#    - 8
-#    - 14
-#    - 20
-#    - 26
-#    - 10
-#    - 16
-#    - 22
-#    - 28
-#    - 34
+    - 2
+    - 8
+    - 14
+    - 20
+    - 26
+    - 10
+    - 16
+    - 22
+    - 28
+    - 34

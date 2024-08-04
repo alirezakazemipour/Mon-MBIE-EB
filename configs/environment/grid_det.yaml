@@ -1,9 +1,9 @@
-id: Gym-Monitor/Gridworld-Penalty-3x3-v0
+id: Gym-Grid/Gridworld-Penalty-3x3-v0
 max_episode_steps: 50
 monitor:
   forbidden_states:
-#    - 2
-#    - 8
+    - 1
+    - 4
 #    - 14
 #    - 20
 #    - 26

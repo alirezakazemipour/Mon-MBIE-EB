@@ -1,5 +1,5 @@
-id: Ask
-prob: 0.25
+id: Button
+prob: 0.5
 button_cell_id: 0
 button_flip_act: 0
 forbidden_states: null

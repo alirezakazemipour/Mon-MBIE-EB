@@ -31,7 +31,8 @@ hydra:
       agent.critic.ucb_re: 0.04
       agent.critic.ucb_rm: 0.4
       agent.critic.ucb_p: 0.4
-      agent.critic.q0: 88
+      agent.critic.q_max: 88
+      agent.critic.q_min: -40
       agent.critic.r_min: 0
       agent.critic.r_max: 1
   help:
@@ -143,7 +144,7 @@ hydra:
       experiment: short
       monitor: ask
       agent: default
-      environment: river_swim
+      environment: grid_det
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -155,29 +156,32 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Grid/RiverSwim-6-v0
+  id: Gym-Grid/Gridworld-Penalty-3x3-v0
+  max_episode_steps: 50
   monitor:
-    tmp:
-      tmp: null
+    forbidden_states:
+    - 1
+    - 4
   render_mode: null
 agent:
   critic:
     gamma: 0.99
-    q0: 88
+    q_max: 1
+    q_min: -10
     beta: 0.01
-    ucb_re: 0.04
-    ucb_rm: 0.4
-    ucb_p: 0.4
-    r_min: 0
+    ucb_re: 0.004
+    ucb_rm: 0.004
+    ucb_p: 0.004
+    r_min: -10
     r_max: 1
 monitor:
   id: Ask
-  prob: 0.25
+  prob: 1
   button_cell_id: 0
   button_flip_act: 0
   forbidden_states: null
 experiment:
-  training_steps: 25000
+  training_steps: 35000
   testing_episodes: 100
   testing_frequency: 100
   datadir: null

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
-n_runs = 3
+n_runs = 100
 algos = [
     # "MDP",
     # ("Button_1.0", "blue", "100%"),

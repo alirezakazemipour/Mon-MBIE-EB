@@ -23,7 +23,7 @@ WALL = -3
 # endregion
 
 REWARDS = defaultdict(lambda: 0.0)
-REWARDS[GOOD] = 1
+REWARDS[GOOD] = 10
 REWARDS[BAD] = -10
 REWARDS[GOOD_SMALL] = 0.1
 REWARDS[BAD_SMALL] = -0.1

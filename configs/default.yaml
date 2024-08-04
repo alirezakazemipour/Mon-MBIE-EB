@@ -1,5 +1,5 @@
 defaults:
-  - environment: river_swim
+  - environment: grid_det
   - agent: default
   - monitor: ask
   - experiment: short

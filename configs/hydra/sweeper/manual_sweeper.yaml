@@ -13,7 +13,8 @@ params:
   agent.critic.ucb_re: 0.04
   agent.critic.ucb_rm: 0.4
   agent.critic.ucb_p: 0.4
-  agent.critic.q0: 88
+  agent.critic.q_max: 88
+  agent.critic.q_min: -40
   agent.critic.r_min: 0
   agent.critic.r_max: 1
 
