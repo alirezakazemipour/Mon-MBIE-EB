@@ -52,12 +52,16 @@ def run(cfg: DictConfig) -> None:
                              env.observation_space["mon"].n,
                              env.action_space["env"].n,
                              env.action_space["mon"].n,
-                             **cfg.agent.critic,
+                             **cfg.environment.critic,
                              )
     actor = Greedy(critic)
-    experiment = MonExperiment(env, env_test, actor, critic, **cfg.experiment)
+    experiment = MonExperiment(env,
+                               env_test,
+                               actor,
+                               critic,
+                               **{**cfg.environment.experiment, **cfg.experiment}
+                               )
     return_train_history, return_test_history = experiment.train()
-    # experiment.test()
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,

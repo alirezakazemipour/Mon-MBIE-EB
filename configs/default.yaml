@@ -1,8 +1,6 @@
 defaults:
-  - environment: grid_det
-  - agent: default
+  - environment: oneway
   - monitor: ask
-  - experiment: short
   - _self_
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled

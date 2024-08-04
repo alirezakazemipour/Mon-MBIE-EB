@@ -2,15 +2,15 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
-n_runs = 100
+n_runs = 17
 algos = [
     # "MDP",
-    # ("Button_1.0", "blue", "100%"),
-    # ("Button_0.75", "red", "75%"),
-    ("Ask_0.5", "green", "50%"),
-    ("Ask_0.25", "orange", "25%"),
-    ("Ask_0.1", "brown", "10%"),
-    # ("Button_0.01", "magenta", "1%")
+    ("Button_1.0", "blue", "100%"),
+    ("Button_0.75", "red", "75%"),
+    ("Button_0.5", "green", "50%"),
+    ("Button_0.25", "orange", "25%"),
+    ("Button_0.1", "brown", "10%"),
+    ("Button_0.01", "magenta", "1%")
 ]
 plt.style.use('ggplot')
 fig, ax = plt.subplots(figsize=(6.4, 4.8))
@@ -34,7 +34,7 @@ for conf in algos:
     algo, color, legend = conf
     runs = []
     for i in range(n_runs):
-        x = np.load(f"data/Gym-Grid/RiverSwim-6-v0/{algo}/test_{i}.npy")
+        x = np.load(f"data/Gym-Grid/Gridworld-Empty-Distract-6x6-v0/{algo}/test_{i}.npy")
         runs.append(x)
 
     smoothed = []
@@ -60,7 +60,7 @@ for conf in algos:
             c=color,
             label=legend
             )
-plt.axhline(19, linestyle="--", color="k", linewidth=3, label="optimal")
+plt.axhline(0.9, linestyle="--", color="k", linewidth=3, label="optimal")
 ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
 plt.title(f"EOP", weight="bold")
 ax.legend(loc="upper left")

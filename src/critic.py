@@ -6,6 +6,7 @@ from src.utils import random_argmax
 
 f = lambda t: 1 + t * math.log(t) ** 2
 
+
 class Critic(ABC):
     @abstractmethod
     def __init__(self, **kwargs):
@@ -47,6 +48,7 @@ class MonQCritic(Critic):
 
         self.gamma = gamma
         self.q_max = kwargs["q_max"]
+        self.q_min = kwargs["q_min"]
         self.A = kwargs["ucb_re"]
         self.B = kwargs["ucb_rm"]
         self.C = kwargs["ucb_p"]
@@ -105,7 +107,7 @@ class MonQCritic(Critic):
                 t_n = math.log(self._n_tot_env.sum()) / self._n_tot_env[se].sum() + math.log(
                     self._n_tot_env[se].sum()) / self._n_tot_env[se, ae]
                 if self._n_env[se, ae] == 0 and t_n < self.beta:
-                    self._q_joint[se, :, ae, :] = -200
+                    self._q_joint[se, :, ae, :] = self.q_min
                     continue
                 elif self._n_env[se, ae] == 0 and t_n >= self.beta:
                     self._q_joint[se, :, ae, :] = self.q_max
@@ -164,8 +166,6 @@ class MonQCritic(Critic):
                         s = se, sm
                         a = ae, am
                         if self._n_joint[*s, *a] != 0:
-                            t = self._n_joint[*s].sum((-2, -1))
-                            f_t = f(t)
                             ucb = 0.5 * self.C * math.sqrt(1 / self._n_joint[*s, *a])
                             if p_joint_hat[*s, *a, *s_star] + ucb <= 1:
                                 p_joint_hat[*s, *a, *s_star] += ucb
