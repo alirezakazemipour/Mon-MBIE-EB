@@ -1,5 +1,5 @@
 defaults:
-  - environment: oneway
+  - environment: distract
   - monitor: ask
   - _self_
   - override hydra/hydra_logging: disabled

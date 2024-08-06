@@ -24,7 +24,7 @@ def run(cfg: DictConfig) -> None:
                                                          )
 
     # ret = []
-    # for i in tqdm(range(10000)):
+    # for i in tqdm(range(100)):
     #     np.random.seed(i)
     #     ret_e = 0
     #     obs, _ = env.reset(seed=i)
@@ -33,12 +33,12 @@ def run(cfg: DictConfig) -> None:
     #         while obs["mon"] == 1:
     #             a = {"env": 0, "mon": 0}
     #             obs, r, term, trunc, _ = env.step(a)
-    #             ret_e += r["env"] + r["mon"]
+    #             ret_e += (0.99 ** t) * (r["env"] + r["mon"])
     #             t += 1
     #
     #         a = {"env": 1, "mon": 0}
     #         obs, r, term, trunc, _ = env.step(a)
-    #         ret_e += (r["env"] + r["mon"])
+    #         ret_e += (0.99 ** t)*(r["env"] + r["mon"])
     #         if term or trunc:
     #             ret.append(ret_e)
     #             break

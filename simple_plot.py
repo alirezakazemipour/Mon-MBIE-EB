@@ -2,16 +2,6 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
-n_runs = 17
-algos = [
-    # "MDP",
-    ("Button_1.0", "blue", "100%"),
-    ("Button_0.75", "red", "75%"),
-    ("Button_0.5", "green", "50%"),
-    ("Button_0.25", "orange", "25%"),
-    ("Button_0.1", "brown", "10%"),
-    ("Button_0.01", "magenta", "1%")
-]
 plt.style.use('ggplot')
 fig, ax = plt.subplots(figsize=(6.4, 4.8))
 ax.spines['top'].set_visible(False)
@@ -21,22 +11,54 @@ SMALL_SIZE = 8
 MEDIUM_SIZE = 24
 BIGGER_SIZE = 26
 
-plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
-plt.rc('axes', titlesize=MEDIUM_SIZE)     # fontsize of the axes title
-plt.rc('axes', labelsize=BIGGER_SIZE)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
-plt.rc('legend', fontsize=17)    # legend fontsize
+plt.rc('font', size=SMALL_SIZE)  # controls default text sizes
+plt.rc('axes', titlesize=MEDIUM_SIZE)  # fontsize of the axes title
+plt.rc('axes', labelsize=BIGGER_SIZE)  # fontsize of the x and y labels
+plt.rc('xtick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
+plt.rc('legend', fontsize=17)  # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)
+plt.title(f"EOP", weight="bold")
 
+n_runs = 100
+monitor = "Ask"
+env = "Gridworld-Empty-Distract-6x6-v0"
+
+info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
+                           "Button": (192.72, "optimal"),
+                           },
+        "Gridworld-Penalty-3x3-v0": {"Ask": (9.415, "cautious"),
+                                     "Button": (8.878, "cautious"),
+                                     },
+        "Gridworld-Corridor-3x4-v0": {"Ask": (9.409, "optimal"),
+                                      "Button": (8.972, "optimal"),
+                                      },
+        "Gridworld-Empty-Distract-6x6-v0": {"Ask": (9.411, "cautious"),
+                                            "Button": (8.057, "cautious"),
+                                            },
+        }
+
+algos = [
+    (f"{monitor}_1.0", "blue", "100%"),
+    # (f"{monitor}_0.75", "red", "75%"),
+    # (f"{monitor}_0.5", "green", "50%"),
+    # (f"{monitor}_0.25", "orange", "25%"),
+    # (f"{monitor}_0.1", "brown", "10%"),
+    # (f"{monitor}_0.01", "magenta", "1%")
+]
+
+assert n_runs == 100
 
 for conf in algos:
     algo, color, legend = conf
+    ref, opt_caut = info[env][monitor]
     runs = []
     for i in range(n_runs):
-        x = np.load(f"data/Gym-Grid/Gridworld-Empty-Distract-6x6-v0/{algo}/test_{i}.npy")
+        x = np.load(f"data/Gym-Grid/{env}/{algo}/test_{i}.npy")
         runs.append(x)
-
+    print(np.argmin(np.array(runs).sum(-1)))
+    print(np.array(runs).mean(-1)[2])
+    exit()
     smoothed = []
     for run in runs:
         val = [run[0]]
@@ -60,23 +82,14 @@ for conf in algos:
             c=color,
             label=legend
             )
-plt.axhline(0.9, linestyle="--", color="k", linewidth=3, label="optimal")
+plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
 ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
-plt.title(f"EOP", weight="bold")
-ax.legend(loc="upper left")
+ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0.3))
 ax.xaxis.set_tick_params(labelsize=20)
 ax.yaxis.set_tick_params(labelsize=20)
-# for i in range(1, 2):
-#     ax.plot(np.arange(len(mean_return)),
-#             smoothed[i],
-#             alpha=1,
-#             linewidth=3,
-#             c=np.random.rand(3,)
-#             )
 
 plt.show()
-# plt.savefig("/Users/alirezakazemipour/Desktop/ask_grid.pdf",
+# plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
 #             format="pdf",
 #             bbox_inches="tight"
 #             )
-
