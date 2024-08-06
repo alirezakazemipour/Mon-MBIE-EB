@@ -6,6 +6,6 @@ params:
   environment: distract, grid_det, hazard, oneway, river_swim, two_room
   experiment.hide_progress_bar: True
   experiment.datadir: data
-  experiment.rng_seed: range(0, 30)
+  experiment.rng_seed: range(0, 100)
   monitor: ask, button
   monitor.prob: 1.00, 0.75, 0.50, 0.25, 0.10, 0.01

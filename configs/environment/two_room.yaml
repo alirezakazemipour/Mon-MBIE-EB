@@ -17,6 +17,6 @@ critic:
   q_max: 10
   q_min: -100
   beta: 1e-1
-  ucb_re: 0.0004
+  ucb_re: 0.004
   ucb_rm: 0.0004
   ucb_p: 0.0004

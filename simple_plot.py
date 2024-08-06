@@ -36,14 +36,20 @@ info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
         "Gridworld-Empty-Distract-6x6-v0": {"Ask": (9.411, "cautious"),
                                             "Button": (8.057, "cautious"),
                                             },
+        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (9.044, "cautious"),
+                                               "Button": (8.413, "cautious"),
+                                               },
+        # "Gridworld-Quicksand-Distract-4x4-v0": {"Ask": (, "optimal"),
+        #                                         "Button": (, "optimal"),
+        #                                         },
         }
 
 algos = [
-    (f"{monitor}_1.0", "blue", "100%"),
+    # (f"{monitor}_1.0", "blue", "100%"),
     # (f"{monitor}_0.75", "red", "75%"),
     # (f"{monitor}_0.5", "green", "50%"),
     # (f"{monitor}_0.25", "orange", "25%"),
-    # (f"{monitor}_0.1", "brown", "10%"),
+    (f"{monitor}_0.1", "brown", "10%"),
     # (f"{monitor}_0.01", "magenta", "1%")
 ]
 
@@ -57,7 +63,7 @@ for conf in algos:
         x = np.load(f"data/Gym-Grid/{env}/{algo}/test_{i}.npy")
         runs.append(x)
     print(np.argmin(np.array(runs).sum(-1)))
-    print(np.array(runs).mean(-1)[2])
+    print(len(np.array(runs)[84]))
     exit()
     smoothed = []
     for run in runs:
