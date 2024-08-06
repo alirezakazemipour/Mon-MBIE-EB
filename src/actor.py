@@ -24,7 +24,7 @@ class Actor(ABC):
         Draw the greedy action, i.e., the one maximizing the critic's estimate
         of the state-action value. Not vectorized.
         """
-        q = self._critic._q_joint[obs_env, obs_mon]
+        q = self._critic.q_joint[obs_env, obs_mon]
         return tuple(random_argmax(q, rng))
 
     @abstractmethod
@@ -44,9 +44,9 @@ class Actor(ABC):
 
 class Greedy(Actor):
     def __init__(
-        self,
-        critic: Critic,
-        **kwargs,
+            self,
+            critic: Critic,
+            **kwargs,
     ):
         """
         Args:
@@ -58,7 +58,7 @@ class Greedy(Actor):
         Actor.__init__(self, critic)
 
     def __call__(self, obs_env, obs_mon, rng=np.random):
-            return self.greedy_call(obs_env, obs_mon, rng)
+        return self.greedy_call(obs_env, obs_mon, rng)
 
     def update(self):
         pass

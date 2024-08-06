@@ -4,7 +4,7 @@ from tqdm import tqdm
 import warnings
 
 from src.actor import Actor
-from src.critic import Critic
+from src.critic import MonQTableCritic
 from src.utils import set_rng_seed, cantor_pairing
 
 
@@ -13,7 +13,7 @@ class MonExperiment:
                  env: gym.Env,
                  env_test: gym.Env,
                  actor: Actor,
-                 critic: Critic,
+                 critic: MonQTableCritic,
                  training_steps: int,
                  testing_episodes: int,
                  testing_frequency: int,
@@ -139,7 +139,7 @@ class MonExperiment:
         self._env_test.close()
         pbar.close()
 
-        return return_train_history, return_test_history
+        return return_test_history, self._critic.n_tot_env, self._critic.q_joint.mean((-1, -3))
 
     def test(self):
         ep_return_env = np.zeros(self._testing_episodes)

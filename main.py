@@ -61,7 +61,7 @@ def run(cfg: DictConfig) -> None:
                                critic,
                                **{**cfg.environment.experiment, **cfg.experiment}
                                )
-    return_train_history, return_test_history = experiment.train()
+    return_test_history, s_a_visits, s_a_values = experiment.train()
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,
@@ -70,8 +70,10 @@ def run(cfg: DictConfig) -> None:
                                 )
         os.makedirs(filepath, exist_ok=True)
         seed = str(cfg.experiment.rng_seed)
-        savepath = os.path.join(filepath, "train_" + seed)
-        np.save(savepath, np.array(return_train_history))
+        savepath = os.path.join(filepath, "visits_" + seed)
+        np.save(savepath, s_a_visits)
+        savepath = os.path.join(filepath, "values_" + seed)
+        np.save(savepath, s_a_values)
         savepath = os.path.join(filepath, "test_" + seed)
         np.save(savepath, np.array(return_test_history))
         savepath = os.path.join(filepath, "configs.pkl")
