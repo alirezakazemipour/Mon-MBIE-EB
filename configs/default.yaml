@@ -9,7 +9,7 @@ environment:
   render_mode: null
 
 experiment:
-  datadir: null
+  datadir: heatmap
   debugdir: null
   rng_seed: 84
   hide_progress_bar: False

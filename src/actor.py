@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from abc import ABC, abstractmethod
 from omegaconf import DictConfig
 
@@ -19,13 +20,20 @@ class Actor(ABC):
         """
         pass
 
-    def greedy_call(self, obs_env, obs_mon, rng=np.random):
+    def greedy_call(self, obs_env, obs_mon, explore=False, rng=np.random):
         """
         Draw the greedy action, i.e., the one maximizing the critic's estimate
         of the state-action value. Not vectorized.
         """
-        q = self._critic.q_joint[obs_env, obs_mon]
-        return tuple(random_argmax(q, rng))
+
+        if explore:
+            q = self._critic.q_visit[obs_env]
+            ae = rng.choice(np.flatnonzero(q == q.max()))
+            am = rng.integers(self._critic.n_act_mon)
+            return ae, am
+        else:
+            q = self._critic.q_joint[obs_env, obs_mon]
+            return tuple(random_argmax(q, rng))
 
     @abstractmethod
     def update(self):
@@ -57,8 +65,8 @@ class Greedy(Actor):
 
         Actor.__init__(self, critic)
 
-    def __call__(self, obs_env, obs_mon, rng=np.random):
-        return self.greedy_call(obs_env, obs_mon, rng)
+    def __call__(self, obs_env, obs_mon, explore=False, rng=np.random):
+        return self.greedy_call(obs_env, obs_mon, explore, rng)
 
     def update(self):
         pass

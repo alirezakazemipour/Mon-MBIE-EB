@@ -62,6 +62,7 @@ def run(cfg: DictConfig) -> None:
                                **{**cfg.environment.experiment, **cfg.experiment}
                                )
     return_test_history, s_a_visits, s_a_values = experiment.train()
+    experiment.test()
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,

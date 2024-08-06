@@ -1,3 +1,5 @@
+import math
+
 import gymnasium as gym
 import numpy as np
 from tqdm import tqdm
@@ -41,6 +43,7 @@ class MonExperiment:
         self._actor = actor
         self._critic = critic
         self._gamma = critic.gamma
+        self.beta = critic.beta
 
         self._training_steps = training_steps
         self._testing_episodes = testing_episodes
@@ -55,6 +58,7 @@ class MonExperiment:
         self._critic.reset()
 
         tot_steps = 0
+        explore_steps = 0
         tot_episodes = 0
         last_ep_return_env = np.nan
         last_ep_return_mon = np.nan
@@ -73,7 +77,13 @@ class MonExperiment:
                                  )
             ep_seed = cantor_pairing(self._rng_seed, tot_episodes)
             rng = np.random.default_rng(ep_seed)
-            self._critic.calc_opti_q(rng)
+            if math.log(tot_steps + 1e-4) / (explore_steps + 1e-4) > self.beta:
+                explore = True
+                self._critic.calc_visit_q(rng)
+                explore_steps += 1
+            else:
+                explore = False
+                self._critic.calc_opti_q(rng)
             obs, _ = self._env.reset(seed=ep_seed)
             ep_return_env = 0.0
             ep_return_mon = 0.0
@@ -103,7 +113,7 @@ class MonExperiment:
                 return_train_history.append(train_dict["train/return"])
 
                 tot_steps += 1
-                act = self._actor(obs["env"], obs["mon"], rng)
+                act = self._actor(obs["env"], obs["mon"], explore, rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env.step(act)
 
@@ -150,7 +160,7 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
             ep_steps = 0
             while True:
-                act = self._actor(obs["env"], obs["mon"], rng)
+                act = self._actor(obs["env"], obs["mon"], False, rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env_test.step(act)
                 ep_return_env[ep] += (self._gamma ** ep_steps) * rwd["env"]
