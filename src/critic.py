@@ -52,7 +52,6 @@ class MonQCritic(Critic):
         self.A = kwargs["ucb_re"]
         self.B = kwargs["ucb_rm"]
         self.C = kwargs["ucb_p"]
-        self.beta = kwargs["beta"]
 
         self.n_obs_env = None
         self.n_obs_mon = None
@@ -168,7 +167,7 @@ class MonQCritic(Critic):
                         s = se, sm
                         a = ae, am
                         if self.n_joint[*s, *a] == 0:
-                            continue
+                            self.q_joint[*s, *a] = self.q_max
                         else:
                             self.q_joint[*s, *a] = (self.rwd_model[se, ae] + r_mon_bar[*s, *a]
                                                     + self.gamma * np.ravel(p_joint_hat[*s, *a]).T @ np.ravel(
@@ -197,8 +196,8 @@ class MonQCritic(Critic):
         s_star = rng.choice(np.flatnonzero(v_obs == v_obs.max()))
         for s in range(self.n_obs_env):
             for a in range(self.n_act_env):
-                if self.n_env[s, a] != 0:
-                    ucb = 0.5 * self.C * math.sqrt(1 / self.n_env[s, a])
+                if self.n_tot_env[s, a] != 0:
+                    ucb = 0.5 * self.C * math.sqrt(1 / self.n_tot_env[s, a])
                     if p_env_hat[s, a, s_star] + ucb <= 1:
                         p_env_hat[s, a, s_star] += ucb
                         residual = -ucb
@@ -225,8 +224,8 @@ class MonQCritic(Critic):
                 if self.n_tot_env[s, a] == 0:
                     self.q_visit[s, a] = 1
                 else:
-                    # tmp = np.floor(r_visit_bar[s, a])
-                    term = self.nd_env[s, a]
+                    tmp = np.sign(self.n_env[s, a])
+                    term = np.logical_or(self.nd_env[s, a], tmp)
                     self.q_visit[s, a] = (
                                 r_obs_bar[s, a] + self.gamma * np.ravel(p_env_hat[s, a]).T @ np.ravel(v_obs) * (
                                     1 - term)
