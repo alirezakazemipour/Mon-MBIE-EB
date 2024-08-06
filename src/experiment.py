@@ -80,7 +80,6 @@ class MonExperiment:
             if math.log(tot_steps + 1e-4) / (explore_steps + 1e-4) > self.beta:
                 explore = True
                 self._critic.calc_visit_q(rng)
-                explore_steps += 1
             else:
                 explore = False
                 self._critic.calc_opti_q(rng)
@@ -113,6 +112,8 @@ class MonExperiment:
                 return_train_history.append(train_dict["train/return"])
 
                 tot_steps += 1
+                if explore:
+                    explore_steps += 1
                 act = self._actor(obs["env"], obs["mon"], explore, rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env.step(act)

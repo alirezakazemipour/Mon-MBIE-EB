@@ -60,7 +60,6 @@ for conf in algos:
     ref, opt_caut = info[env][monitor]
     runs = []
     for i in range(n_runs):
-        x = np.load(f"data/Gym-Grid/{env}/{algo}/test_{i}.npy")
         runs.append(x)
     print(np.argmin(np.array(runs).sum(-1)))
     print(len(np.array(runs)[84]))
