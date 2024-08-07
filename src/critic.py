@@ -236,10 +236,8 @@ class MonQCritic(Critic):
                 if self.n_tot_env[s, a] == 0:
                     self.q_obs[s, a] = 2
                 else:
-                    tmp = np.sign(self.n_env[s, a])
-                    term = np.logical_or(self.nd_env[s, a], tmp)
                     self.q_obs[s, a] = (obsv_bar[s, a] + self.gamma * np.ravel(p_env_hat[s, a]).T @ np.ravel(v_obs) * (
-                                    1 - term)
+                                    1 - self.nd_env[s, a])
                                 )
 
     def reset(self):
