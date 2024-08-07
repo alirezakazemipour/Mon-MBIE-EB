@@ -1,5 +1,5 @@
 defaults:
-  - environment: two_room
+  - environment: oneway
   - monitor: button
   - _self_
   - override hydra/hydra_logging: disabled

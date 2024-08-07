@@ -234,7 +234,7 @@ class MonQCritic(Critic):
         for s in range(self.n_obs_env):
             for a in range(self.n_act_env):
                 if self.n_tot_env[s, a] == 0:
-                    self.q_obs[s, a] = 2
+                    self.q_obs[s, a] = 60
                 else:
                     self.q_obs[s, a] = (obsv_bar[s, a] + self.gamma * np.ravel(p_env_hat[s, a]).T @ np.ravel(v_obs) * (
                                     1 - self.nd_env[s, a])
