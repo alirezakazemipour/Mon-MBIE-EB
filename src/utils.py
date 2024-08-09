@@ -12,6 +12,16 @@ def random_argmax(x, rng=np.random):
     return tuple(best[i])
 
 
+def random_argmin(x, rng=np.random):
+    """
+    Simple random tiebreak for np.argmax() for when there are multiple max values.
+    """
+
+    best = np.argwhere(x == x.min())
+    i = rng.choice(range(best.shape[0]))
+    return tuple(best[i])
+
+
 # https://en.wikipedia.org/wiki/Pairing_function
 def cantor_pairing(x: int, y: int) -> int:
     """

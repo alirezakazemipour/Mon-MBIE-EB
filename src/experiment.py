@@ -58,7 +58,7 @@ class MonExperiment:
         self._critic.reset()
 
         tot_steps = 0
-        explore_steps = 0
+        explore_episodes = 0
         tot_episodes = 0
         last_ep_return_env = np.nan
         last_ep_return_mon = np.nan
@@ -77,17 +77,20 @@ class MonExperiment:
                                  )
             ep_seed = cantor_pairing(self._rng_seed, tot_episodes)
             rng = np.random.default_rng(ep_seed)
-            if math.log(tot_steps + 1e-4) / (explore_steps + 1e-4) > self.beta:
-                explore = True
-                self._critic.calc_visit_q(rng)
-            else:
-                explore = False
-                self._critic.calc_opti_q(rng)
+            # if math.log(tot_episodes + 1e-4) / (explore_episodes + 1e-4) > self.beta:
+            #     explore = True
+            #     self._critic.calc_visit_q(rng)
+            # else:
+            #     explore = False
+            self._critic.calc_opti_q(rng)
+            explore = False
             obs, _ = self._env.reset(seed=ep_seed)
             ep_return_env = 0.0
             ep_return_mon = 0.0
             ep_steps = 0
             tot_episodes += 1
+            if explore:
+                explore_episodes += 1
 
             while True:
                 if tot_steps % self._testing_frequency == 0:
@@ -112,8 +115,6 @@ class MonExperiment:
                 return_train_history.append(train_dict["train/return"])
 
                 tot_steps += 1
-                if explore:
-                    explore_steps += 1
                 act = self._actor(obs["env"], obs["mon"], explore, rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self._env.step(act)
