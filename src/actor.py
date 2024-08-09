@@ -27,13 +27,10 @@ class Actor(ABC):
         """
 
         if explore:
-            q = self._critic.q_visit[obs_env]
-            ae = rng.choice(np.flatnonzero(q == q.max()))
-            am = rng.integers(self._critic.n_act_mon)
-            return ae, am
+            q = self._critic.q_obs[obs_env, obs_mon]
         else:
             q = self._critic.q_joint[obs_env, obs_mon]
-            return tuple(random_argmax(q, rng))
+        return tuple(random_argmax(q, rng))
 
     @abstractmethod
     def update(self):
