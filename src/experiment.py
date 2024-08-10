@@ -60,6 +60,7 @@ class MonExperiment:
         tot_steps = 0
         explore_steps = 0
         tot_episodes = 0
+        explore_cnt = 1
         last_ep_return_env = np.nan
         last_ep_return_mon = np.nan
         test_return_env = np.nan
@@ -77,9 +78,10 @@ class MonExperiment:
                                  )
             ep_seed = cantor_pairing(self.rng_seed, tot_episodes)
             rng = np.random.default_rng(ep_seed)
-            if math.log(tot_steps + 1e-4) / (explore_steps + 1e-4) > self.beta:
+            if tot_episodes % explore_cnt == 0:
                 explore = True
                 self.critic.plan4monitor(rng)
+                explore_cnt *= 2
             else:
                 explore = False
                 self.critic.opt_pess_mbie(rng)
@@ -112,23 +114,23 @@ class MonExperiment:
                 return_train_history.append(train_dict["train/return"])
 
                 tot_steps += 1
-                if explore:
-                    explore_steps += 1
+                # if explore:
+                #     explore_steps += 1
                 act = self.actor(obs["env"], obs["mon"], explore, rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self.env.step(act)
 
                 self.critic.update(np.asarray([obs["env"]]),
-                                    np.asarray([obs["mon"]]),
-                                    np.asarray([act["env"]]),
-                                    np.asarray([act["mon"]]),
-                                    np.asarray([rwd["env"]]),
-                                    np.asarray([rwd["mon"]]),
-                                    np.asarray([rwd["proxy"]]),
-                                    np.asarray([term]),
-                                    np.asarray([next_obs["env"]]),
-                                    np.asarray([next_obs["mon"]]),
-                                    )
+                                   np.asarray([obs["mon"]]),
+                                   np.asarray([act["env"]]),
+                                   np.asarray([act["mon"]]),
+                                   np.asarray([rwd["env"]]),
+                                   np.asarray([rwd["mon"]]),
+                                   np.asarray([rwd["proxy"]]),
+                                   np.asarray([term]),
+                                   np.asarray([next_obs["env"]]),
+                                   np.asarray([next_obs["mon"]]),
+                                   )
 
                 ep_return_env += (self.gamma ** ep_steps) * rwd["env"]
                 ep_return_mon += (self.gamma ** ep_steps) * rwd["mon"]
@@ -149,7 +151,14 @@ class MonExperiment:
         self.env_test.close()
         pbar.close()
 
-        return return_test_history, self.critic.env_visit, self.critic.joint_q.mean((-1, -3))
+        data = {"test_return": return_test_history,
+                "env_visit": self.critic.env_visit,
+                "joint_q": self.critic.joint_q,
+                "obsrv_q": self.critic.obsrv_q,
+                "joint_count": self.critic.joint_count,
+                "joint_obsv_count": self.critic.joint_obsv_count
+                }
+        return data
 
     def test(self):
         ep_return_env = np.zeros(self.testing_episodes)

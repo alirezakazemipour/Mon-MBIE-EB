@@ -201,14 +201,11 @@ class MonQCritic(Critic):
 
         for s in self.joint_obs:
             for a in self.joint_act:
-                se, sm = s
-                ae, am = a
                 if self.joint_count[*s, *a] == 0:
                     continue  # obsrv_q has been set for this case before
                 else:
                     self.obsrv_q[*s, *a] = (
                                 obsv_bar[*s, *a] + self.gamma * np.ravel(p_obsv_bar[*s, *a]).T @ np.ravel(obsrv_v)
-                                * (1 - self.env_term[se, ae])
                                 )
 
     def reset(self):

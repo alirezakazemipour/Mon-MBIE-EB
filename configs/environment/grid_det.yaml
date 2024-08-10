@@ -3,20 +3,20 @@ monitor:
   button_cell_id: 8
   button_flip_act: 1
   forbidden_states:
-    - 1
-    - 4
+#    - 1
+#    - 4
 
 experiment:
-  training_steps: 80000
+  training_steps: 20000
   testing_episodes: 100
   testing_frequency: 1000
-  beta: 1
+  beta: 0.1
 
 
 critic:
   gamma: 0.99
   joint_max_q: 10
-  obsrv_max_q: 100
+  obsrv_max_q: 50
   env_min_r: -10
   mon_max_r: 0
   ucb_re: 0.0004

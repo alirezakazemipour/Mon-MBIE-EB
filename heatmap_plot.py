@@ -3,8 +3,16 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 
 
-x = np.load(f"heatmap/Gym-Grid/Gridworld-Corridor-3x4-v0/Button_0.25/visits_84.npy")
-x = (x[:, 2].reshape(3, 4))
+x = np.load(f"heatmap/Gym-Grid/Gridworld-Penalty-3x3-v0/Button_0.4/data_387.npz")
+obsrv_q = x["obsrv_q"]
+joint_count = x["joint_count"]
+joint_obsrv_count = x["joint_obsv_count"]
+
+obsrv_q_off = obsrv_q[:, 0, ...]
+obsrv_q_on = obsrv_q[:, 1, ...]
+
+
+x = joint_count[:, 1,...].sum(axis=(-2)).reshape(3, 3)
 sns.heatmap(x, annot=True, fmt=".1f", linewidth=.5)
 
 # plt.figure()
@@ -15,4 +23,3 @@ sns.heatmap(x, annot=True, fmt=".1f", linewidth=.5)
 
 
 plt.show()
-print(x.shape)
