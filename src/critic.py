@@ -166,7 +166,9 @@ class MonQCritic(Critic):
             for a in self.joint_act:
                 if self.joint_count[*s, *a] != 0:
                     ucb = self.a * math.sqrt(1 / self.joint_count[*s, *a])
-                    obsv_bar[*s, *a] += ucb
+                    obsv_bar[*s, *a] = np.clip(obsv_bar[*s, *a] + ucb, 0, 1)
+                    if obsv_bar[*s, *a] > 1:
+                        rr = 0
                 else:
                     self.obsrv_q[*s, *a] = self.obsrv_max_q
 
@@ -207,6 +209,8 @@ class MonQCritic(Critic):
                     self.obsrv_q[*s, *a] = (
                                 obsv_bar[*s, *a] + self.gamma * np.ravel(p_obsv_bar[*s, *a]).T @ np.ravel(obsrv_v)
                                 )
+                    if self.obsrv_q[*s, *a] > 50:
+                        rrr = 0
 
     def reset(self):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))
