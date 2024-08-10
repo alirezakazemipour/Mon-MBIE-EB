@@ -10,7 +10,7 @@ experiment:
   training_steps: 80000
   testing_episodes: 100
   testing_frequency: 1000
-  beta: 0.01
+  beta: 1
 
 
 critic:
