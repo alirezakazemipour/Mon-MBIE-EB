@@ -216,11 +216,11 @@ class MonQCritic(Critic):
         self.env_visit = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_term = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_obsrv_count = np.zeros((self.env_num_obs, self.env_num_act))
-        self.mon_r = np.zeros((self.env_num_obs, self.mon_num_act, self.env_num_act, self.mon_num_act))
-        self.joint_count = np.zeros((self.env_num_obs, self.mon_num_act, self.env_num_act, self.mon_num_act))
-        self.joint_obsv_count = np.zeros((self.env_num_obs, self.mon_num_act, self.env_num_act, self.mon_num_act))
-        self.joint_transit_count = np.zeros((self.env_num_obs, self.mon_num_act, self.env_num_act, self.mon_num_act,
-                                             self.env_num_obs, self.mon_num_act))
+        self.mon_r = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
+        self.joint_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
+        self.joint_obsv_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
+        self.joint_transit_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act,
+                                             self.env_num_obs, self.mon_num_obs))
         self.joint_q = np.ones(
             (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q  # noqa
         self.obsrv_q = np.ones(
@@ -243,7 +243,7 @@ class MonQCritic(Critic):
     @property
     def joint_dynamics(self):
         with np.errstate(divide='ignore', invalid='ignore'):
-            p_joint = self.joint_transit_count / self.joint_count[..., None]
+            p_joint = self.joint_transit_count / self.joint_count[..., None, None]
         p_joint[np.isnan(p_joint)] = 1 / self.joint_num_obs
         return p_joint
 
