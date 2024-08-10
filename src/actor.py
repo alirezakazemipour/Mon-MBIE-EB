@@ -4,12 +4,12 @@ from abc import ABC, abstractmethod
 from omegaconf import DictConfig
 
 from src.utils import random_argmax
-from src.critic import Critic
+from src.critic import MonQCritic
 
 
 class Actor(ABC):
-    def __init__(self, critic: Critic):
-        self._critic = critic
+    def __init__(self, critic: MonQCritic):
+        self.critic = critic
         self._train = True
         self.reset()
 
@@ -27,9 +27,9 @@ class Actor(ABC):
         """
 
         if explore:
-            q = self._critic.q_obs[obs_env, obs_mon]
+            q = self.critic.obsrv_q[obs_env, obs_mon]
         else:
-            q = self._critic.q_joint[obs_env, obs_mon]
+            q = self.critic.joint_q[obs_env, obs_mon]
         return tuple(random_argmax(q, rng))
 
     @abstractmethod
@@ -50,7 +50,7 @@ class Actor(ABC):
 class Greedy(Actor):
     def __init__(
             self,
-            critic: Critic,
+            critic: MonQCritic,
             **kwargs,
     ):
         """

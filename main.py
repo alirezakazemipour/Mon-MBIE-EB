@@ -5,7 +5,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 from src.actor import Greedy
-from src.critic import MonQTableCritic
+from src.critic import MonQCritic
 from src.experiment import MonExperiment
 from src.wrappers import monitor_wrappers
 import pickle
@@ -48,12 +48,12 @@ def run(cfg: DictConfig) -> None:
     # print(np.std(ret))
     # exit()
 
-    critic = MonQTableCritic(env.observation_space["env"].n,
-                             env.observation_space["mon"].n,
-                             env.action_space["env"].n,
-                             env.action_space["mon"].n,
-                             **cfg.environment.critic,
-                             )
+    critic = MonQCritic(env.observation_space["env"].n,
+                        env.observation_space["mon"].n,
+                        env.action_space["env"].n,
+                        env.action_space["mon"].n,
+                        **cfg.environment.critic,
+                        )
     actor = Greedy(critic)
     experiment = MonExperiment(env,
                                env_test,

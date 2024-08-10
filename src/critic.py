@@ -3,6 +3,7 @@ import math
 from abc import ABC, abstractmethod
 from omegaconf import DictConfig
 from src.utils import random_argmax, random_argmin
+import itertools
 
 f = lambda t: 1 + t * math.log(t) ** 2
 
@@ -35,6 +36,10 @@ class MonQCritic(Critic):
     """
 
     def __init__(self,
+                 env_num_obs: int,
+                 mon_num_obs: int,
+                 env_num_act: int,
+                 mon_num_act: int,
                  gamma: float,
                  **kwargs,
                  ):
@@ -47,30 +52,31 @@ class MonQCritic(Critic):
         """
 
         self.gamma = gamma
-        self.q_max = kwargs["q_max"]
-        self.r_min = kwargs["r_min"]
-        self.A = kwargs["ucb_re"]
-        self.B = kwargs["ucb_rm"]
-        self.C = kwargs["ucb_p"]
+        self.joint_max_q = kwargs["joint_max_q"]
+        self.obsrv_max_q = kwargs["obsrv_max_q"]
+        self.env_min_r = kwargs["env_min_r"]
+        self.mon_max_r = kwargs["mon_max_r"]
+        self.a = kwargs["ucb_re"]
+        self.b = kwargs["ucb_rm"]
+        self.c = kwargs["ucb_p"]
 
-        self.n_obs_env = None
-        self.n_obs_mon = None
-        self.n_act_env = None
-        self.n_act_mon = None
+        self.env_num_obs = env_num_obs
+        self.mon_num_obs = mon_num_obs
+        self.env_num_act = env_num_act
+        self.mon_num_act = mon_num_act
+        self.joint_obs = list(itertools.product(range(self.env_num_obs), range(self.mon_num_obs)))
+        self.joint_act = list(itertools.product(range(self.env_num_act), range(self.mon_num_act)))
 
-        self.nr_env = None
-        self.nd_env = None
-        self.n_env = None
-        self.nr_mon = None
-        self.n_joint = None
-        self.np_joint = None
-        self.np_env = None
-        self.q_joint = None
-        self.n_tot_env = None
-        self.np_env = None
-        self.q_obs = None
-        self.rwd_model = None
-        self.no_joint = None
+        self.env_r = None
+        self.env_visit = None
+        self.env_term = None
+        self.env_obsrv_count = None
+        self.mon_r = None
+        self.joint_count = None
+        self.joint_obsv_count = None
+        self.joint_transit_count = None
+        self.joint_q = None
+        self.obsrv_q = None
 
     def update(self,
                obs_env,
@@ -85,227 +91,169 @@ class MonQCritic(Critic):
                next_obs_mon,
                ):
         if not np.isnan(rwd_proxy)[0]:
-            self.n_env[obs_env, act_env] += 1
-            self.nr_env[obs_env, act_env] += rwd_env
-            self.rwd_model[obs_env, act_env] = self.nr_env[obs_env, act_env] / self.n_env[obs_env, act_env]
-            self.no_joint[obs_env, obs_mon, act_env, act_mon] += 1
+            self.env_obsrv_count[obs_env, act_env] += 1
+            self.env_r[obs_env, act_env] += rwd_env
+            self.joint_obsv_count[obs_env, obs_mon, act_env, act_mon] += 1
 
-        self.n_tot_env[obs_env, act_env] += 1
-        self.np_env[obs_env, act_env, next_obs_env] += 1
-        self.n_joint[obs_env, obs_mon, act_env, act_mon] += 1
-        self.nr_mon[obs_env, obs_mon, act_env, act_mon] += rwd_mon
-        self.np_joint[obs_env, obs_mon, act_env, act_mon, next_obs_env, next_obs_mon] += 1
+        self.env_visit[obs_env, act_env] += 1
+        self.joint_count[obs_env, obs_mon, act_env, act_mon] += 1
+        self.mon_r[obs_env, obs_mon, act_env, act_mon] += rwd_mon
+        self.joint_transit_count[obs_env, obs_mon, act_env, act_mon, next_obs_env, next_obs_mon] += 1
 
         if term:
-            self.nd_env[obs_env, act_env] = 1
+            self.env_term[obs_env, act_env] = 1
 
         return 0
 
-    def calc_opti_q(self, rng):
+    def opt_pess_mbie(self, rng):  # noqa
 
-        r_env_bar = np.zeros((self.n_obs_env, self.n_act_env))
-        for s in range(self.n_obs_env):
-            for a in range(self.n_act_env):
-                if self.n_tot_env[s, a] != 0:
-                    t = self.n_tot_env[s].sum()
-                    f_t = math.e
-                    ucb = self.A * math.sqrt(math.log(f_t) / self.n_tot_env[s, a])
-                    r_env_bar[s, a] = self.rwd_model[s, a] + ucb
+        env_rwd_model = self.env_rwd_model
 
-        r_mon_bar = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
-        for se in range(self.n_obs_env):
-            for ae in range(self.n_act_env):
-                for sm in range(self.n_obs_mon):
-                    for am in range(self.n_act_mon):
-                        s = se, sm
-                        a = ae, am
-                        if self.n_joint[*s, *a] != 0:
-                            t = self.n_joint[*s].sum((-2, -1))
-                            f_t = math.e
-                            ucb = self.B * math.sqrt(math.log(f_t) / self.n_joint[*s, *a])
-                            r_mon_bar[*s, *a] = self.nr_mon[*s, *a] / self.n_joint[*s, *a] + ucb
+        mon_rwd_bar = self.mon_rwd_model
+        for s in self.joint_obs:
+            for a in self.joint_act:
+                if self.joint_count[*s, *a] != 0:
+                    ucb = self.b / math.sqrt(self.joint_count[*s, *a])
+                    mon_rwd_bar[*s, *a] += ucb
+                else:
+                    self.joint_q[*s, *a] = self.joint_max_q
 
-        p_joint_hat = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env,
-                                self.n_act_mon, self.n_obs_env, self.n_obs_mon)
-                               )
-        for se in range(self.n_obs_env):
-            for ae in range(self.n_act_env):
-                for sm in range(self.n_obs_mon):
-                    for am in range(self.n_act_mon):
-                        s = se, sm
-                        a = ae, am
-                        if self.n_joint[*s, *a] != 0:
-                            p_joint_hat[*s, *a] = self.np_joint[*s, *a] / self.n_joint[*s, *a]
+        p_joint_bar = self.joint_dynamics
+        joint_v = np.max(self.joint_q, axis=(-2, -1))
+        s_star = random_argmax(joint_v, rng)
 
-        v_joint = np.max(self.q_joint, axis=(-2, -1))
-        s_star = random_argmax(v_joint, rng)
-        for se in range(self.n_obs_env):
-            for ae in range(self.n_act_env):
-                for sm in range(self.n_obs_mon):
-                    for am in range(self.n_act_mon):
-                        s = se, sm
-                        a = ae, am
-                        if self.n_joint[*s, *a] != 0:
-                            ucb = 0.5 * self.C * math.sqrt(1 / self.n_joint[*s, *a])
-                            if p_joint_hat[*s, *a, *s_star] + ucb <= 1:
-                                p_joint_hat[*s, *a, *s_star] += ucb
-                                residual = -ucb
-                            else:
-                                residual = p_joint_hat[*s, *a, *s_star] - 1
-                                p_joint_hat[*s, *a, *s_star] = 1
+        for s in self.joint_obs:
+            for a in self.joint_act:
+                if self.joint_count[*s, *a] != 0:
+                    ucb = 0.5 * self.c * math.sqrt(1 / self.joint_count[*s, *a])
+                    if p_joint_bar[*s, *a, *s_star] + ucb <= 1:
+                        p_joint_bar[*s, *a, *s_star] += ucb
+                        residual = -ucb
+                    else:
+                        residual = p_joint_bar[*s, *a, *s_star] - 1
+                        p_joint_bar[*s, *a, *s_star] = 1
 
-                            next_states = []
-                            for nse in range(self.n_obs_env):
-                                for nsm in range(self.n_obs_mon):
-                                    ns = nse, nsm
-                                    if p_joint_hat[*s, *a, *ns] > 0 and ns != s_star:
-                                        next_states.append((ns, v_joint[*ns]))
-                            next_states.sort(key=lambda x: x[-1])
+                    next_states = []
+                    for ns in self.joint_obs:
+                        if p_joint_bar[*s, *a, *ns] > 0 and ns != s_star:
+                            next_states.append((ns, joint_v[*ns]))
+                    next_states.sort(key=lambda x: x[-1])
 
-                            for ns, _ in next_states:
-                                if p_joint_hat[*s, *a, *ns] + residual >= 0:
-                                    p_joint_hat[*s, *a, *ns] += residual
-                                    break
-                                else:
-                                    residual = p_joint_hat[*s, *a, *ns] + residual
-                                    p_joint_hat[*s, *a, *ns] = 0
-
-        for se in range(self.n_obs_env):
-            for ae in range(self.n_act_env):
-                for sm in range(self.n_obs_mon):
-                    for am in range(self.n_act_mon):
-                        s = se, sm
-                        a = ae, am
-                        if self.n_joint[*s, *a] == 0 or self.n_tot_env[se, ae] == 0:
-                            self.q_joint[*s, *a] = self.q_max
+                    for ns, _ in next_states:
+                        if p_joint_bar[*s, *a, *ns] + residual >= 0:
+                            p_joint_bar[*s, *a, *ns] += residual
+                            break
                         else:
-                            self.q_joint[*s, *a] = (self.rwd_model[se, ae] + r_mon_bar[*s, *a]
-                                                    + self.gamma * np.ravel(p_joint_hat[*s, *a]).T @ np.ravel(v_joint)
-                                                    * (1 - self.nd_env[se, ae])
-                                                    )
+                            residual = p_joint_bar[*s, *a, *ns] + residual
+                            p_joint_bar[*s, *a, *ns] = 0
 
-    # def calc_visit_q(self, rng):
-    #
-    #     obsv_bar = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
-    #     for se in range(self.n_obs_env):
-    #         for ae in range(self.n_act_env):
-    #             for sm in range(self.n_obs_mon):
-    #                 for am in range(self.n_act_mon):
-    #                     s = se, sm
-    #                     a = ae, am
-    #                     if self.n_joint[*s, *a] != 0:
-    #                         t = self.n_joint[*s].sum((-2, -1))
-    #                         f_t = f(t)
-    #                         ucb = self.A * math.sqrt(math.log(f_t) / self.n_joint[*s, *a])
-    #                         obsv_bar[*s, *a] = self.no_joint[*s, *a] / self.n_joint[*s, *a] + ucb
-    #
-    #     p_obsv_hat = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env,
-    #                            self.n_act_mon, self.n_obs_env, self.n_obs_mon)
-    #                           )
-    #     for se in range(self.n_obs_env):
-    #         for ae in range(self.n_act_env):
-    #             for sm in range(self.n_obs_mon):
-    #                 for am in range(self.n_act_mon):
-    #                     s = se, sm
-    #                     a = ae, am
-    #                     if self.n_joint[*s, *a] != 0:
-    #                         p_obsv_hat[*s, *a] = self.np_joint[*s, *a] / self.n_joint[*s, *a]
-    #
-    #     v_obs = np.max(self.q_obs, axis=(-1, -2))
-    #     s_star = random_argmax(v_obs, rng)
-    #     for se in range(self.n_obs_env):
-    #         for ae in range(self.n_act_env):
-    #             for sm in range(self.n_obs_mon):
-    #                 for am in range(self.n_act_mon):
-    #                     s = se, sm
-    #                     a = ae, am
-    #                     if self.n_joint[*s, *a] != 0:
-    #                         ucb = 0.5 * self.C * math.sqrt(1 / self.n_joint[*s, *a])
-    #                         if p_obsv_hat[*s, *a, *s_star] + ucb <= 1:
-    #                             p_obsv_hat[*s, *a, *s_star] += ucb
-    #                             residual = -ucb
-    #                         else:
-    #                             residual = p_obsv_hat[*s, *a, *s_star] - 1
-    #                             p_obsv_hat[*s, *a, *s_star] = 1
-    #
-    #                         next_states = []
-    #                         for nse in range(self.n_obs_env):
-    #                             for nsm in range(self.n_obs_mon):
-    #                                 ns = nse, nsm
-    #                                 if p_obsv_hat[*s, *a, *ns] > 0 and ns != s_star:
-    #                                     next_states.append((ns, v_obs[*ns]))
-    #                         next_states.sort(key=lambda x: x[-1])
-    #
-    #                         for ns, _ in next_states:
-    #                             if p_obsv_hat[*s, *a, *ns] + residual >= 0:
-    #                                 p_obsv_hat[*s, *a, *ns] += residual
-    #                                 break
-    #                             else:
-    #                                 residual = p_obsv_hat[*s, *a, *ns] + residual
-    #                                 p_obsv_hat[*s, *a, *ns] = 0
-    #
-    #     for se in range(self.n_obs_env):
-    #         for ae in range(self.n_act_env):
-    #             for sm in range(self.n_obs_mon):
-    #                 for am in range(self.n_act_mon):
-    #                     s = se, sm
-    #                     a = ae, am
-    #                     if self.n_joint[*s, *a] == 0:
-    #                         self.q_obs[*s, *a] = 60
-    #                     else:
-    #                         self.q_obs[*s, *a] = (obsv_bar[*s, *a]
-    #                                               + self.gamma * np.ravel(p_obsv_hat[*s, *a]).T @ np.ravel(v_obs)
-    #                                               * (1 - self.nd_env[se, ae])
-    #                                               )
+        for s in self.joint_obs:
+            for a in self.joint_act:
+                se, sm = s
+                ae, am = a
+                if self.joint_count[*s, *a] == 0:
+                    continue  # joint_q has been ser before for this case
+                else:
+                    self.joint_q[*s, *a] = (env_rwd_model[se, ae] + mon_rwd_bar[*s, *a]
+                                            + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(joint_v)
+                                            * (1 - self.env_term[se, ae])
+                                            )
+
+    def plan4monitor(self, rng):
+
+        obsv_bar = self.monitor
+        for s in self.joint_obs:
+            for a in self.joint_act:
+                if self.joint_count[*s, *a] != 0:
+                    ucb = self.a * math.sqrt(1 / self.joint_count[*s, *a])
+                    obsv_bar[*s, *a] += ucb
+                else:
+                    self.obsrv_q[*s, *a] = self.obsrv_max_q
+
+        p_obsv_bar = self.joint_dynamics
+
+        obsrv_v = np.max(self.obsrv_q, axis=(-1, -2))
+        s_star = random_argmax(obsrv_v, rng)
+        for s in self.joint_obs:
+            for a in self.joint_act:
+                if self.joint_count[*s, *a] != 0:
+                    ucb = 0.5 * self.c * math.sqrt(1 / self.joint_count[*s, *a])
+                    if p_obsv_bar[*s, *a, *s_star] + ucb <= 1:
+                        p_obsv_bar[*s, *a, *s_star] += ucb
+                        residual = -ucb
+                    else:
+                        residual = p_obsv_bar[*s, *a, *s_star] - 1
+                        p_obsv_bar[*s, *a, *s_star] = 1
+
+                    next_states = []
+                    for ns in self.joint_obs:
+                        if p_obsv_bar[*s, *a, *ns] > 0 and ns != s_star:
+                            next_states.append((ns, obsrv_v[*ns]))
+                    next_states.sort(key=lambda x: x[-1])
+
+                    for ns, _ in next_states:
+                        if p_obsv_bar[*s, *a, *ns] + residual >= 0:
+                            p_obsv_bar[*s, *a, *ns] += residual
+                            break
+                        else:
+                            residual = p_obsv_bar[*s, *a, *ns] + residual
+                            p_obsv_bar[*s, *a, *ns] = 0
+
+        for s in self.joint_obs:
+            for a in self.joint_act:
+                se, sm = s
+                ae, am = a
+                if self.joint_count[*s, *a] == 0:
+                    continue  # obsrv_q has been set for this case before
+                else:
+                    self.obsrv_q[*s, *a] = (
+                                obsv_bar[*s, *a] + self.gamma * np.ravel(p_obsv_bar[*s, *a]).T @ np.ravel(obsrv_v)
+                                * (1 - self.env_term[se, ae])
+                                )
 
     def reset(self):
-        self.np_env = np.zeros((self.n_obs_env, self.n_act_env, self.n_obs_env))
-        self.rwd_model = np.ones((self.n_obs_env, self.n_act_env)) * self.r_min
-        self.nr_env = np.zeros((self.n_obs_env, self.n_act_env))
-        self.n_tot_env = np.zeros((self.n_obs_env, self.n_act_env))
-        self.nd_env = np.zeros((self.n_obs_env, self.n_act_env))
-        self.n_env = np.zeros((self.n_obs_env, self.n_act_env))
-        self.nr_mon = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
-        self.n_joint = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
-        self.no_joint = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
-        self.np_joint = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon,
-                                  self.n_obs_env, self.n_obs_mon)
-                                 )
-        self.q_joint = np.ones(
-            (self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon)) * self.q_max
-        self.q_obs = np.zeros(
-            (self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon)) * 1 / (1 - self.gamma)
+        self.env_r = np.zeros((self.env_num_obs, self.env_num_act))
+        self.env_visit = np.zeros((self.env_num_obs, self.env_num_act))
+        self.env_term = np.zeros((self.env_num_obs, self.env_num_act))
+        self.env_obsrv_count = np.zeros((self.env_num_obs, self.env_num_act))
+        self.mon_r = np.zeros((self.env_num_obs, self.mon_num_act, self.env_num_act, self.mon_num_act))
+        self.joint_count = np.zeros((self.env_num_obs, self.mon_num_act, self.env_num_act, self.mon_num_act))
+        self.joint_obsv_count = np.zeros((self.env_num_obs, self.mon_num_act, self.env_num_act, self.mon_num_act))
+        self.joint_transit_count = np.zeros((self.env_num_obs, self.mon_num_act, self.env_num_act, self.mon_num_act,
+                                             self.env_num_obs, self.mon_num_act))
+        self.joint_q = np.ones(
+            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q  # noqa
+        self.obsrv_q = np.ones(
+            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.obsrv_max_q  # noqa
 
+    @property
+    def env_rwd_model(self):
+        with np.errstate(divide='ignore', invalid='ignore'):
+            r = self.env_r / self.env_obsrv_count
+        r[np.isnan(r)] = self.env_min_r
+        return r
 
-class MonQTableCritic(MonQCritic):
-    """
-    Instance of MonQCritic that uses tabular Q-function critics.
-    """
+    @property
+    def mon_rwd_model(self):
+        with np.errstate(divide='ignore', invalid='ignore'):
+            r = self.mon_r / self.joint_count
+        r[np.isnan(r)] = self.mon_max_r
+        return r
 
-    def __init__(self,
-                 n_obs_env: int,
-                 n_obs_mon: int,
-                 n_act_env: int,
-                 n_act_mon: int,
-                 **kwargs,
-                 ):
-        MonQCritic.__init__(self, **kwargs)
-        self.n_obs_env = n_obs_env
-        self.n_obs_mon = n_obs_mon
-        self.n_act_env = n_act_env
-        self.n_act_mon = n_act_mon
-        self.action_shape = (n_act_env, n_act_mon)
+    @property
+    def joint_dynamics(self):
+        with np.errstate(divide='ignore', invalid='ignore'):
+            p_joint = self.joint_transit_count / self.joint_count[..., None]
+        p_joint[np.isnan(p_joint)] = 1 / self.joint_num_obs
+        return p_joint
 
-        self.rwd_model = np.zeros((self.n_obs_env, self.n_act_env))
-        self.nr_env = np.zeros((n_obs_env, n_act_env))
-        self.n_tot_env = np.zeros((n_obs_env, n_act_env))
-        self.nd_env = np.zeros((n_obs_env, n_act_env))
-        self.n_env = np.zeros((n_obs_env, n_act_env))
-        self.nr_mon = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon))
-        self.n_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon))
-        self.no_joint = np.zeros((self.n_obs_env, self.n_obs_mon, self.n_act_env, self.n_act_mon))
-        self.np_joint = np.zeros((n_obs_env, n_obs_mon, n_act_env, n_act_mon, n_obs_env, n_obs_mon))
-        self.np_env = np.zeros((n_obs_env, n_act_env, n_obs_env))
-        self.q_joint = np.ones((n_obs_env, n_obs_mon, n_act_env, n_act_mon)) * self.q_max
+    @property
+    def joint_num_obs(self):
+        return self.env_num_obs * self.mon_num_obs
 
-        self.reset()
+    @property
+    def monitor(self):
+        with np.errstate(divide='ignore', invalid='ignore'):
+            m = self.joint_obsv_count / self.joint_count
+        m[np.isnan(m)] = 0.5
+        return m
