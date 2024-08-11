@@ -14,7 +14,7 @@ class Actor(ABC):
         self.reset()
 
     @abstractmethod
-    def __call__(self, obs_env, obs_mon, rng=np.random):
+    def __call__(self, obs_env, obs_mon, explore, rng=np.random):
         """
         Draw one action in one state. Not vectorized.
         """

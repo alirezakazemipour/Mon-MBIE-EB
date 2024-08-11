@@ -7,10 +7,10 @@ monitor:
     - 4
 
 experiment:
-  training_steps: 80000
+  training_steps: 20000
   testing_episodes: 100
-  testing_frequency: 1000
-  beta: 0.9
+  testing_frequency: 100
+  beta: 0.1
 
 
 critic:

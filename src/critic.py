@@ -92,7 +92,7 @@ class MonQCritic(Critic):
                next_obs_env,
                next_obs_mon,
                ):
-        if not np.isnan(rwd_proxy)[0]:
+        if not np.isnan(rwd_proxy):
             self.env_obsrv_count[obs_env, act_env] += 1
             self.env_r[obs_env, act_env] += rwd_env
             self.joint_obsv_count[obs_env, obs_mon, act_env, act_mon] += 1
@@ -110,6 +110,13 @@ class MonQCritic(Critic):
     def opt_pess_mbie(self, rng):  # noqa
 
         env_rwd_model = self.env_rwd_model
+        for s in self.env_obs_space:
+            for a in self.env_act_space:
+                if self.env_visit[s, a] != 0:
+                    ucb = self.a / math.sqrt(self.env_visit[s, a])
+                    env_rwd_model[s, a] += ucb
+                else:
+                    self.joint_q[s, :, a, :] = self.joint_max_q
 
         mon_rwd_bar = self.mon_rwd_model
         for s in self.joint_obs_space:
@@ -127,7 +134,7 @@ class MonQCritic(Critic):
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    ucb = 0.5 * self.c * math.sqrt(1 / self.joint_count[*s, *a])
+                    ucb = 0.5 * self.c / math.sqrt(self.joint_count[*s, *a])
                     if p_joint_bar[*s, *a, *s_star] + ucb <= 1:
                         p_joint_bar[*s, *a, *s_star] += ucb
                         residual = -ucb
@@ -153,7 +160,7 @@ class MonQCritic(Critic):
             for a in self.joint_act_space:
                 se, sm = s
                 ae, am = a
-                if self.joint_count[*s, *a] == 0:
+                if self.joint_count[*s, *a] == 0 or self.env_visit[se, ae] == 0:
                     continue  # joint_q has been ser before for this case
                 else:
                     self.joint_q[*s, *a] = (env_rwd_model[se, ae] + mon_rwd_bar[*s, *a]
@@ -167,19 +174,19 @@ class MonQCritic(Critic):
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    ucb = self.a * math.sqrt(1 / self.joint_count[*s, *a])
+                    ucb = self.a / math.sqrt(self.joint_count[*s, *a])
                     obsv_bar[*s, *a] = np.clip(obsv_bar[*s, *a] + ucb, 0, 1)
                 else:
                     self.obsrv_q[*s, *a] = self.obsrv_max_q
 
         p_obsv_bar = self.joint_dynamics
 
-        obsrv_v = np.max(self.obsrv_q, axis=(-1, -2))
+        obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
         s_star = random_argmax(obsrv_v, rng)
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    ucb = 0.5 * self.c * math.sqrt(1 / self.joint_count[*s, *a])
+                    ucb = 0.5 * self.c / math.sqrt(self.joint_count[*s, *a])
                     if p_obsv_bar[*s, *a, *s_star] + ucb <= 1:
                         p_obsv_bar[*s, *a, *s_star] += ucb
                         residual = -ucb
@@ -204,7 +211,7 @@ class MonQCritic(Critic):
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] == 0:
-                    continue  # obsrv_q has been set for this case before
+                    continue
                 else:
                     self.obsrv_q[*s, *a] = (
                                 obsv_bar[*s, *a] + self.gamma * np.ravel(p_obsv_bar[*s, *a]).T @ np.ravel(obsrv_v)
@@ -243,7 +250,7 @@ class MonQCritic(Critic):
     def joint_dynamics(self):
         with np.errstate(divide='ignore', invalid='ignore'):
             p_joint = self.joint_transit_count / self.joint_count[..., None, None]
-        p_joint[np.isnan(p_joint)] = 1 / self.joint_num_obs
+        p_joint[np.isnan(p_joint)] = 0
         return p_joint
 
     @property
@@ -254,5 +261,5 @@ class MonQCritic(Critic):
     def monitor(self):
         with np.errstate(divide='ignore', invalid='ignore'):
             m = self.joint_obsv_count / self.joint_count
-        m[np.isnan(m)] = 0.5
+        m[np.isnan(m)] = 0
         return m
