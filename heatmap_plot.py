@@ -10,12 +10,12 @@ monitor = x["monitor"]
 env_obsrv_count = x["env_obsrv_count"]
 env_reward_model = x["env_reward_model"]
 
-x = obsrv_q[:, 0, :, 0].mean(-1).reshape(3, 3)
+x = monitor[:, 0, 3, 1].reshape(3, 3)
 sns.heatmap(x, annot=True, fmt=".1f", linewidth=.5)
-plt.title("average observability value when not asking in each state of the environment")
+plt.title("monitor value for the up action")
 
 
 # plt.show()
-plt.savefig(f"/Users/alirezakazemipour/github/ofu/trials/penalty_ask_0.6_beta_0.1_notask_obsrv_value.jpg",
+plt.savefig(f"/Users/alirezakazemipour/github/ofu/trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_up_action.jpg",
             bbox_inches="tight"
             )
