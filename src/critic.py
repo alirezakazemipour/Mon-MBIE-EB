@@ -64,8 +64,10 @@ class MonQCritic(Critic):
         self.mon_num_obs = mon_num_obs
         self.env_num_act = env_num_act
         self.mon_num_act = mon_num_act
-        self.joint_obs = list(itertools.product(range(self.env_num_obs), range(self.mon_num_obs)))
-        self.joint_act = list(itertools.product(range(self.env_num_act), range(self.mon_num_act)))
+        self.joint_obs_space = list(itertools.product(range(self.env_num_obs), range(self.mon_num_obs)))
+        self.joint_act_space = list(itertools.product(range(self.env_num_act), range(self.mon_num_act)))
+        self.env_obs_space = list(range(self.env_num_obs))
+        self.env_act_space = list(range(self.env_num_act))
 
         self.env_r = None
         self.env_visit = None
@@ -110,8 +112,8 @@ class MonQCritic(Critic):
         env_rwd_model = self.env_rwd_model
 
         mon_rwd_bar = self.mon_rwd_model
-        for s in self.joint_obs:
-            for a in self.joint_act:
+        for s in self.joint_obs_space:
+            for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     ucb = self.b / math.sqrt(self.joint_count[*s, *a])
                     mon_rwd_bar[*s, *a] += ucb
@@ -122,8 +124,8 @@ class MonQCritic(Critic):
         joint_v = np.max(self.joint_q, axis=(-2, -1))
         s_star = random_argmax(joint_v, rng)
 
-        for s in self.joint_obs:
-            for a in self.joint_act:
+        for s in self.joint_obs_space:
+            for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     ucb = 0.5 * self.c * math.sqrt(1 / self.joint_count[*s, *a])
                     if p_joint_bar[*s, *a, *s_star] + ucb <= 1:
@@ -134,7 +136,7 @@ class MonQCritic(Critic):
                         p_joint_bar[*s, *a, *s_star] = 1
 
                     next_states = []
-                    for ns in self.joint_obs:
+                    for ns in self.joint_obs_space:
                         if p_joint_bar[*s, *a, *ns] > 0 and ns != s_star:
                             next_states.append((ns, joint_v[*ns]))
                     next_states.sort(key=lambda x: x[-1])
@@ -147,8 +149,8 @@ class MonQCritic(Critic):
                             residual = p_joint_bar[*s, *a, *ns] + residual
                             p_joint_bar[*s, *a, *ns] = 0
 
-        for s in self.joint_obs:
-            for a in self.joint_act:
+        for s in self.joint_obs_space:
+            for a in self.joint_act_space:
                 se, sm = s
                 ae, am = a
                 if self.joint_count[*s, *a] == 0:
@@ -162,8 +164,8 @@ class MonQCritic(Critic):
     def plan4monitor(self, rng):
 
         obsv_bar = self.monitor
-        for s in self.joint_obs:
-            for a in self.joint_act:
+        for s in self.joint_obs_space:
+            for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     ucb = self.a * math.sqrt(1 / self.joint_count[*s, *a])
                     obsv_bar[*s, *a] = np.clip(obsv_bar[*s, *a] + ucb, 0, 1)
@@ -176,8 +178,8 @@ class MonQCritic(Critic):
 
         obsrv_v = np.max(self.obsrv_q, axis=(-1, -2))
         s_star = random_argmax(obsrv_v, rng)
-        for s in self.joint_obs:
-            for a in self.joint_act:
+        for s in self.joint_obs_space:
+            for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     ucb = 0.5 * self.c * math.sqrt(1 / self.joint_count[*s, *a])
                     if p_obsv_bar[*s, *a, *s_star] + ucb <= 1:
@@ -188,7 +190,7 @@ class MonQCritic(Critic):
                         p_obsv_bar[*s, *a, *s_star] = 1
 
                     next_states = []
-                    for ns in self.joint_obs:
+                    for ns in self.joint_obs_space:
                         if p_obsv_bar[*s, *a, *ns] > 0 and ns != s_star:
                             next_states.append((ns, obsrv_v[*ns]))
                     next_states.sort(key=lambda x: x[-1])
@@ -201,8 +203,8 @@ class MonQCritic(Critic):
                             residual = p_obsv_bar[*s, *a, *ns] + residual
                             p_obsv_bar[*s, *a, *ns] = 0
 
-        for s in self.joint_obs:
-            for a in self.joint_act:
+        for s in self.joint_obs_space:
+            for a in self.joint_act_space:
                 if self.joint_count[*s, *a] == 0:
                     continue  # obsrv_q has been set for this case before
                 else:
