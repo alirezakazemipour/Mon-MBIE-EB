@@ -32,6 +32,8 @@ What does success look like, and how do I measure that?
 ### Failures
 
 #### Code: 
+- Date:   Sun Aug 11 11:05:32 2024 -0600
+- Short Hash: a3e9c0e
 
 | environment | monitor | obs prob | total episodes | exploration episodes | $\beta$ |
 |-------------|---------|----------|----------------|----------------------|---------|
@@ -57,10 +59,20 @@ What does success look like, and how do I measure that?
 ![](trials/penalty_ask_0.6_beta_1.jpg)
 - $\beta = 0.1$
 ![](trials/penalty_ask_0.6_beta_0.1.jpg)
+
 - $\beta = 0.01$
 ![](trials/penalty_ask_0.6_beta_0.01.jpg)
 
 #### Conclusion
+1- $\beta = 1$ give a good balance for the exploration-exploitation balance.
+
+2- The code seems problematic because there are cells that the monitor is not identified well specifically, cells 0, 3, 4 and 5.
+
+**Further Analysis on $\beta = 0.1$**
+![](trials/penalty_ask_0.6_beta_0.1_rwd_model.jpg)
+![](trials/penalty_ask_0.6_beta_0.1_ask_obsrv_value.jpg)
+![](trials/penalty_ask_0.6_beta_0.1_notask_obsrv_value.jpg)
+
 
 
 ### Success

@@ -8,18 +8,14 @@ joint_count = x["joint_count"]
 joint_obsrv_count = x["joint_obsv_count"]
 monitor = x["monitor"]
 env_obsrv_count = x["env_obsrv_count"]
+env_reward_model = x["env_reward_model"]
 
-x = monitor[:, 0, :, 1].mean(-1).reshape(3, 3)
+x = obsrv_q[:, 0, :, 0].mean(-1).reshape(3, 3)
 sns.heatmap(x, annot=True, fmt=".1f", linewidth=.5)
-plt.title("average observability for each action in each state of the environment")
-
-# plt.figure()
-# y = np.load(f"heatmap/Gym-Grid/Gridworld-TwoRoom-Quicksand-3x5-v0/Button_0.51/visits_84.npy")
-# y = y.sum(-1).reshape(3, 5)
-# sns.heatmap(y, annot=True, fmt=".0f", linewidth=.5)
+plt.title("average observability value when not asking in each state of the environment")
 
 
 # plt.show()
-plt.savefig(f"/Users/alirezakazemipour/github/ofu/trials/penalty_ask_0.6_beta_0.01.jpg",
+plt.savefig(f"/Users/alirezakazemipour/github/ofu/trials/penalty_ask_0.6_beta_0.1_notask_obsrv_value.jpg",
             bbox_inches="tight"
             )
