@@ -20,7 +20,7 @@ What does success look like, and how do I measure that?
 - I compare the observability probabilities with the ground truth priors
 
 ## Open Questions
-1) When should the exploration-exploitation happen? $\log{t} / N \geq \beta$$ where $t$ is the number of episodes and $N$ the number of exploration episodes?
+1) When should the exploration-exploitation happen? $\log{t} / N \geq \beta$ where $t$ is the number of episodes and $N$ the number of exploration episodes?
    1. should it be stepwise?
    2. should it be with respect to the least observed pair?
 2) The agent can turn the monitor on but once it's on how does it help with identifying the monitor?
@@ -30,6 +30,38 @@ What does success look like, and how do I measure that?
 ## Trials
 
 ### Failures
+
+#### Code: 
+
+| environment | monitor | obs prob | total episodes | exploration episodes | $\beta$ |
+|-------------|---------|----------|----------------|----------------------|---------|
+| grid_det    | Ask     | 0.6      | 401            | 6                    | 1       |
+| grid_det    | Ask     | 0.6      | 402            | 62                   | 0.1     |
+| grid_det    | Ask     | 0.6      |     402        | 401                  | 0.01    |
+
+
+
+##### Configs
+- gamma: 0.99
+- joint_max_q: 10
+- obsrv_max_q: 100
+- env_min_r: -10
+- mon_max_r: 0
+- ucb_re: 0.004
+- ucb_rm: 0.004
+- ucb_p: 0.004
+
+##### Outcome
+
+- $\beta = 1$
+![](trials/penalty_ask_0.6_beta_1.jpg)
+- $\beta = 0.1$
+![](trials/penalty_ask_0.6_beta_0.1.jpg)
+- $\beta = 0.01$
+![](trials/penalty_ask_0.6_beta_0.01.jpg)
+
+#### Conclusion
+
 
 ### Success
 

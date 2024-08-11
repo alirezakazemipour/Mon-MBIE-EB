@@ -51,6 +51,8 @@ class MonExperiment:
 
         self.rng_seed = rng_seed
         self.hide_progress_bar = hide_progress_bar
+        self.tot_episodes = None
+        self.explore_episodes = None
 
     def train(self):
         set_rng_seed(self.rng_seed)
@@ -58,8 +60,8 @@ class MonExperiment:
         self.critic.reset()
 
         tot_steps = 0
-        explore_episodes = 0
-        tot_episodes = 0
+        self.explore_episodes = 0
+        self.tot_episodes = 0
         last_ep_return_env = np.nan
         last_ep_return_mon = np.nan
         test_return_env = np.nan
@@ -75,10 +77,10 @@ class MonExperiment:
             pbar.set_description(f"train {last_ep_return:.3f} / "
                                  f"test {np.mean(test_return):.3f} "
                                  )
-            ep_seed = cantor_pairing(self.rng_seed, tot_episodes)
+            ep_seed = cantor_pairing(self.rng_seed, self.tot_episodes)
             rng = np.random.default_rng(ep_seed)
 
-            if math.log(tot_episodes + 1e-4) / (explore_episodes + 1e-4) > self.beta:
+            if math.log(self.tot_episodes + 1e-4) / (self.explore_episodes + 1e-4) > self.beta:
                 explore = True
                 self.critic.plan4monitor(rng)
             else:
@@ -89,9 +91,9 @@ class MonExperiment:
             ep_return_env = 0.0
             ep_return_mon = 0.0
             ep_steps = 0
-            tot_episodes += 1
+            self.tot_episodes += 1
             if explore:
-                explore_steps += 1
+                self.explore_episodes += 1
 
             while True:
                 if tot_steps % self.testing_frequency == 0:
