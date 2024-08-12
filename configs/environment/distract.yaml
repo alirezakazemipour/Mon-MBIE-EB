@@ -14,14 +14,16 @@ experiment:
   training_steps: 20000
   testing_episodes: 100
   testing_frequency: 100
-  beta: 1
+  beta: 0.04
 
 critic:
   gamma: 0.99
   joint_max_q: 10
-  obsrv_max_q: 100
+  obsrv_max_q: 60
   env_min_r: -1
   mon_max_r: 0
   ucb_re: 0.004
   ucb_rm: 0.004
   ucb_p: 0.004
+  ucb_obsrv_r: 0.8
+  ucb_obsrv_p: 2

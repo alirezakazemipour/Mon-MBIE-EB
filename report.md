@@ -43,7 +43,8 @@ A long description of this experiment.
 
 #### Code:
 
-- Date:   Sun Aug 11 11:05:32 2024 -0600
+##### Date:   Sun Aug 11 11:05:32 2024 -0600
+
 - Short Hash: a3e9c0e
 
 | environment | monitor | obs prob | total episodes | exploration episodes | $\beta$ |
@@ -106,6 +107,13 @@ A long description of this experiment.
 ![](trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_down_action.jpg)
 ![](trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_up_action.jpg)
 ![](trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_stay_action.jpg)
+
+##### Date:   Sun Aug 11 22:07:24 2024 -0600
+
+- Short Hash: 0f6c088
+
+With the current code the agent keeps the monitor on or asking, but why doesn't it explore randomly after that?
+
 
 ### Success
 

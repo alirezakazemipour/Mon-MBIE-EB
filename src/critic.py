@@ -59,6 +59,8 @@ class MonQCritic(Critic):
         self.a = kwargs["ucb_re"]
         self.b = kwargs["ucb_rm"]
         self.c = kwargs["ucb_p"]
+        self.d = kwargs["ucb_obsrv_r"]
+        self.e = kwargs["ucb_obsrv_p"]
 
         self.env_num_obs = env_num_obs
         self.mon_num_obs = mon_num_obs
@@ -172,7 +174,7 @@ class MonQCritic(Critic):
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    ucb = self.a / math.sqrt(self.joint_count[*s, *a])
+                    ucb = self.d / math.sqrt(self.joint_count[*s, *a])
                     obsv_bar[*s, *a] = obsv_bar[*s, *a] + ucb
 
         p_obsv_bar = self.joint_dynamics
@@ -182,7 +184,7 @@ class MonQCritic(Critic):
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    ucb = 0.5 * self.c / math.sqrt(self.joint_count[*s, *a])
+                    ucb = 0.5 * self.e / math.sqrt(self.joint_count[*s, *a])
                     if p_obsv_bar[*s, *a, *s_star] + ucb <= 1:
                         p_obsv_bar[*s, *a, *s_star] += ucb
                         residual = -ucb
@@ -206,8 +208,6 @@ class MonQCritic(Critic):
 
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
-                se, sm = s
-                ae, am = a
                 if self.joint_count[*s, *a] == 0:
                     self.obsrv_q[*s, *a] = self.obsrv_max_q
                 else:
@@ -226,9 +226,9 @@ class MonQCritic(Critic):
         self.joint_transit_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act,
                                              self.env_num_obs, self.mon_num_obs))
         self.joint_q = np.ones(
-            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q  # noqa
+            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q
         self.obsrv_q = np.ones(
-            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.obsrv_max_q  # noqa
+            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.obsrv_max_q
 
     @property
     def env_rwd_model(self):
