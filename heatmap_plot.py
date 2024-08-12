@@ -10,12 +10,12 @@ monitor = x["monitor"]
 env_obsrv_count = x["env_obsrv_count"]
 env_reward_model = x["env_reward_model"]
 
-x = monitor[:, 0, 3, 1].reshape(3, 3)
+x = env_obsrv_count.mean(-1).reshape(3, 3)
 sns.heatmap(x, annot=True, fmt=".1f", linewidth=.5)
 plt.title("monitor value for the up action")
 
 
-# plt.show()
-plt.savefig(f"/Users/alirezakazemipour/github/ofu/trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_up_action.jpg",
-            bbox_inches="tight"
-            )
+plt.show()
+# plt.savefig(f"/Users/alirezakazemipour/github/ofu/trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_up_action.jpg",
+#             bbox_inches="tight"
+#             )

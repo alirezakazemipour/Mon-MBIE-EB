@@ -75,7 +75,7 @@ class MonQCritic(Critic):
         self.env_obsrv_count = None
         self.mon_r = None
         self.joint_count = None
-        self.joint_obsv_count = None
+        self.joint_obsrv_count = None
         self.joint_transit_count = None
         self.joint_q = None
         self.obsrv_q = None
@@ -95,7 +95,7 @@ class MonQCritic(Critic):
         if not np.isnan(rwd_proxy):
             self.env_obsrv_count[obs_env, act_env] += 1
             self.env_r[obs_env, act_env] += rwd_env
-            self.joint_obsv_count[obs_env, obs_mon, act_env, act_mon] += 1
+            self.joint_obsrv_count[obs_env, obs_mon, act_env, act_mon] += 1
 
         self.env_visit[obs_env, act_env] += 1
         self.joint_count[obs_env, obs_mon, act_env, act_mon] += 1
@@ -115,8 +115,6 @@ class MonQCritic(Critic):
                 if self.env_visit[s, a] != 0:
                     ucb = self.a / math.sqrt(self.env_visit[s, a])
                     env_rwd_model[s, a] += ucb
-                else:
-                    self.joint_q[s, :, a, :] = self.joint_max_q
 
         mon_rwd_bar = self.mon_rwd_model
         for s in self.joint_obs_space:
@@ -124,8 +122,6 @@ class MonQCritic(Critic):
                 if self.joint_count[*s, *a] != 0:
                     ucb = self.b / math.sqrt(self.joint_count[*s, *a])
                     mon_rwd_bar[*s, *a] += ucb
-                else:
-                    self.joint_q[*s, *a] = self.joint_max_q
 
         p_joint_bar = self.joint_dynamics
         joint_v = np.max(self.joint_q, axis=(-2, -1))
@@ -160,8 +156,10 @@ class MonQCritic(Critic):
             for a in self.joint_act_space:
                 se, sm = s
                 ae, am = a
-                if self.joint_count[*s, *a] == 0 or self.env_visit[se, ae] == 0:
-                    continue  # joint_q has been ser before for this case
+                if self.env_visit[se, ae] == 0:
+                    self.joint_q[se, :, ae, :] = self.joint_max_q
+                elif self.joint_count[*s, *a] == 0 :
+                    self.joint_q[*s, *a] = self.joint_max_q
                 else:
                     self.joint_q[*s, *a] = (env_rwd_model[se, ae] + mon_rwd_bar[*s, *a]
                                             + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(joint_v)
@@ -175,9 +173,7 @@ class MonQCritic(Critic):
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     ucb = self.a / math.sqrt(self.joint_count[*s, *a])
-                    obsv_bar[*s, *a] = np.clip(obsv_bar[*s, *a] + ucb, 0, 1)
-                else:
-                    self.obsrv_q[*s, *a] = self.obsrv_max_q
+                    obsv_bar[*s, *a] = obsv_bar[*s, *a] + ucb
 
         p_obsv_bar = self.joint_dynamics
 
@@ -210,8 +206,10 @@ class MonQCritic(Critic):
 
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
+                se, sm = s
+                ae, am = a
                 if self.joint_count[*s, *a] == 0:
-                    continue
+                    self.obsrv_q[*s, *a] = self.obsrv_max_q
                 else:
                     self.obsrv_q[*s, *a] = (
                                 obsv_bar[*s, *a] + self.gamma * np.ravel(p_obsv_bar[*s, *a]).T @ np.ravel(obsrv_v)
@@ -224,7 +222,7 @@ class MonQCritic(Critic):
         self.env_obsrv_count = np.zeros((self.env_num_obs, self.env_num_act))
         self.mon_r = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
         self.joint_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
-        self.joint_obsv_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
+        self.joint_obsrv_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
         self.joint_transit_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act,
                                              self.env_num_obs, self.mon_num_obs))
         self.joint_q = np.ones(
@@ -260,6 +258,6 @@ class MonQCritic(Critic):
     @property
     def monitor(self):
         with np.errstate(divide='ignore', invalid='ignore'):
-            m = self.joint_obsv_count / self.joint_count
+            m = self.joint_obsrv_count / self.joint_count
         m[np.isnan(m)] = 0
         return m
