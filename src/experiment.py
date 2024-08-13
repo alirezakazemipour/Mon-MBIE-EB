@@ -7,7 +7,7 @@ import warnings
 
 from src.actor import Actor
 from src.critic import MonQCritic
-from src.utils import set_rng_seed, cantor_pairing
+from src.utils import set_rng_seed, cantor_pairing, random_argmin
 
 
 class MonExperiment:
@@ -80,9 +80,13 @@ class MonExperiment:
             ep_seed = cantor_pairing(self.rng_seed, self.tot_episodes)
             rng = np.random.default_rng(ep_seed)
 
-            if math.log(self.tot_episodes + 1e-4) / (self.explore_episodes + 1e-4) > self.beta:
+            se_star, ae_star = random_argmin(self.critic.env_obsrv_count)
+            tries = self.critic.env_try[se_star, ae_star]
+
+            if math.log(self.tot_episodes + 1e-4) / (tries + 1e-4) > self.beta:
                 explore = True
-                self.critic.plan4monitor(rng)
+                self.critic.plan4monitor(se_star, ae_star, rng)
+                self.critic.env_try[se_star, ae_star] += 1
             else:
                 explore = False
                 self.critic.opt_pess_mbie(rng)

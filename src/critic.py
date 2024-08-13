@@ -59,7 +59,6 @@ class MonQCritic(Critic):
         self.a = kwargs["ucb_re"]
         self.b = kwargs["ucb_rm"]
         self.c = kwargs["ucb_p"]
-        self.d = kwargs["ucb_obsrv_r"]
         self.e = kwargs["ucb_obsrv_p"]
 
         self.env_num_obs = env_num_obs
@@ -73,6 +72,7 @@ class MonQCritic(Critic):
 
         self.env_r = None
         self.env_visit = None
+        self.env_try = None
         self.env_term = None
         self.env_obsrv_count = None
         self.mon_r = None
@@ -168,17 +168,25 @@ class MonQCritic(Critic):
                                             * (1 - self.env_term[se, ae])
                                             )
 
-    def plan4monitor(self, rng):
+    def plan4monitor(self, se_star, ae_star, rng):
+        self.obsrv_q = np.zeros(
+            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
 
-        obsrv_bar = self.monitor
+        rwd = np.zeros_like(self.monitor)
+        done = np.zeros_like(self.env_term)
+        done[se_star, ae_star] = 1
+
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
-                if self.joint_count[*s, *a] != 0:
+                se, sm = s
+                ae, am = a
+                if (se, ae) == (se_star, ae_star):
                     t = self.joint_count[*s].sum((-2, -1))
-                    obsrv_bar[*s, *a] = kl_confidence(t, obsrv_bar[*s, *a], self.joint_count[*s, *a])
+                    if self.joint_count[*s, *a] != 0:
+                        rwd[*s, *a] = kl_confidence(t, self.monitor[*s, *a], self.joint_count[*s, *a])
 
         p_obsrv_bar = self.joint_dynamics
-        obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
+        obsrv_v = np.max(rwd, axis=(-2, -1))
         s_star = random_argmax(obsrv_v, rng)
 
         for s in self.joint_obs_space:
@@ -209,15 +217,18 @@ class MonQCritic(Critic):
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] == 0:
-                    self.obsrv_q[*s, *a] = self.obsrv_max_q
-                else:
-                    self.obsrv_q[*s, *a] = (
-                            obsrv_bar[*s, *a] + self.gamma * np.ravel(p_obsrv_bar[*s, *a]).T @ np.ravel(obsrv_v)
-                    )
+                    self.obsrv_q[*s, *a] = 1
+                se, sm = s
+                ae, am = a
+                self.obsrv_q[*s, *a] = (
+                        rwd[*s, *a] + self.gamma * np.ravel(p_obsrv_bar[*s, *a]).T @ np.ravel(obsrv_v) * (
+                        1 - self.env_term[se, ae])
+                )
 
     def reset(self):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_visit = np.zeros((self.env_num_obs, self.env_num_act))
+        self.env_try = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_term = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_obsrv_count = np.zeros((self.env_num_obs, self.env_num_act))
         self.mon_r = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
@@ -227,8 +238,6 @@ class MonQCritic(Critic):
                                              self.env_num_obs, self.mon_num_obs))
         self.joint_q = np.ones(
             (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q
-        self.obsrv_q = np.ones(
-            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.obsrv_max_q
 
     @property
     def env_rwd_model(self):
