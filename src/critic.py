@@ -2,7 +2,7 @@ import numpy as np
 import math
 from abc import ABC, abstractmethod
 from omegaconf import DictConfig
-from src.utils import random_argmax, random_argmin
+from src.utils import random_argmax, random_argmin, kl_confidence
 import itertools
 
 f = lambda t: 1 + t * math.log(t) ** 2
@@ -175,9 +175,7 @@ class MonQCritic(Critic):
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     t = self.joint_count[*s].sum((-2, -1))
-                    f_t = f(t)
-                    ucb = self.d * math.log(f_t) / self.joint_count[*s, *a]
-                    obsrv_bar[*s, *a] = obsrv_bar[*s, *a] + ucb
+                    obsrv_bar[*s, *a] = kl_confidence(t, obsrv_bar[*s, *a], self.joint_count[*s, *a])
 
         p_obsrv_bar = self.joint_dynamics
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
