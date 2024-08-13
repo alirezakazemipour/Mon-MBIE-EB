@@ -174,7 +174,9 @@ class MonQCritic(Critic):
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    ucb = self.d / math.sqrt(self.joint_count[*s, *a])
+                    t = self.joint_count[*s].sum((-2, -1))
+                    f_t = f(t)
+                    ucb = self.d * math.log(f_t) / self.joint_count[*s, *a]
                     obsrv_bar[*s, *a] = obsrv_bar[*s, *a] + ucb
 
         p_obsrv_bar = self.joint_dynamics
