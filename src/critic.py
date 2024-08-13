@@ -175,9 +175,9 @@ class MonQCritic(Critic):
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     ucb = self.d / math.sqrt(self.joint_count[*s, *a])
-                    obsrv_bar[*s, *a] = np.clip(obsrv_bar[*s, *a] + ucb, 0 , 1)
+                    obsrv_bar[*s, *a] = obsrv_bar[*s, *a] + ucb
 
-        p_obsv_bar = self.joint_dynamics
+        p_obsrv_bar = self.joint_dynamics
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
         s_star = random_argmax(obsrv_v, rng)
 
@@ -185,26 +185,26 @@ class MonQCritic(Critic):
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     ucb = 0.5 * self.e / math.sqrt(self.joint_count[*s, *a])
-                    if p_obsv_bar[*s, *a, *s_star] + ucb <= 1:
-                        p_obsv_bar[*s, *a, *s_star] += ucb
+                    if p_obsrv_bar[*s, *a, *s_star] + ucb <= 1:
+                        p_obsrv_bar[*s, *a, *s_star] += ucb
                         residual = -ucb
                     else:
-                        residual = p_obsv_bar[*s, *a, *s_star] - 1
-                        p_obsv_bar[*s, *a, *s_star] = 1
+                        residual = p_obsrv_bar[*s, *a, *s_star] - 1
+                        p_obsrv_bar[*s, *a, *s_star] = 1
 
                     next_states = []
                     for ns in self.joint_obs_space:
-                        if p_obsv_bar[*s, *a, *ns] > 0 and ns != s_star:
+                        if p_obsrv_bar[*s, *a, *ns] > 0 and ns != s_star:
                             next_states.append((ns, obsrv_v[*ns]))
                     next_states.sort(key=lambda x: x[-1])
 
                     for ns, _ in next_states:
-                        if p_obsv_bar[*s, *a, *ns] + residual >= 0:
-                            p_obsv_bar[*s, *a, *ns] += residual
+                        if p_obsrv_bar[*s, *a, *ns] + residual >= 0:
+                            p_obsrv_bar[*s, *a, *ns] += residual
                             break
                         else:
-                            residual = p_obsv_bar[*s, *a, *ns] + residual
-                            p_obsv_bar[*s, *a, *ns] = 0
+                            residual = p_obsrv_bar[*s, *a, *ns] + residual
+                            p_obsrv_bar[*s, *a, *ns] = 0
 
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
@@ -212,7 +212,7 @@ class MonQCritic(Critic):
                     self.obsrv_q[*s, *a] = self.obsrv_max_q
                 else:
                     self.obsrv_q[*s, *a] = (
-                            obsrv_bar[*s, *a] + self.gamma * np.ravel(p_obsv_bar[*s, *a]).T @ np.ravel(obsrv_v)
+                            obsrv_bar[*s, *a] + self.gamma * np.ravel(p_obsrv_bar[*s, *a]).T @ np.ravel(obsrv_v)
                     )
 
     def reset(self):
