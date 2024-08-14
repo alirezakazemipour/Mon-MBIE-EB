@@ -86,8 +86,9 @@ class MonExperiment:
             if len(tmp) > 0:
                 se_star, ae_star = rng.choice(tmp)
                 visits = self.critic.env_visit[se_star, ae_star]
+                tries = self.critic.env_try[se_star, ae_star]
 
-                if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta:
+                if math.log(tot_steps + 1e-4) / (visits + 1e-4) + math.log(self.tot_episodes + 1e-4) / (tries + 1e-4) > self.beta:
                     explore = True
                     self.critic.plan4monitor(se_star, ae_star, rng)
                     self.critic.env_try[se_star, ae_star] += 1
@@ -143,13 +144,15 @@ class MonExperiment:
                                    next_obs["mon"],
                                    )
 
-                if (obs["env"], act["env"]) == (se_star, ae_star) and explore and not np.isnan(rwd["proxy"]):
+                if (obs["env"], act["env"]) == (se_star, ae_star) and explore:
                     tmp = np.argwhere(self.critic.env_obsrv_count == 0)
                     if len(tmp) > 0:
                         se_star, ae_star = rng.choice(tmp)
                         visits = self.critic.env_visit[se_star, ae_star]
+                        tries = self.critic.env_try[se_star, ae_star]
 
-                        if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta:
+                        if math.log(tot_steps + 1e-4) / (visits + 1e-4) + math.log(self.tot_episodes + 1e-4) / (
+                                tries + 1e-4) > self.beta:
                             explore = True
                             self.critic.plan4monitor(se_star, ae_star, rng)
                             self.critic.env_try[se_star, ae_star] += 1
