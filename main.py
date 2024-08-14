@@ -63,7 +63,7 @@ def run(cfg: DictConfig) -> None:
                                )
     data = experiment.train()
     print(f"total episodes: {experiment.tot_episodes}")
-    print(f"exploration episodes: {experiment.explore_episodes}")
+    print(f"exploit episodes: {experiment.exploit_episodes}")
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,

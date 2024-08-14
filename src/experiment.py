@@ -52,7 +52,7 @@ class MonExperiment:
         self.rng_seed = rng_seed
         self.hide_progress_bar = hide_progress_bar
         self.tot_episodes = None
-        self.explore_episodes = None
+        self.exploit_episodes = None
 
     def train(self):
         set_rng_seed(self.rng_seed)
@@ -60,7 +60,7 @@ class MonExperiment:
         self.critic.reset()
 
         tot_steps = 0
-        self.explore_episodes = 0
+        self.exploit_episodes = 0
         self.tot_episodes = 0
         last_ep_return_env = np.nan
         last_ep_return_mon = np.nan
@@ -79,8 +79,9 @@ class MonExperiment:
                                  )
             ep_seed = cantor_pairing(self.rng_seed, self.tot_episodes)
             rng = np.random.default_rng(ep_seed)
+            self.critic.opt_pess_mbie(rng)
 
-            se_star, ae_star = random_argmin(self.critic.env_obsrv_count)
+            se_star, ae_star = rng.choice(np.argwhere(self.critic.env_obsrv_count == 0))
             tries = self.critic.env_try[se_star, ae_star]
 
             if math.log(self.tot_episodes + 1e-4) / (tries + 1e-4) > self.beta:
@@ -89,13 +90,14 @@ class MonExperiment:
                 self.critic.env_try[se_star, ae_star] += 1
             else:
                 explore = False
-                self.critic.opt_pess_mbie(rng)
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0
             ep_return_mon = 0.0
             ep_steps = 0
             self.tot_episodes += 1
+            if not explore:
+                self.exploit_episodes += 1
 
             while True:
                 if tot_steps % self.testing_frequency == 0:
@@ -135,6 +137,17 @@ class MonExperiment:
                                    next_obs["env"],
                                    next_obs["mon"],
                                    )
+
+                # if (obs["env"], act["env"]) == (se_star, ae_star) and explore:
+                #     se_star, ae_star = rng.choice(np.argwhere(self.critic.env_obsrv_count == 0))
+                #     tries = self.critic.env_try[se_star, ae_star]
+                #
+                #     if math.log(self.tot_episodes + 1e-4) / (tries + 1e-4) > self.beta:
+                #         explore = True
+                #         self.critic.plan4monitor(se_star, ae_star, rng)
+                #         self.critic.env_try[se_star, ae_star] += 1
+                #     else:
+                #         explore = False
 
                 ep_return_env += (self.gamma ** ep_steps) * rwd["env"]
                 ep_return_mon += (self.gamma ** ep_steps) * rwd["mon"]
