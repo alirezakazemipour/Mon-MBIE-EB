@@ -228,9 +228,7 @@ class MonQCritic(Critic):
 
     @property
     def joint_dynamics(self):
-        with np.errstate(divide='ignore', invalid='ignore'):
-            p_joint = self.joint_transit_count / self.joint_count[..., None, None]
-        p_joint[np.isnan(p_joint)] = 0
+        p_joint = self.joint_transit_count / (self.joint_count[..., None, None] + 1e-4)
         return p_joint
 
     @property
@@ -239,7 +237,5 @@ class MonQCritic(Critic):
 
     @property
     def monitor(self):
-        with np.errstate(divide='ignore', invalid='ignore'):
-            m = self.joint_obsrv_count / self.joint_count
-        m[np.isnan(m)] = 0
+        m = self.joint_obsrv_count / (self.joint_count + 1e-4)
         return m

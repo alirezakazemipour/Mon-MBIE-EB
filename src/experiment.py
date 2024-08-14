@@ -81,13 +81,18 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
             self.critic.opt_pess_mbie(rng)
 
-            se_star, ae_star = rng.choice(np.argwhere(self.critic.env_obsrv_count == 0))
-            tries = self.critic.env_try[se_star, ae_star]
+            se_star, ae_star = None, None
+            tmp = np.argwhere(self.critic.env_obsrv_count == 0)
+            if len(tmp) > 0:
+                se_star, ae_star = rng.choice(tmp)
+                visits = self.critic.env_visit[se_star, ae_star]
 
-            if math.log(self.tot_episodes + 1e-4) / (tries + 1e-4) > self.beta:
-                explore = True
-                self.critic.plan4monitor(se_star, ae_star, rng)
-                self.critic.env_try[se_star, ae_star] += 1
+                if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta:
+                    explore = True
+                    self.critic.plan4monitor(se_star, ae_star, rng)
+                    self.critic.env_try[se_star, ae_star] += 1
+                else:
+                    explore = False
             else:
                 explore = False
 
@@ -138,16 +143,20 @@ class MonExperiment:
                                    next_obs["mon"],
                                    )
 
-                # if (obs["env"], act["env"]) == (se_star, ae_star) and explore:
-                #     se_star, ae_star = rng.choice(np.argwhere(self.critic.env_obsrv_count == 0))
-                #     tries = self.critic.env_try[se_star, ae_star]
-                #
-                #     if math.log(self.tot_episodes + 1e-4) / (tries + 1e-4) > self.beta:
-                #         explore = True
-                #         self.critic.plan4monitor(se_star, ae_star, rng)
-                #         self.critic.env_try[se_star, ae_star] += 1
-                #     else:
-                #         explore = False
+                if (obs["env"], act["env"]) == (se_star, ae_star) and explore and not np.isnan(rwd["proxy"]):
+                    tmp = np.argwhere(self.critic.env_obsrv_count == 0)
+                    if len(tmp) > 0:
+                        se_star, ae_star = rng.choice(tmp)
+                        visits = self.critic.env_visit[se_star, ae_star]
+
+                        if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta:
+                            explore = True
+                            self.critic.plan4monitor(se_star, ae_star, rng)
+                            self.critic.env_try[se_star, ae_star] += 1
+                        else:
+                            explore = False
+                    else:
+                        explore = False
 
                 ep_return_env += (self.gamma ** ep_steps) * rwd["env"]
                 ep_return_mon += (self.gamma ** ep_steps) * rwd["mon"]
