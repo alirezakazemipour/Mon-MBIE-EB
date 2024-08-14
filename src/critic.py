@@ -59,7 +59,6 @@ class MonQCritic(Critic):
         self.a = kwargs["ucb_re"]
         self.b = kwargs["ucb_rm"]
         self.c = kwargs["ucb_p"]
-        self.e = kwargs["ucb_obsrv_p"]
 
         self.env_num_obs = env_num_obs
         self.mon_num_obs = mon_num_obs
@@ -168,62 +167,36 @@ class MonQCritic(Critic):
                                             * (1 - self.env_term[se, ae])
                                             )
 
-    def plan4monitor(self, se_star, ae_star, rng):
-        self.obsrv_q = np.zeros(
-            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
-
-        rwd = np.zeros_like(self.monitor)
-        done = np.zeros_like(self.env_term)
-        done[se_star, ae_star] = 1
-
+    def plan4monitor(self, seg, aeg, rng):
+        self.obsrv_q = np.zeros_like(self.monitor)
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 se, sm = s
                 ae, am = a
-                if (se, ae) == (se_star, ae_star):
+                if (se, ae) == (seg, aeg):
                     t = self.joint_count[*s].sum((-2, -1))
                     if self.joint_count[*s, *a] != 0:
-                        rwd[*s, *a] = kl_confidence(t, self.monitor[*s, *a], self.joint_count[*s, *a])
-
-        p_obsrv_bar = self.joint_dynamics
-        obsrv_v = np.max(rwd, axis=(-2, -1))
-        s_star = random_argmax(obsrv_v, rng)
-
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                if self.joint_count[*s, *a] != 0:
-                    ucb = 0.5 * self.e / math.sqrt(self.joint_count[*s, *a])
-                    if p_obsrv_bar[*s, *a, *s_star] + ucb <= 1:
-                        p_obsrv_bar[*s, *a, *s_star] += ucb
-                        residual = -ucb
+                        self.obsrv_q[*s, *a] = self.monitor[*s, *a]
                     else:
-                        residual = p_obsrv_bar[*s, *a, *s_star] - 1
-                        p_obsrv_bar[*s, *a, *s_star] = 1
+                        self.obsrv_q[*s, *a] = 1
 
-                    next_states = []
-                    for ns in self.joint_obs_space:
-                        if p_obsrv_bar[*s, *a, *ns] > 0 and ns != s_star:
-                            next_states.append((ns, obsrv_v[*ns]))
-                    next_states.sort(key=lambda x: x[-1])
+        smg, amg = random_argmax(self.obsrv_q[seg, :, aeg, :], rng)
+        sg = seg, smg
+        ag = aeg, amg
 
-                    for ns, _ in next_states:
-                        if p_obsrv_bar[*s, *a, *ns] + residual >= 0:
-                            p_obsrv_bar[*s, *a, *ns] += residual
-                            break
-                        else:
-                            residual = p_obsrv_bar[*s, *a, *ns] + residual
-                            p_obsrv_bar[*s, *a, *ns] = 0
+        sgs = [[*sg, *ag]]
+        p_joint = self.joint_dynamics
 
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                if self.joint_count[*s, *a] == 0:
-                    self.obsrv_q[*s, *a] = 1
-                se, sm = s
-                ae, am = a
-                self.obsrv_q[*s, *a] = (
-                        rwd[*s, *a] + self.gamma * np.ravel(p_obsrv_bar[*s, *a]).T @ np.ravel(obsrv_v) * (
-                        1 - self.env_term[se, ae])
-                )
+        while len(sgs) > 0:
+            seg, smg, *_ = sgs.pop(0)
+            sg = seg, smg
+            predecs = np.argwhere(p_joint[..., *sg] > 0)
+            for predec in predecs:
+                v_obs = np.max(self.obsrv_q, axis=(-1, -2))
+                if abs(self.obsrv_q[*predec] - self.gamma * np.ravel(p_joint[*predec]).T @ np.ravel(v_obs)) > 0.1:
+                    sgs.append(predec)
+
+                self.obsrv_q[*predec] = self.gamma * np.ravel(p_joint[*predec]).T @ np.ravel(v_obs)
 
     def reset(self):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))

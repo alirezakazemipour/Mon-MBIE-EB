@@ -96,8 +96,6 @@ class MonExperiment:
             ep_return_mon = 0.0
             ep_steps = 0
             self.tot_episodes += 1
-            if explore:
-                self.explore_episodes += 1
 
             while True:
                 if tot_steps % self.testing_frequency == 0:
