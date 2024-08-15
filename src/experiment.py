@@ -90,8 +90,7 @@ class MonExperiment:
 
             if len(goals) > 0:
                 se_star, ae_star = goals[0][0]
-                visits = self.critic.env_visit[se_star, ae_star]
-                tries = self.critic.env_try[se_star, ae_star]
+                visits = goals[0][1]
 
                 if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta:
                     explore = True
@@ -107,8 +106,7 @@ class MonExperiment:
             ep_return_mon = 0.0
             ep_steps = 0
             self.tot_episodes += 1
-            if not explore:
-                self.exploit_episodes += 1
+
 
             while True:
                 if tot_steps % self.testing_frequency == 0:
@@ -149,7 +147,7 @@ class MonExperiment:
                                    next_obs["mon"],
                                    )
 
-                if (obs["env"], act["env"]) == (se_star, ae_star) and explore:
+                if (obs["env"], act["env"]) == (se_star, ae_star) and explore and not np.isnan(rwd["proxy"]):
                     candids = np.argwhere(self.critic.env_obsrv_count == 0)
                     goals = []
                     for candid in candids:
