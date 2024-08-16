@@ -1,5 +1,5 @@
 defaults:
-  - environment: hazard
+  - environment: distract
   - monitor: button
   - _self_
   - override hydra/hydra_logging: disabled
