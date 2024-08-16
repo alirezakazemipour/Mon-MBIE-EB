@@ -1,5 +1,5 @@
 defaults:
-  - environment: oneway
+  - environment: hazard
   - monitor: button
   - _self_
   - override hydra/hydra_logging: disabled

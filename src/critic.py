@@ -202,7 +202,7 @@ class MonQCritic(Critic):
                     continue
                 v_obs = np.max(self.obsrv_q, axis=(-1, -2))
                 self.obsrv_q[*predec] = self.gamma * np.ravel(p_joint[*predec]).T @ np.ravel(v_obs)
-                updated.add((seg, amg, aeg, amg))
+                # updated.add((seg, amg, aeg, amg))
 
     def reset(self):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))
