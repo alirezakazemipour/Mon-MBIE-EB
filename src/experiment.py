@@ -80,15 +80,16 @@ class MonExperiment:
             ep_seed = cantor_pairing(self.rng_seed, self.tot_episodes)
             rng = np.random.default_rng(ep_seed)
             self.critic.opt_pess_mbie(rng)
+            explore = False
 
             se_star, ae_star = None, None
             candids = np.argwhere(self.critic.env_obsrv_count == 0)
-            goals = []
-            for candid in candids:
-                goals.append((candid, self.critic.env_visit[*candid]))
-            goals.sort(key=lambda x: x[-1])
+            if len(candids) > 0:
+                goals = []
+                for candid in candids:
+                    goals.append((candid, self.critic.env_visit[*candid]))
+                goals.sort(key=lambda x: x[-1])
 
-            if len(goals) > 0:
                 se_star, ae_star = goals[0][0]
                 visits = goals[0][1]
 
@@ -96,17 +97,12 @@ class MonExperiment:
                     explore = True
                     self.critic.plan4monitor(se_star, ae_star, rng)
                     self.critic.env_try[se_star, ae_star] += 1
-                else:
-                    explore = False
-            else:
-                explore = False
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0
             ep_return_mon = 0.0
             ep_steps = 0
             self.tot_episodes += 1
-
 
             while True:
                 if tot_steps % self.testing_frequency == 0:
@@ -147,24 +143,22 @@ class MonExperiment:
                                    next_obs["mon"],
                                    )
 
-                if (obs["env"], act["env"]) == (se_star, ae_star) and explore and not np.isnan(rwd["proxy"]):
+                if (obs["env"], act["env"]) == (se_star, ae_star) and explore:
+                    explore = False
                     candids = np.argwhere(self.critic.env_obsrv_count == 0)
-                    goals = []
-                    for candid in candids:
-                        goals.append((candid, self.critic.env_visit[*candid]))
-                    goals.sort(key=lambda x: x[-1])
-                    if len(goals) > 0:
+                    if len(candids) > 0:
+                        goals = []
+                        for candid in candids:
+                            goals.append((candid, self.critic.env_visit[*candid]))
+                        goals.sort(key=lambda x: x[-1])
+
                         se_star, ae_star = goals[0][0]
-                        visits = self.critic.env_visit[se_star, ae_star]
+                        visits = goals[0][1]
 
                         if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta:
                             explore = True
                             self.critic.plan4monitor(se_star, ae_star, rng)
                             self.critic.env_try[se_star, ae_star] += 1
-                        else:
-                            explore = False
-                    else:
-                        explore = False
 
                 ep_return_env += (self.gamma ** ep_steps) * rwd["env"]
                 ep_return_mon += (self.gamma ** ep_steps) * rwd["mon"]

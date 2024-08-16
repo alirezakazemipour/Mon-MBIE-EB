@@ -84,10 +84,10 @@ def kl_divergence(p, q):
     elif q == 1 and not p == 1:
         return DIV_MAX
     elif p == 0:
-        return np.log(1 / (1 - q))
+        return math.log(1 / (1 - q))
     elif p == 1:
-        return np.log(1 / q)
-    return p * np.log(p / q) + (1 - p) * np.log((1 - p) / (1 - q))
+        return math.log(1 / q)
+    return p * math.log(p / q) + (1 - p) * math.log((1 - p) / (1 - q))
 
 
 def kl_confidence(t, emp_mean, num_pulls, precision=1e-5, max_iter=50):

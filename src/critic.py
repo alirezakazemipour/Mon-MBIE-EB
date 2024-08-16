@@ -53,9 +53,7 @@ class MonQCritic(Critic):
 
         self.gamma = gamma
         self.joint_max_q = kwargs["joint_max_q"]
-        self.obsrv_max_q = kwargs["obsrv_max_q"]
         self.env_min_r = kwargs["env_min_r"]
-        self.mon_max_r = kwargs["mon_max_r"]
         self.a = kwargs["ucb_re"]
         self.b = kwargs["ucb_rm"]
         self.c = kwargs["ucb_p"]
@@ -176,7 +174,7 @@ class MonQCritic(Critic):
                 if (se, ae) == (seg, aeg):
                     t = self.joint_count[*s].sum((-2, -1))
                     if self.joint_count[*s, *a] != 0:
-                        self.obsrv_q[*s, *a] = self.monitor[*s, *a]
+                        self.obsrv_q[*s, *a] = kl_confidence(t, self.monitor[*s, *a], self.joint_count[*s, *a])
                     else:
                         self.obsrv_q[*s, *a] = 1
 
@@ -186,17 +184,25 @@ class MonQCritic(Critic):
 
         sgs = [[*sg, *ag]]
         p_joint = self.joint_dynamics
+        expanded = set()
+        updated = {(seg, amg, aeg, amg)}
 
         while len(sgs) > 0:
-            seg, smg, *_ = sgs.pop(0)
+            seg, smg, aeg, amg = sgs.pop(0)
             sg = seg, smg
+            ag = aeg, amg
+            if (sg, ag) in expanded:
+                continue
+            expanded.add((sg, ag))
             predecs = np.argwhere(p_joint[..., *sg] > 0)
             for predec in predecs:
+                sgs.append(predec)
+                seg, amg, aeg, amg = predec
+                if (seg, amg, aeg, amg) in updated:
+                    continue
                 v_obs = np.max(self.obsrv_q, axis=(-1, -2))
-                if abs(self.obsrv_q[*predec] - self.gamma * np.ravel(p_joint[*predec]).T @ np.ravel(v_obs)) > 0.1:
-                    sgs.append(predec)
-
                 self.obsrv_q[*predec] = self.gamma * np.ravel(p_joint[*predec]).T @ np.ravel(v_obs)
+                updated.add((seg, amg, aeg, amg))
 
     def reset(self):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))
@@ -221,9 +227,7 @@ class MonQCritic(Critic):
 
     @property
     def mon_rwd_model(self):
-        with np.errstate(divide='ignore', invalid='ignore'):
-            r = self.mon_r / self.joint_count
-        r[np.isnan(r)] = self.mon_max_r
+        r = self.mon_r / (self.joint_count + 1e-4)
         return r
 
     @property

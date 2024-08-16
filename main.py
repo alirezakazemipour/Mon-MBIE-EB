@@ -63,11 +63,10 @@ def run(cfg: DictConfig) -> None:
                                )
     data = experiment.train()
     print(f"total episodes: {experiment.tot_episodes}")
-    print("visits:", critic.env_visit)
-    print("observs:", critic.env_obsrv_count) # noqa
+    print("visits:", critic.env_visit.astype(int))
+    print("observs:", critic.env_obsrv_count.astype(int))  # noqa
     print("rwd model:", critic.env_rwd_model)
-
-
+    # print("transitions:", critic.joint_dynamics)
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,
