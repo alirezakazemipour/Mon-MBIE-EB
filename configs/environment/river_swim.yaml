@@ -16,7 +16,6 @@ critic:
   joint_max_q: 484
   obsrv_max_q: 100
   env_min_r: -1
-  mon_max_r: 0
   ucb_re: 0.04
   ucb_rm: 0.4
   ucb_p: 0.4

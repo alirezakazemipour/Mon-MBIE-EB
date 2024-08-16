@@ -62,6 +62,7 @@ class MonExperiment:
         tot_steps = 0
         self.exploit_episodes = 0
         self.tot_episodes = 0
+        explore_exploit_cnt = 1
         last_ep_return_env = np.nan
         last_ep_return_mon = np.nan
         test_return_env = np.nan
@@ -92,11 +93,14 @@ class MonExperiment:
 
                 se_star, ae_star = goals[0][0]
                 visits = goals[0][1]
+                tries = self.critic.env_try[se_star, ae_star]
 
-                if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta:
+                if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta and math.log(explore_exploit_cnt + 1e-4) / (
+                        tries + 1e-4) > self.beta:
                     explore = True
                     self.critic.plan4monitor(se_star, ae_star, rng)
                     self.critic.env_try[se_star, ae_star] += 1
+                    explore_exploit_cnt += 1
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0
@@ -143,7 +147,7 @@ class MonExperiment:
                                    next_obs["mon"],
                                    )
 
-                if (obs["env"], act["env"]) == (se_star, ae_star) and explore:
+                if (obs["env"], act["env"]) == (se_star, ae_star) and explore and not np.isnan(rwd["proxy"]):
                     explore = False
                     candids = np.argwhere(self.critic.env_obsrv_count == 0)
                     if len(candids) > 0:
@@ -154,11 +158,15 @@ class MonExperiment:
 
                         se_star, ae_star = goals[0][0]
                         visits = goals[0][1]
+                        tries = self.critic.env_try[se_star, ae_star]
 
-                        if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta:
+                        if (math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta
+                                and math.log(explore_exploit_cnt + 1e-4) / (
+                                tries + 1e-4) > self.beta):
                             explore = True
                             self.critic.plan4monitor(se_star, ae_star, rng)
                             self.critic.env_try[se_star, ae_star] += 1
+                            explore_exploit_cnt += 1
 
                 ep_return_env += (self.gamma ** ep_steps) * rwd["env"]
                 ep_return_mon += (self.gamma ** ep_steps) * rwd["mon"]
