@@ -43,7 +43,8 @@ class MonExperiment:
         self.actor = actor
         self.critic = critic
         self.gamma = critic.gamma
-        self.beta = kwargs["beta"]
+        self.beta1 = kwargs["beta1"]
+        self.beta2 = kwargs["beta2"]
 
         self.training_steps = training_steps
         self.testing_episodes = testing_episodes
@@ -95,8 +96,8 @@ class MonExperiment:
                 visits = goals[0][1]
                 tries = self.critic.env_try[se_star, ae_star]
 
-                if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta and math.log(explore_exploit_cnt + 1e-4) / (
-                        tries + 1e-4) > self.beta:
+                if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta1 and math.log(explore_exploit_cnt + 1e-4) / (
+                        tries + 1e-4) > self.beta2:
                     explore = True
                     self.critic.plan4monitor(se_star, ae_star, rng)
                     self.critic.env_try[se_star, ae_star] += 1
@@ -160,9 +161,9 @@ class MonExperiment:
                         visits = goals[0][1]
                         tries = self.critic.env_try[se_star, ae_star]
 
-                        if (math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta
+                        if (math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta1
                                 and math.log(explore_exploit_cnt + 1e-4) / (
-                                tries + 1e-4) > self.beta):
+                                tries + 1e-4) > self.beta2):
                             explore = True
                             self.critic.plan4monitor(se_star, ae_star, rng)
                             self.critic.env_try[se_star, ae_star] += 1

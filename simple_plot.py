@@ -21,8 +21,8 @@ plt.rc('figure', titlesize=BIGGER_SIZE)
 plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Ask"
-env = "RiverSwim-6-v0"
+monitor = "Button"
+env = "Gridworld-TwoRoom-Quicksand-3x5-v0"
 
 info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
                            "Button": (192.72, "optimal"),
@@ -33,7 +33,7 @@ info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
         "Gridworld-Corridor-3x4-v0": {"Ask": (9.409, "optimal"),
                                       "Button": (8.972, "optimal"),
                                       },
-        "Gridworld-Empty-Distract-6x6-v0": {"Ask": (9.044, "cautious"),
+        "Gridworld-Empty-Distract-6x6-v0": {"Ask": (9.411, "cautious"),
                                             "Button": (8.057, "cautious"),
                                             },
         "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (9.044, "cautious"),
