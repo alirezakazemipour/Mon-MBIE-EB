@@ -69,7 +69,6 @@ class MonQCritic(Critic):
 
         self.env_r = None
         self.env_visit = None
-        self.env_try = None
         self.env_term = None
         self.env_obsrv_count = None
         self.mon_r = None
@@ -179,10 +178,10 @@ class MonQCritic(Critic):
                         self.obsrv_q[*s, *a] = 1
 
         smg, amg = random_argmax(self.obsrv_q[seg, :, aeg, :], rng)
-        sg = seg, smg
-        ag = aeg, amg
+        sg_t = seg, smg
+        ag_t = aeg, amg
 
-        sgs = [[*sg, *ag]]
+        sgs = [[*sg_t, *ag_t]]
         p_joint = self.joint_dynamics
         expanded = set()
         updated = {(seg, amg, aeg, amg)}
@@ -203,11 +202,11 @@ class MonQCritic(Critic):
                 v_obs = np.max(self.obsrv_q, axis=(-1, -2))
                 self.obsrv_q[*predec] = self.gamma * np.ravel(p_joint[*predec]).T @ np.ravel(v_obs)
                 # updated.add((seg, amg, aeg, amg))
+        return sg_t, ag_t
 
     def reset(self):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_visit = np.zeros((self.env_num_obs, self.env_num_act))
-        self.env_try = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_term = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_obsrv_count = np.zeros((self.env_num_obs, self.env_num_act))
         self.mon_r = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))

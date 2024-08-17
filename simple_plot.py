@@ -21,8 +21,8 @@ plt.rc('figure', titlesize=BIGGER_SIZE)
 plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Button"
-env = "Gridworld-TwoRoom-Quicksand-3x5-v0"
+monitor = "Ask"
+env = "RiverSwim-6-v0"
 
 info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
                            "Button": (192.72, "optimal"),
@@ -47,8 +47,8 @@ info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
 algos = [
     # (f"{monitor}_1.0", "blue", "100%"),
     # (f"{monitor}_0.75", "red", "75%"),
-    # (f"{monitor}_0.5", "green", "50%"),
-    (f"{monitor}_0.25", "orange", "25%"),
+    (f"{monitor}_0.5", "green", "50%"),
+    # (f"{monitor}_0.25", "orange", "25%"),
     # (f"{monitor}_0.1", "brown", "10%"),
     # (f"{monitor}_0.01", "magenta", "1%")
 ]
@@ -60,10 +60,10 @@ for conf in algos:
     ref, opt_caut = info[env][monitor]
     runs = []
     for i in range(n_runs):
-        x = np.load(f"data/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+        x = np.load(f"data/Gym-Grid/{env}/{algo}/data_27.npz")["test_return"]
         runs.append(x)
-    print(np.argmin(np.array(runs).sum(-1)))
-    exit()
+    # print(np.argmin(np.array(runs).sum(-1)))
+    # exit()
     smoothed = []
     for run in runs:
         val = [run[0]]
