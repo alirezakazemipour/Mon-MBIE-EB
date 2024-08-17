@@ -5,7 +5,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 from src.actor import Greedy
-from src.critic import MonQTableCritic
+from src.critic import MonQCritic
 from src.experiment import MonExperiment
 from src.wrappers import monitor_wrappers
 import pickle
@@ -48,12 +48,12 @@ def run(cfg: DictConfig) -> None:
     # print(np.std(ret))
     # exit()
 
-    critic = MonQTableCritic(env.observation_space["env"].n,
-                             env.observation_space["mon"].n,
-                             env.action_space["env"].n,
-                             env.action_space["mon"].n,
-                             **cfg.environment.critic,
-                             )
+    critic = MonQCritic(env.observation_space["env"].n,
+                        env.observation_space["mon"].n,
+                        env.action_space["env"].n,
+                        env.action_space["mon"].n,
+                        **cfg.environment.critic,
+                        )
     actor = Greedy(critic)
     experiment = MonExperiment(env,
                                env_test,
@@ -61,8 +61,12 @@ def run(cfg: DictConfig) -> None:
                                critic,
                                **{**cfg.environment.experiment, **cfg.experiment}
                                )
-    return_test_history, s_a_visits, s_a_values = experiment.train()
-    experiment.test()
+    data = experiment.train()
+    print(f"total episodes: {experiment.tot_episodes}")
+    print("visits:", critic.env_visit.astype(int))
+    print("observs:", critic.env_obsrv_count.astype(int))  # noqa
+    print("rwd model:", critic.env_rwd_model)
+    # print("transitions:", critic.joint_dynamics)
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,
@@ -71,13 +75,9 @@ def run(cfg: DictConfig) -> None:
                                 )
         os.makedirs(filepath, exist_ok=True)
         seed = str(cfg.experiment.rng_seed)
-        savepath = os.path.join(filepath, "visits_" + seed)
-        np.save(savepath, s_a_visits)
-        savepath = os.path.join(filepath, "values_" + seed)
-        np.save(savepath, s_a_values)
-        savepath = os.path.join(filepath, "test_" + seed)
-        np.save(savepath, np.array(return_test_history))
-        savepath = os.path.join(filepath, "configs.pkl")
+        savepath = os.path.join(filepath, f"data_{seed}.npz")
+        np.savez(savepath, **data)
+
         if not os.path.isfile(savepath):
             with open(savepath, 'wb') as f:
                 pickle.dump(cfg, f)

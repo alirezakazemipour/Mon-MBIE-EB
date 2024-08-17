@@ -9,12 +9,13 @@ experiment:
   training_steps: 20000
   testing_episodes: 100
   testing_frequency: 100
-  beta: 1e-2
+  beta1: 0.05
+  beta2: 1
 
 critic:
   gamma: 0.99
-  q_max: 484
-  r_min: 0
+  joint_max_q: 484
+  env_min_r: -1
   ucb_re: 0.04
   ucb_rm: 0.4
   ucb_p: 0.4

@@ -20,9 +20,9 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)
 plt.title(f"EOP", weight="bold")
 
-n_runs = 100
-monitor = "Ask"
-env = "Gridworld-Empty-Distract-6x6-v0"
+n_runs = 30
+monitor = "Button"
+env = "Gridworld-TwoRoom-Quicksand-3x5-v0"
 
 info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
                            "Button": (192.72, "optimal"),
@@ -48,21 +48,21 @@ algos = [
     # (f"{monitor}_1.0", "blue", "100%"),
     # (f"{monitor}_0.75", "red", "75%"),
     # (f"{monitor}_0.5", "green", "50%"),
-    # (f"{monitor}_0.25", "orange", "25%"),
-    (f"{monitor}_0.1", "brown", "10%"),
+    (f"{monitor}_0.25", "orange", "25%"),
+    # (f"{monitor}_0.1", "brown", "10%"),
     # (f"{monitor}_0.01", "magenta", "1%")
 ]
 
-assert n_runs == 100
+assert n_runs == 30
 
 for conf in algos:
     algo, color, legend = conf
     ref, opt_caut = info[env][monitor]
     runs = []
     for i in range(n_runs):
+        x = np.load(f"data/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
         runs.append(x)
     print(np.argmin(np.array(runs).sum(-1)))
-    print(len(np.array(runs)[84]))
     exit()
     smoothed = []
     for run in runs:

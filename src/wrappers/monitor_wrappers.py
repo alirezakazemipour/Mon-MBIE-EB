@@ -172,7 +172,7 @@ class Ask(Monitor):
 
         p = self.np_random.random()
         if action["mon"] == 1:
-            if p < self.prob and env_next_obs not in self.forbidden_states:
+            if p < self.prob and (env_next_obs not in self.forbidden_states):
                 proxy_reward = env_reward
             else:
                 proxy_reward = np.nan
