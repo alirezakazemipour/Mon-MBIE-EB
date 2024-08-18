@@ -75,11 +75,11 @@ def run(cfg: DictConfig) -> None:
                                 )
         os.makedirs(filepath, exist_ok=True)
         seed = str(cfg.experiment.rng_seed)
-        savepath = os.path.join(filepath, f"data_{seed}.npz")
-        np.savez(savepath, **data)
+        savepath = os.path.join(filepath, f"data_{seed}")
+        np.savez(savepath + ".npz", **data)
 
         if not os.path.isfile(savepath):
-            with open(savepath, 'wb') as f:
+            with open(savepath + ".pkl", 'wb') as f:
                 pickle.dump(cfg, f)
 
 

@@ -83,7 +83,7 @@ class MonExperiment:
             explore = False
 
             se_star, ae_star = None, None
-            candids = np.argwhere(self.critic.env_obsrv_count == self.critic.env_obsrv_count.min())
+            candids = np.argwhere(self.critic.env_obsrv_count == 0)
             if len(candids) > 0:
                 goals = []
                 for candid in candids:
@@ -91,12 +91,10 @@ class MonExperiment:
                 goals.sort(key=lambda x: x[-1])
 
                 se_star, ae_star = goals[0][0]
-                obsrvs = self.critic.env_obsrv_count[se_star, ae_star]
                 s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
                 tries = self.critic.joint_count[*s_star, *a_star]
 
-                if math.log(tot_steps + 1e-4) / (obsrvs + 1e-4) > self.beta1 and math.log(tot_steps + 1e-4) / (
-                        tries + 1e-4) > self.beta2:
+                if math.log(tot_steps + 1e-4) / (tries + 1e-4) > self.beta2:
                     explore = True
 
             obs, _ = self.env.reset(seed=ep_seed)
@@ -146,7 +144,7 @@ class MonExperiment:
 
                 if (obs["env"], act["env"]) == (se_star, ae_star) and explore and not np.isnan(rwd["proxy"]):
                     explore = False
-                    candids = np.argwhere(self.critic.env_obsrv_count == self.critic.env_obsrv_count.min())
+                    candids = np.argwhere(self.critic.env_obsrv_count == 0)
                     if len(candids) > 0:
                         goals = []
                         for candid in candids:
@@ -158,8 +156,7 @@ class MonExperiment:
                         s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
                         tries = self.critic.joint_count[*s_star, *a_star]
 
-                        if math.log(tot_steps + 1e-4) / (obsrvs + 1e-4) > self.beta1 and math.log(tot_steps + 1e-4) / (
-                                tries + 1e-4) > self.beta2:
+                        if math.log(tot_steps + 1e-4) / (tries + 1e-4) > self.beta2:
                             explore = True
 
                 ep_return_env += (self.gamma ** ep_steps) * rwd["env"]
