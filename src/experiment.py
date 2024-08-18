@@ -144,7 +144,7 @@ class MonExperiment:
                                    next_obs["mon"],
                                    )
 
-                if (obs["env"], act["env"]) == (se_star, ae_star) and explore:
+                if (obs["env"], act["env"]) == (se_star, ae_star) and explore and not np.isnan(rwd["proxy"]):
                     explore = False
                     candids = np.argwhere(self.critic.env_obsrv_count == self.critic.env_obsrv_count.min())
                     if len(candids) > 0:
