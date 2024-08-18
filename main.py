@@ -24,17 +24,17 @@ def run(cfg: DictConfig) -> None:
                                                          )
 
     # ret = []
-    # for i in tqdm(range(100)):
+    # for i in tqdm(range(10000)):
     #     np.random.seed(i)
     #     ret_e = 0
     #     obs, _ = env.reset(seed=i)
     #     t = 0
     #     while True:
-    #         while obs["mon"] == 1:
-    #             a = {"env": 0, "mon": 0}
-    #             obs, r, term, trunc, _ = env.step(a)
-    #             ret_e += (0.99 ** t) * (r["env"] + r["mon"])
-    #             t += 1
+    #         # while obs["mon"] == 1:
+    #         #     a = {"env": 0, "mon": 0}
+    #         #     obs, r, term, trunc, _ = env.step(a)
+    #         #     ret_e += (0.99 ** t) * (r["env"] + r["mon"])
+    #         #     t += 1
     #
     #         a = {"env": 1, "mon": 0}
     #         obs, r, term, trunc, _ = env.step(a)
@@ -66,7 +66,7 @@ def run(cfg: DictConfig) -> None:
     print("visits:", critic.env_visit.astype(int))
     print("observs:", critic.env_obsrv_count.astype(int))  # noqa
     print("rwd model:", critic.env_rwd_model)
-    # print("transitions:", critic.joint_dynamics)
+    print("joint count: ", critic.joint_count[-1])
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,

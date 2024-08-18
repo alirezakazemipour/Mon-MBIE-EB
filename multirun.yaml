@@ -21,20 +21,12 @@ hydra:
     _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
     max_batch_size: null
     params:
-      environment: distract
-      experiment: short
+      environment: distract, grid_det, hazard, oneway, river_swim, two_room
       experiment.hide_progress_bar: true
       experiment.datadir: data
-      experiment.rng_seed: range(0, 30)
+      experiment.rng_seed: range(0, 1)
       monitor: ask, button
       monitor.prob: 1.00, 0.75, 0.50, 0.25, 0.10, 0.01
-      agent.critic.ucb_re: 0.0004
-      agent.critic.ucb_rm: 0.0004
-      agent.critic.ucb_p: 0.0004
-      agent.critic.q_max: 1
-      agent.critic.q_min: -500
-      agent.critic.r_min: -10
-      agent.critic.r_max: 10
   help:
     app_name: ${hydra.job.name}
     header: '${hydra.help.app_name} is powered by Hydra.
@@ -128,12 +120,12 @@ hydra:
   runtime:
     version: 1.3.2
     version_base: '1.3'
-    cwd: /Users/alirezakazemipour/github/Optimism-in-the-face-of-unobservability
+    cwd: /Users/alirezakazemipour/github/ofu
     config_sources:
     - path: hydra.conf
       schema: pkg
       provider: hydra
-    - path: /Users/alirezakazemipour/github/Optimism-in-the-face-of-unobservability/configs
+    - path: /Users/alirezakazemipour/github/ofu/configs
       schema: file
       provider: main
     - path: ''
@@ -141,10 +133,8 @@ hydra:
       provider: schema
     output_dir: ???
     choices:
-      experiment: short
       monitor: ask
-      agent: default
-      environment: grid_det
+      environment: river_swim
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -156,35 +146,29 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Grid/Gridworld-Penalty-3x3-v0
-  max_episode_steps: 50
+  id: Gym-Grid/RiverSwim-6-v0
   monitor:
-    forbidden_states:
-    - 1
-    - 4
-  render_mode: null
-agent:
+    button_cell_id: 0
+    button_flip_act: 0
+    forbidden_states: null
+  experiment:
+    training_steps: 20000
+    testing_episodes: 100
+    testing_frequency: 100
+    beta1: 0.05
+    beta2: 0.05
   critic:
     gamma: 0.99
-    q_max: 1
-    q_min: -10
-    beta: 0.01
-    ucb_re: 0.0004
-    ucb_rm: 0.0004
-    ucb_p: 0.0004
-    r_min: -10
-    r_max: 1
+    joint_max_q: 484
+    env_min_r: -1
+    ucb_re: 0.04
+    ucb_rm: 0.4
+    ucb_p: 0.4
+  render_mode: null
 monitor:
   id: Ask
-  prob: 0.5
-  button_cell_id: 0
-  button_flip_act: 0
-  forbidden_states: null
+  prob: 0.1
 experiment:
-  training_steps: 20000
-  testing_episodes: 100
-  testing_frequency: 100
   datadir: null
-  debugdir: null
-  rng_seed: 2
+  rng_seed: 0
   hide_progress_bar: false

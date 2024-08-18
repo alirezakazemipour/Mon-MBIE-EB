@@ -61,9 +61,7 @@ class MonExperiment:
         self.critic.reset()
 
         tot_steps = 0
-        self.exploit_episodes = 0
         self.tot_episodes = 0
-        explore_exploit_cnt = 1
         last_ep_return_env = np.nan
         last_ep_return_mon = np.nan
         test_return_env = np.nan
@@ -85,7 +83,7 @@ class MonExperiment:
             explore = False
 
             se_star, ae_star = None, None
-            candids = np.argwhere(self.critic.env_obsrv_count == 0)
+            candids = np.argwhere(self.critic.env_obsrv_count == self.critic.env_obsrv_count.min())
             if len(candids) > 0:
                 goals = []
                 for candid in candids:
@@ -93,15 +91,13 @@ class MonExperiment:
                 goals.sort(key=lambda x: x[-1])
 
                 se_star, ae_star = goals[0][0]
-                visits = goals[0][1]
-                tries = self.critic.env_try[se_star, ae_star]
+                obsrvs = self.critic.env_obsrv_count[se_star, ae_star]
+                s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
+                tries = self.critic.joint_count[*s_star, *a_star]
 
-                if math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta1 and math.log(explore_exploit_cnt + 1e-4) / (
+                if math.log(tot_steps + 1e-4) / (obsrvs + 1e-4) > self.beta1 and math.log(tot_steps + 1e-4) / (
                         tries + 1e-4) > self.beta2:
                     explore = True
-                    self.critic.plan4monitor(se_star, ae_star, rng)
-                    self.critic.env_try[se_star, ae_star] += 1
-                    explore_exploit_cnt += 1
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0
@@ -150,7 +146,7 @@ class MonExperiment:
 
                 if (obs["env"], act["env"]) == (se_star, ae_star) and explore and not np.isnan(rwd["proxy"]):
                     explore = False
-                    candids = np.argwhere(self.critic.env_obsrv_count == 0)
+                    candids = np.argwhere(self.critic.env_obsrv_count == self.critic.env_obsrv_count.min())
                     if len(candids) > 0:
                         goals = []
                         for candid in candids:
@@ -158,16 +154,13 @@ class MonExperiment:
                         goals.sort(key=lambda x: x[-1])
 
                         se_star, ae_star = goals[0][0]
-                        visits = goals[0][1]
-                        tries = self.critic.env_try[se_star, ae_star]
+                        obsrvs = self.critic.env_obsrv_count[se_star, ae_star]
+                        s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
+                        tries = self.critic.joint_count[*s_star, *a_star]
 
-                        if (math.log(tot_steps + 1e-4) / (visits + 1e-4) > self.beta1
-                                and math.log(explore_exploit_cnt + 1e-4) / (
-                                tries + 1e-4) > self.beta2):
+                        if math.log(tot_steps + 1e-4) / (obsrvs + 1e-4) > self.beta1 and math.log(tot_steps + 1e-4) / (
+                                tries + 1e-4) > self.beta2:
                             explore = True
-                            self.critic.plan4monitor(se_star, ae_star, rng)
-                            self.critic.env_try[se_star, ae_star] += 1
-                            explore_exploit_cnt += 1
 
                 ep_return_env += (self.gamma ** ep_steps) * rwd["env"]
                 ep_return_mon += (self.gamma ** ep_steps) * rwd["mon"]
