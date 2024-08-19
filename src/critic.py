@@ -111,14 +111,18 @@ class MonQCritic(Critic):
         for s in self.env_obs_space:
             for a in self.env_act_space:
                 if self.env_visit[s, a] != 0:
-                    ucb = self.a / math.sqrt(self.env_visit[s, a])
+                    t = self.env_visit[s].sum()
+                    f_t = f(t)
+                    ucb = self.a * math.sqrt(2 * math.log(f_t) / self.env_visit[s, a])
                     env_rwd_model[s, a] += ucb
 
         mon_rwd_bar = self.mon_rwd_model
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    ucb = self.b / math.sqrt(self.joint_count[*s, *a])
+                    t = self.joint_count[*s].sum((-2, -1))
+                    f_t = f(t)
+                    ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
                     mon_rwd_bar[*s, *a] += ucb
 
         p_joint_bar = self.joint_dynamics

@@ -152,7 +152,6 @@ class MonExperiment:
                         goals.sort(key=lambda x: x[-1])
 
                         se_star, ae_star = goals[0][0]
-                        obsrvs = self.critic.env_obsrv_count[se_star, ae_star]
                         s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
                         tries = self.critic.joint_count[*s_star, *a_star]
 
