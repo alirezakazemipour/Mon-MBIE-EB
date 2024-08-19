@@ -37,6 +37,8 @@ A long description of this experiment.
 
 ## Follow-up Questions
 
+1) Is it enough to observe once and then switch or, we should observe at least a number of times?
+
 ## Trials
 
 ### Failures
