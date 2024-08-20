@@ -43,7 +43,6 @@ class MonExperiment:
         self.actor = actor
         self.critic = critic
         self.gamma = critic.gamma
-        self.beta1 = kwargs["beta1"]
         self.beta2 = kwargs["beta2"]
 
         self.training_steps = training_steps

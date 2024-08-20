@@ -330,3 +330,71 @@ class N(Monitor):
 
         self.monitor_state = self.observation_space["mon"].sample()
         return self._monitor_get_state(), proxy_reward, monitor_reward, False
+
+
+class Level(Monitor):
+    """
+    The monitor has N levels, from 0 to N - 1.
+    The initial level is random, and it increases if the agent's action matches
+    the current level.
+    For example, if state = 2 and action = 2, then next_state = 3.
+    If the agent executes the wrong action, the level resets to 0.
+    Actions 0 to N - 1 are costly.
+    Action N does nothing and costs nothing.
+    Environment rewards will become visible only when the monitor level is max,
+    i.e., when state = N - 1.
+    To keep it maxxed, the agent has to keep doing action = N - 1 (paying a cost)
+    or do action = N (no cost).
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment,
+        n_levels (int): number of levels,
+        monitor_cost (float): cost for leveling up the monitor state.
+    """
+
+    def __init__(self, env, n_levels=2, monitor_cost=0.2, **kwargs):
+        Monitor.__init__(self, env, **kwargs)
+        self.action_space = spaces.Dict({
+            "env": env.action_space,
+            "mon": spaces.Discrete(n_levels + 1),  # last action is "do nothing"
+        })  # fmt: skip
+        self.observation_space = spaces.Dict({
+            "env": env.observation_space,
+            "mon": spaces.Discrete(n_levels),
+        })  # fmt: skip
+        self.monitor_state = 0
+        self.monitor_cost = monitor_cost
+        self.prob = kwargs["prob"]
+        self.forbidden_states = kwargs["forbidden_states"] if kwargs["forbidden_states"] is not None else []
+
+    def _monitor_set_state(self, state):
+        self.monitor_state = state
+
+    def _monitor_get_state(self):
+        return np.array(self.monitor_state)
+
+    def _monitor_step(self, action, env_reward):
+        assert (action["mon"] < self.action_space["mon"].n), "illegal monitor action"
+
+        env_next_obs = self.env.unwrapped.get_state()
+
+        monitor_reward = 0.0
+        proxy_reward = np.nan
+        p = self.np_random.random()
+
+        if self.monitor_state == self.observation_space["mon"].n - 1:
+            if p < self.prob and (env_next_obs not in self.forbidden_states):
+                proxy_reward = env_reward
+
+        if action["mon"] == self.action_space["mon"].n - 1:
+            pass  # last action is "do nothing"
+        else:
+            monitor_reward = -self.monitor_cost  # pay cost
+            if action["mon"] == self.monitor_state:
+                self.monitor_state += 1  # raise level
+                if self.monitor_state > self.observation_space["mon"].n - 1:  # level is already max
+                    self.monitor_state = self.observation_space["mon"].n - 1
+            else:
+                self.monitor_state = 0  # reset level
+
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
