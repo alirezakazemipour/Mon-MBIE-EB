@@ -20,7 +20,6 @@ experiment:
 critic:
   gamma: 0.99
   joint_max_q: 10
-  obsrv_max_q: 100
   env_min_r: -1
   ucb_re: 0.004
   ucb_rm: 0.004
