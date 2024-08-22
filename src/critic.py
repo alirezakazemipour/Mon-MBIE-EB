@@ -140,9 +140,10 @@ class MonQCritic(Critic):
                         residual = p_joint_bar[*s, *a, *s_star] - 1
                         p_joint_bar[*s, *a, *s_star] = 1
 
+                    next_states_idx = np.argwhere(p_joint_bar[*s, *a] > 0)
                     next_states = []
-                    for ns in self.joint_obs_space:
-                        if p_joint_bar[*s, *a, *ns] > 0 and ns != s_star:
+                    for ns in next_states_idx:
+                        if tuple(ns) != s_star:
                             next_states.append((ns, joint_v[*ns]))
                     next_states.sort(key=lambda x: x[-1])
 

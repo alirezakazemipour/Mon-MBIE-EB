@@ -38,6 +38,7 @@ A long description of this experiment.
 ## Follow-up Questions
 
 1) Is it enough to observe once and then switch or, we should observe at least a number of times?
+2) `Level` and `N` monitors showed that the planning takes exponential time. The only way was to reduce `n_monitor` and increase $\beta$
 
 ## Trials
 
