@@ -3,7 +3,6 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 import os
 import numpy as np
-from tqdm import tqdm
 from src.actor import Greedy
 from src.critic import MonQCritic
 from src.experiment import MonExperiment
@@ -52,7 +51,7 @@ def run(cfg: DictConfig) -> None:
                         env.observation_space["mon"].n,
                         env.action_space["env"].n,
                         env.action_space["mon"].n,
-                        **cfg.environment.critic,
+                        **{**cfg.critic, **cfg.environment.critic},
                         )
     actor = Greedy(critic)
     experiment = MonExperiment(env,

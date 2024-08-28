@@ -18,4 +18,3 @@ critic:
   ucb_re: 0.05
   ucb_rm: 0.9
   ucb_p: 0.9
-  vi_iter: 100
