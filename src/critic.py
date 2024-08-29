@@ -156,21 +156,20 @@ class MonQCritic(Critic):
                             residual = p_joint_bar[*s, *a, *ns] + residual
                             p_joint_bar[*s, *a, *ns] = 0
 
-        for k in range(self.vi_iter):
-            for s in self.joint_obs_space:
-                for a in self.joint_act_space:
-                    se, sm = s
-                    ae, am = a
-                    if self.env_visit[se, ae] == 0:
-                        self.joint_q[se, :, ae, :] = self.joint_max_q
-                    elif self.joint_count[*s, *a] == 0:
-                        self.joint_q[*s, *a] = self.joint_max_q
-                    else:
-                        self.joint_q[*s, *a] = (env_rwd_model[se, ae] + mon_rwd_bar[*s, *a]
-                                                + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(joint_v)
-                                                * (1 - self.env_term[se, ae])
-                                                )
-                    joint_v = np.max(self.joint_q, axis=(-2, -1))
+        for s in self.joint_obs_space:
+            for a in self.joint_act_space:
+                se, sm = s
+                ae, am = a
+                if self.env_visit[se, ae] == 0:
+                    self.joint_q[se, :, ae, :] = self.joint_max_q
+                elif self.joint_count[*s, *a] == 0:
+                    self.joint_q[*s, *a] = self.joint_max_q
+                else:
+                    self.joint_q[*s, *a] = (env_rwd_model[se, ae] + mon_rwd_bar[*s, *a]
+                                            + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(joint_v)
+                                            * (1 - self.env_term[se, ae])
+                                            )
+                joint_v = np.max(self.joint_q, axis=(-2, -1))
 
     def plan4monitor(self, seg, aeg, rng):
         self.obsrv_q = np.zeros_like(self.monitor)
@@ -227,12 +226,10 @@ class MonQCritic(Critic):
             for s in self.joint_obs_space:
                 for a in self.joint_act_space:
                     if self.joint_count[*s, *a] == 0:
-                        self.obsrv_q[*s, *a] = 1
+                        self.obsrv_q[*s, *a] = 100
                     else:
-                        term = (s, a) == (sg, ag)
                         self.obsrv_q[*s, *a] = (
                                 obsrv_r[*s, *a] + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
-                                * (1 - term)
                         )
                     obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
         return sg, ag
