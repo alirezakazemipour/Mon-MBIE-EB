@@ -181,11 +181,16 @@ class MonQCritic(Critic):
                 if (se, ae) == (seg, aeg):
                     t = self.joint_count[*s].sum((-2, -1))
                     if self.joint_count[*s, *a] != 0:
-                        self.obsrv_q[*s, *a] = obsrv_r[*s, *a] = kl_confidence(t, self.monitor[*s, *a], self.joint_count[*s, *a])
+                        self.obsrv_q[*s, *a] = obsrv_r[*s, *a] = kl_confidence(t,
+                                                             self.monitor[*s, *a],
+                                                             self.joint_count[*s, *a]
+                                                             )
+                    else:
+                        self.obsrv_q[*s, *a] = obsrv_r[*s, *a] = 1
 
         smg, amg = random_argmax(self.obsrv_q[seg, :, aeg, :], rng)
-        sg_t = seg, smg
-        ag_t = aeg, amg
+        sg = seg, smg
+        ag = aeg, amg
 
         for _ in range(self.vi_iter):
             p_joint_bar = self.joint_dynamics
@@ -223,12 +228,11 @@ class MonQCritic(Critic):
                     if self.joint_count[*s, *a] == 0:
                         self.obsrv_q[*s, *a] = 1
                     else:
-                        term = (s, a) == (sg_t, ag_t)
-                        self.obsrv_q[*s, *a] = (obsrv_r[*s, *a]
-                                                + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
+                        term = 0# (s, a) == (sg, ag)
+                        self.obsrv_q[*s, *a] = (obsrv_r[*s, *a] + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
                                                 * (1 - term)
                                                 )
-        return sg_t, ag_t
+        return sg, ag
 
     def reset(self):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))

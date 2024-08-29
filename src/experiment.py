@@ -81,21 +81,14 @@ class MonExperiment:
             self.critic.opt_pess_mbie(rng)
             explore = False
 
-            se_star, ae_star = None, None
             candids = np.argwhere(self.critic.env_obsrv_count == 0)
             if len(candids) > 0:
-                # goals = []
-                # for candid in candids:
-                #     goals.append((candid, self.critic.env_visit[*candid]))
-                # goals.sort(key=lambda x: x[-1])
-                #
-                # se_star, ae_star = goals[0][0]
                 se_star, ae_star = rng.choice(candids)
                 s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
-                tries = self.critic.joint_count[*s_star, *a_star]
+                # tries = self.critic.joint_count[*s_star, *a_star]
 
-                if math.log(tot_steps + 1e-4) / (tries + 1e-4) > self.beta2:
-                    explore = True
+                # if math.log(tot_steps + 1e-4) / (tries + 1e-4) > self.beta2:
+                explore = True
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0
@@ -141,23 +134,6 @@ class MonExperiment:
                                    next_obs["env"],
                                    next_obs["mon"],
                                    )
-
-                if (obs["env"], act["env"]) == (se_star, ae_star) and explore and not np.isnan(rwd["proxy"]):
-                    explore = False
-                    candids = np.argwhere(self.critic.env_obsrv_count == 0)
-                    if len(candids) > 0:
-                        # goals = []
-                        # for candid in candids:
-                        #     goals.append((candid, self.critic.env_visit[*candid]))
-                        # goals.sort(key=lambda x: x[-1])
-
-                        # se_star, ae_star = goals[0][0]
-                        se_star, ae_star = rng.choice(candids)
-                        s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
-                        tries = self.critic.joint_count[*s_star, *a_star]
-
-                        if math.log(tot_steps + 1e-4) / (tries + 1e-4) > self.beta2:
-                            explore = True
 
                 ep_return_env += (self.gamma ** ep_steps) * rwd["env"]
                 ep_return_mon += (self.gamma ** ep_steps) * rwd["mon"]
