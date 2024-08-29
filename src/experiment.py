@@ -83,6 +83,7 @@ class MonExperiment:
 
             candids = np.argwhere(self.critic.env_obsrv_count == 0)
             if len(candids) > 0:
+                # sorting based on visitation would have improved this part a lot
                 se_star, ae_star = rng.choice(candids)
                 s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
                 tries = self.critic.joint_count[*s_star, *a_star]

@@ -226,11 +226,13 @@ class MonQCritic(Critic):
             for s in self.joint_obs_space:
                 for a in self.joint_act_space:
                     if self.joint_count[*s, *a] == 0:
-                        self.obsrv_q[*s, *a] = 100
+                        self.obsrv_q[*s, *a] = 1 / (1 - self.gamma)
                     else:
-                        self.obsrv_q[*s, *a] = (
-                                obsrv_r[*s, *a] + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
-                        )
+                        term = (s, a) == (sg, ag)
+                        self.obsrv_q[*s, *a] = (obsrv_r[*s, *a] +
+                                                self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v) *
+                                                (1 - term)
+                                                )
                     obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
         return sg, ag
 
