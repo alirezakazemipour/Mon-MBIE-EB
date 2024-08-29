@@ -126,7 +126,10 @@ class MonQCritic(Critic):
                     ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
                     mon_rwd_bar[*s, *a] += ucb
 
-        for _ in range(self.vi_iter):
+        for k in range(self.vi_iter):
+            if k == 0:
+                self.joint_q = np.zeros_like(self.joint_q)
+
             p_joint_bar = self.joint_dynamics
             joint_v = np.max(self.joint_q, axis=(-2, -1))
             s_star = random_argmax(joint_v, rng)
@@ -181,14 +184,14 @@ class MonQCritic(Critic):
                 if (se, ae) == (seg, aeg):
                     t = self.joint_count[*s].sum((-2, -1))
                     if self.joint_count[*s, *a] != 0:
-                        self.obsrv_q[*s, *a] = obsrv_r[*s, *a] = kl_confidence(t,
-                                                             self.monitor[*s, *a],
-                                                             self.joint_count[*s, *a]
-                                                             )
+                        obsrv_r[*s, *a] = kl_confidence(t,
+                                                        self.monitor[*s, *a],
+                                                        self.joint_count[*s, *a]
+                                                        )
                     else:
-                        self.obsrv_q[*s, *a] = obsrv_r[*s, *a] = 1
+                        obsrv_r[*s, *a] = 1
 
-        smg, amg = random_argmax(self.obsrv_q[seg, :, aeg, :], rng)
+        smg, amg = random_argmax(obsrv_r[seg, :, aeg, :], rng)
         sg = seg, smg
         ag = aeg, amg
 
@@ -226,12 +229,13 @@ class MonQCritic(Critic):
             for s in self.joint_obs_space:
                 for a in self.joint_act_space:
                     if self.joint_count[*s, *a] == 0:
-                        self.obsrv_q[*s, *a] = 1
+                        self.obsrv_q[*s, *a] = 1 / (1 - self.gamma)
                     else:
-                        term = 0# (s, a) == (sg, ag)
-                        self.obsrv_q[*s, *a] = (obsrv_r[*s, *a] + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
-                                                * (1 - term)
-                                                )
+                        term = (s, a) == (sg, ag)
+                        self.obsrv_q[*s, *a] = (
+                                obsrv_r[*s, *a] + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
+                                * (1 - term)
+                        )
         return sg, ag
 
     def reset(self):

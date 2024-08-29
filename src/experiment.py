@@ -85,10 +85,9 @@ class MonExperiment:
             if len(candids) > 0:
                 se_star, ae_star = rng.choice(candids)
                 s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
-                # tries = self.critic.joint_count[*s_star, *a_star]
-
-                # if math.log(tot_steps + 1e-4) / (tries + 1e-4) > self.beta2:
-                explore = True
+                tries = self.critic.joint_count[*s_star, *a_star]
+                if math.log(tot_steps + 1e-4) / (tries + 1e-4) > self.beta2:
+                    explore = True
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0
