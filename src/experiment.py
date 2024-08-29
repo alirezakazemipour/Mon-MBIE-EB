@@ -84,12 +84,13 @@ class MonExperiment:
             se_star, ae_star = None, None
             candids = np.argwhere(self.critic.env_obsrv_count == 0)
             if len(candids) > 0:
-                goals = []
-                for candid in candids:
-                    goals.append((candid, self.critic.env_visit[*candid]))
-                goals.sort(key=lambda x: x[-1])
-
-                se_star, ae_star = goals[0][0]
+                # goals = []
+                # for candid in candids:
+                #     goals.append((candid, self.critic.env_visit[*candid]))
+                # goals.sort(key=lambda x: x[-1])
+                #
+                # se_star, ae_star = goals[0][0]
+                se_star, ae_star = rng.choice(candids)
                 s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
                 tries = self.critic.joint_count[*s_star, *a_star]
 
@@ -145,12 +146,13 @@ class MonExperiment:
                     explore = False
                     candids = np.argwhere(self.critic.env_obsrv_count == 0)
                     if len(candids) > 0:
-                        goals = []
-                        for candid in candids:
-                            goals.append((candid, self.critic.env_visit[*candid]))
-                        goals.sort(key=lambda x: x[-1])
+                        # goals = []
+                        # for candid in candids:
+                        #     goals.append((candid, self.critic.env_visit[*candid]))
+                        # goals.sort(key=lambda x: x[-1])
 
-                        se_star, ae_star = goals[0][0]
+                        # se_star, ae_star = goals[0][0]
+                        se_star, ae_star = rng.choice(candids)
                         s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
                         tries = self.critic.joint_count[*s_star, *a_star]
 
