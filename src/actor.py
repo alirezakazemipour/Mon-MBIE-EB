@@ -26,14 +26,14 @@ class Actor(ABC):
         of the state-action value. Not vectorized.
         """
         if not test:
-            q1 = self.critic.obsrv_q[obs_env, obs_mon]
-            ae1, am1 = tuple(random_argmax(q1, rng))
-            q2 = self.critic.joint_q[obs_env, obs_mon]
-            ae2, am2 = tuple(random_argmax(q2, rng))
-            if self.critic.joint_count[obs_env, obs_mon, ae1, am1] > np.log(t) / beta:
-                return ae2, am2
+            q_explore = self.critic.obsrv_q[obs_env, obs_mon]
+            ae_explore, am_explore = tuple(random_argmax(q_explore, rng))
+            q_exploit = self.critic.joint_q[obs_env, obs_mon]
+            ae_exploit, am_exploit = tuple(random_argmax(q_exploit, rng))
+            if self.critic.joint_count[obs_env, obs_mon, ae_explore, am_explore] > np.log(t) / beta:
+                return ae_exploit, am_exploit
             else:
-                return ae1, am1
+                return ae_explore, am_explore
         else:
             q = self.critic.joint_q[obs_env, obs_mon]
             return tuple(random_argmax(q, rng))
