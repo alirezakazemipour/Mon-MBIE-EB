@@ -2,10 +2,9 @@ import numpy as np
 import math
 from abc import ABC, abstractmethod
 from omegaconf import DictConfig
-from src.utils import random_argmax, random_argmin, kl_confidence
+from src.utils import random_argmax, kl_confidence
 import itertools
 from numba import jit
-import heapq
 
 
 @jit
@@ -84,7 +83,6 @@ class MonQCritic(Critic):
         self.joint_q = None
         self.obsrv_q = None
 
-    @jit(forceobj=True, looplift=True)
     def update(self,
                obs_env,
                obs_mon,
@@ -185,15 +183,14 @@ class MonQCritic(Critic):
                     ucb = self.a * math.sqrt(2 * math.log(f_t) / self.env_obsrv_count[s, a])
                     env_obsrv_rwd_bar[s, a] += ucb
 
-        mon_obsrv_rwd_bar = self.monitor
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                if self.joint_count[*s, *a] != 0:
-                    t = self.joint_count[*s].sum((-2, -1))
-                    # f_t = f(t)
-                    mon_obsrv_rwd_bar[*s, *a] += kl_confidence(t,
-                                                               mon_obsrv_rwd_bar[*s, *a],
-                                                               self.joint_count[*s, *a])
+        # mon_obsrv_rwd_bar = self.monitor
+        # for s in self.joint_obs_space:
+        #     for a in self.joint_act_space:
+        #         if self.joint_count[*s, *a] != 0:
+        #             t = self.joint_count[*s].sum((-2, -1))
+        #             mon_obsrv_rwd_bar[*s, *a] += kl_confidence(t,
+        #                                                        mon_obsrv_rwd_bar[*s, *a],
+        #                                                        self.joint_count[*s, *a])
 
         p_joint_bar = self.joint_dynamics
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
@@ -234,7 +231,7 @@ class MonQCritic(Critic):
                 elif self.joint_count[*s, *a] == 0:
                     self.obsrv_q[*s, *a] = self.joint_max_q + 1 / (1 - self.gamma)
                 else:
-                    self.obsrv_q[*s, *a] = (env_obsrv_rwd_bar[se, ae] * mon_obsrv_rwd_bar[*s, *a] +
+                    self.obsrv_q[*s, *a] = (env_obsrv_rwd_bar[se, ae] + #mon_obsrv_rwd_bar[*s, *a] +
                                             + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
                                             * (1 - self.env_term[se, ae])
                                             )
