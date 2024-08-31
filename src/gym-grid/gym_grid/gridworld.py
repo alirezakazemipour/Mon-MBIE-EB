@@ -3,6 +3,7 @@ import gymnasium as gym
 from gymnasium.error import DependencyNotInstalled
 from typing import Optional
 from collections import defaultdict
+from numba import jit
 
 # region action mappings
 LEFT = 0
@@ -119,6 +120,7 @@ GRIDS["river_swim_6"][0][0] = GOOD_SMALL
 # endregion
 
 # region _move
+@jit
 def _move(row, col, a, nrow, ncol):
     if a == LEFT:
         col = max(col - 1, 0)

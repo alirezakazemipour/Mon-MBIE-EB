@@ -4,8 +4,12 @@ from abc import ABC, abstractmethod
 from omegaconf import DictConfig
 from src.utils import random_argmax, random_argmin, kl_confidence
 import itertools
+from numba import jit
 
-f = lambda t: 1 + t * math.log(t) ** 2
+
+@jit
+def f(t):
+    return 1 + t * np.log(t) ** 2
 
 
 class Critic(ABC):
@@ -108,14 +112,12 @@ class MonQCritic(Critic):
 
     def opt_pess_mbie(self, rng):  # noqa
 
-        env_rwd_model = self.env_rwd_model
-        for s in self.env_obs_space:
-            for a in self.env_act_space:
-                if self.env_visit[s, a] != 0:
-                    t = self.env_visit[s].sum()
-                    f_t = f(t)
-                    ucb = self.a * math.sqrt(2 * math.log(f_t) / self.env_visit[s, a])
-                    env_rwd_model[s, a] += ucb
+        env_rwd_model = self.update_env_rwd_model(self.env_obs_space,
+                                                  self.env_act_space,
+                                                  self.env_visit,
+                                                  self.env_rwd_model,
+                                                  self.a
+                                                  )
 
         mon_rwd_bar = self.mon_rwd_model
         for s in self.joint_obs_space:
@@ -170,6 +172,7 @@ class MonQCritic(Critic):
                                                 + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(joint_v)
                                                 * (1 - self.env_term[se, ae])
                                                 )
+                    joint_v = np.max(self.joint_q, axis=(-2, -1))
 
     def plan4monitor(self, seg, aeg, rng):
         self.obsrv_q = np.zeros_like(self.monitor)
@@ -249,3 +252,16 @@ class MonQCritic(Critic):
     def monitor(self):
         m = self.joint_obsrv_count / (self.joint_count + 1e-4)
         return m
+
+    @staticmethod
+    @jit
+    def update_env_rwd_model(env_obs_space, env_act_space, env_visit, env_rwd_model, a0):
+        for s in env_obs_space:
+            for a in env_act_space:
+                if env_visit[s, a] != 0:
+                    t = env_visit[s].sum()
+                    f_t = f(t)
+                    ucb = a0 * np.sqrt(2 * np.log(f_t) / env_visit[s, a])
+                    env_rwd_model[s, a] += ucb
+        return env_rwd_model
+    
