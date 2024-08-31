@@ -1,9 +1,9 @@
-import math
-
+from numba import jit
 import numpy as np
 import random
 
 
+@jit(forceobj=True, looplift=True)
 def random_argmax(x, rng=np.random):
     """
     Simple random tiebreak for np.argmax() for when there are multiple max values.
@@ -71,6 +71,7 @@ def dict_to_id(d: dict) -> str:
     return "_".join([f"{make_prefix(k)}{v}" for k, v in d.items()])
 
 
+@jit
 def kl_divergence(p, q):
     # https://github.com/guptav96/bandit-algorithms/blob/main/algo/klucb.py
     DIV_MAX = 10000
@@ -84,12 +85,13 @@ def kl_divergence(p, q):
     elif q == 1 and not p == 1:
         return DIV_MAX
     elif p == 0:
-        return math.log(1 / (1 - q))
+        return np.log(1 / (1 - q))
     elif p == 1:
-        return math.log(1 / q)
-    return p * math.log(p / q) + (1 - p) * math.log((1 - p) / (1 - q))
+        return np.log(1 / q)
+    return p * np.log(p / q) + (1 - p) * np.log((1 - p) / (1 - q))
 
 
+@jit
 def kl_confidence(t, emp_mean, num_pulls, precision=1e-5, max_iter=50):
     # https://github.com/guptav96/bandit-algorithms/blob/main/algo/klucb.py
     n = 0
@@ -97,7 +99,7 @@ def kl_confidence(t, emp_mean, num_pulls, precision=1e-5, max_iter=50):
     upper_bound = 1
     while n < max_iter and upper_bound - lower_bound > precision:
         q = (lower_bound + upper_bound) / 2
-        if kl_divergence(emp_mean, q) > (math.log(1 + t * math.log(t) ** 2) / num_pulls):
+        if kl_divergence(emp_mean, q) > (np.log(1 + t * np.log(t) ** 2) / num_pulls):
             upper_bound = q
         else:
             lower_bound = q

@@ -1,10 +1,10 @@
 gymnasium
 swig
 box2d
-wandb
 numpy
 tqdm
 hydra-core
 hydra-joblib-launcher
 matplotlib
 seaborn
+numba

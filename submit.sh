@@ -24,7 +24,7 @@ cd $SLURM_TMPDIR/ || exit
 tar -xf venv.tar.gz
 source venv/bin/activate
 cd ofu/ || exit
-python main.py -m hydra/launcher=joblib hydra/sweeper=manual_sweeper
+python main.py -m hydra/launcher=joblib hydra/sweeper=manual_sweeper >/dev/null
 tar -cavf data.tar.xz data
 cp data.tar.xz ~/projects/def-mtaylor3/alirezak
 

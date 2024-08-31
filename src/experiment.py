@@ -7,7 +7,7 @@ import warnings
 
 from src.actor import Actor
 from src.critic import MonQCritic
-from src.utils import set_rng_seed, cantor_pairing, random_argmin
+from src.utils import set_rng_seed, cantor_pairing
 
 
 class MonExperiment:
