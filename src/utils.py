@@ -3,7 +3,6 @@ import numpy as np
 import random
 
 
-@jit(forceobj=True, looplift=True)
 def random_argmax(x, rng=np.random):
     """
     Simple random tiebreak for np.argmax() for when there are multiple max values.

@@ -175,30 +175,19 @@ class MonQCritic(Critic):
                                             )
                 joint_v = np.max(self.joint_q, axis=(-2, -1))
 
-    def plan4monitor(self, seg, aeg, rng):
-        self.obsrv_q = np.zeros_like(self.monitor)
-        obsrv_r = np.zeros_like(self.monitor)
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                se, sm = s
-                ae, am = a
-                if (se, ae) == (seg, aeg):
-                    t = self.joint_count[*s].sum((-2, -1))
-                    if self.joint_count[*s, *a] != 0:
-                        obsrv_r[*s, *a] = kl_confidence(t,
-                                                        self.monitor[*s, *a],
-                                                        self.joint_count[*s, *a]
-                                                        )
-                    else:
-                        obsrv_r[*s, *a] = 1
-
-        smg, amg = random_argmax(obsrv_r[seg, :, aeg, :], rng)
-        sg = seg, smg
-        ag = aeg, amg
+    def obsrv_mbie(self, rng): # noqa
+        env_obsrv_rwd_bar = self.env_obsrv_rwd_model
+        for s in self.env_obs_space:
+            for a in self.env_act_space:
+                if self.env_obsrv_count[s, a] != 0:
+                    t = self.env_obsrv_count[s].sum(-1)
+                    f_t = f(t)
+                    ucb = self.a * math.sqrt(2 * math.log(f_t) / self.env_obsrv_count[s, a])
+                    env_obsrv_rwd_bar[s, a] += ucb
 
         p_joint_bar = self.joint_dynamics
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
-        s_star = sg  # random_argmax(obsrv_v, rng)
+        s_star = random_argmax(obsrv_v, rng)
 
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
@@ -226,21 +215,20 @@ class MonQCritic(Critic):
                             residual = p_joint_bar[*s, *a, *ns] + residual
                             p_joint_bar[*s, *a, *ns] = 0
 
-        for _ in range(self.vi_iter):
-            for s1 in self.joint_obs_space:
-                for a1 in self.joint_act_space:
-                    se, am = s1
-                    ae, am = a1
-                    if self.joint_count[*s1, *a1] == 0:
-                        self.obsrv_q[*s1, *a1] = 1 / (1 - self.gamma)
-                    else:
-                        self.obsrv_q[*s1, *a1] = (obsrv_r[*s1, *a1] +
-                                                  self.gamma * np.ravel(p_joint_bar[*s1, *a1]).T @ np.ravel(obsrv_v) *
-                                                  (1 - self.env_term[se, ae])
-                                                  )
-                    obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
-
-        return sg, ag
+        for s in self.joint_obs_space:
+            for a in self.joint_act_space:
+                se, sm = s
+                ae, am = a
+                if self.env_obsrv_count[se, ae] == 0:
+                    self.obsrv_q[se, :, ae, :] = self.joint_max_q
+                elif self.joint_count[*s, *a] == 0:
+                    self.obsrv_q[*s, *a] = self.joint_max_q
+                else:
+                    self.obsrv_q[*s, *a] = (env_obsrv_rwd_bar[se, ae]
+                                            + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
+                                            * (1 - self.env_term[se, ae])
+                                            )
+                obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
 
     def reset(self):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))
@@ -254,12 +242,20 @@ class MonQCritic(Critic):
                                              self.env_num_obs, self.mon_num_obs))
         self.joint_q = np.ones(
             (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q
+        self.obsrv_q = np.ones(
+            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q
 
     @property
     def env_rwd_model(self):
         with np.errstate(divide='ignore', invalid='ignore'):
             r = self.env_r / self.env_obsrv_count
         r[np.isnan(r)] = self.env_min_r
+        return r
+
+    @property
+    def env_obsrv_rwd_model(self):
+        with np.errstate(divide='ignore', invalid='ignore'):
+            r = self.env_r / self.env_obsrv_count
         return r
 
     @property

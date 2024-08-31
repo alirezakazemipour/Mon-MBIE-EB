@@ -78,17 +78,8 @@ class MonExperiment:
                                  )
             ep_seed = cantor_pairing(self.rng_seed, self.tot_episodes)
             rng = np.random.default_rng(ep_seed)
-            self.critic.opt_pess_mbie(rng)
-            explore = False
-
-            candids = np.argwhere(self.critic.env_obsrv_count == 0)
-            if len(candids) > 0:
-                # sorting based on visitation would have improved this part a lot
-                se_star, ae_star = rng.choice(candids)
-                s_star, a_star = self.critic.plan4monitor(se_star, ae_star, rng)
-                tries = self.critic.joint_count[*s_star, *a_star]
-                if math.log(tot_steps + 1e-4) / (tries + 1e-4) > self.beta2:
-                    explore = True
+            # self.critic.opt_pess_mbie(rng)
+            self.critic.obsrv_mbie(rng)
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0
@@ -119,7 +110,7 @@ class MonExperiment:
                 return_train_history.append(train_dict["train/return"])
 
                 tot_steps += 1
-                act = self.actor(obs["env"], obs["mon"], explore, rng)
+                act = self.actor(obs["env"], obs["mon"], rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self.env.step(act)
 
@@ -175,7 +166,7 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
             ep_steps = 0
             while True:
-                act = self.actor(obs["env"], obs["mon"], False, rng)
+                act = self.actor(obs["env"], obs["mon"], rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self.env_test.step(act)
                 ep_return_env[ep] += (self.gamma ** ep_steps) * rwd["env"]
