@@ -130,33 +130,6 @@ class MonQCritic(Critic):
 
         p_joint_bar = self.joint_dynamics
         joint_v = np.max(self.joint_q, axis=(-2, -1))
-        s_star = random_argmax(joint_v, rng)
-
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                if self.joint_count[*s, *a] != 0:
-                    ucb = 0.5 * self.c / math.sqrt(self.joint_count[*s, *a])
-                    if p_joint_bar[*s, *a, *s_star] + ucb <= 1:
-                        p_joint_bar[*s, *a, *s_star] += ucb
-                        residual = -ucb
-                    else:
-                        residual = p_joint_bar[*s, *a, *s_star] - 1
-                        p_joint_bar[*s, *a, *s_star] = 1
-
-                    next_states_idx = np.argwhere(p_joint_bar[*s, *a] > 0)
-                    next_states = []
-                    for ns in next_states_idx:
-                        if tuple(ns) != s_star:
-                            next_states.append((ns, joint_v[*ns]))
-                    next_states.sort(key=lambda x: x[-1])
-
-                    for ns, _ in next_states:
-                        if p_joint_bar[*s, *a, *ns] + residual >= 0:
-                            p_joint_bar[*s, *a, *ns] += residual
-                            break
-                        else:
-                            residual = p_joint_bar[*s, *a, *ns] + residual
-                            p_joint_bar[*s, *a, *ns] = 0
 
         for _ in range(self.vi_iter):
             for s in self.joint_obs_space:
@@ -175,16 +148,12 @@ class MonQCritic(Critic):
                     joint_v = np.max(self.joint_q, axis=(-2, -1))
 
     def obsrv_mbie(self, rng):  # noqa
-        env_obsrv_rwd_bar = np.zeros_like(self.env_obsrv_rwd_model)
-        for s in self.env_obs_space:
-            for a in self.env_act_space:
-                if self.env_visit[s, a] != 0:
-                    if self.env_obsrv_count[s, a] == 0:
-                        t = self.env_visit[s].sum(-1)
-                        env_obsrv_rwd_bar[s, a] = kl_confidence(t,
-                                                                0,
-                                                                self.env_visit[s, a]
-                                                                )
+        env_obsrv_rwd_bar = self.update_env_obsrv_rwd_model(self.env_obsrv_rwd_model,
+                                                            self.env_obs_space,
+                                                            self.env_act_space,
+                                                            self.env_visit,
+                                                            self.env_obsrv_count
+                                                            )
 
         mon_obsrv_rwd_bar = self.monitor
         for s in self.joint_obs_space:
@@ -192,41 +161,16 @@ class MonQCritic(Critic):
                 if self.joint_count[*s, *a] != 0:
                     t = self.joint_count[*s].sum((-2, -1))
                     mon_obsrv_rwd_bar[*s, *a] = kl_confidence(t,
-                                                               mon_obsrv_rwd_bar[*s, *a],
-                                                               self.joint_count[*s, *a]
-                                                               )
+                                                              mon_obsrv_rwd_bar[*s, *a],
+                                                              self.joint_count[*s, *a]
+                                                              )
 
         p_joint_bar = self.joint_dynamics
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
-        s_star = random_argmax(obsrv_v, rng)
 
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                if self.joint_count[*s, *a] != 0:
-                    ucb = 0.5 * self.c / math.sqrt(self.joint_count[*s, *a])
-                    if p_joint_bar[*s, *a, *s_star] + ucb <= 1:
-                        p_joint_bar[*s, *a, *s_star] += ucb
-                        residual = -ucb
-                    else:
-                        residual = p_joint_bar[*s, *a, *s_star] - 1
-                        p_joint_bar[*s, *a, *s_star] = 1
-
-                    next_states_idx = np.argwhere(p_joint_bar[*s, *a] > 0)
-                    next_states = []
-                    for ns in next_states_idx:
-                        if tuple(ns) != s_star:
-                            next_states.append((ns, obsrv_v[*ns]))
-                    next_states.sort(key=lambda x: x[-1])
-
-                    for ns, _ in next_states:
-                        if p_joint_bar[*s, *a, *ns] + residual >= 0:
-                            p_joint_bar[*s, *a, *ns] += residual
-                            break
-                        else:
-                            residual = p_joint_bar[*s, *a, *ns] + residual
-                            p_joint_bar[*s, *a, *ns] = 0
-
-        for _ in range(self.vi_iter):
+        for k in range(self.vi_iter):
+            # if k == 0:
+            #     self.obsrv_q = np.zeros_like(self.obsrv_q)
             for s in self.joint_obs_space:
                 for a in self.joint_act_space:
                     se, sm = s
@@ -304,3 +248,19 @@ class MonQCritic(Critic):
                     ucb = a0 * np.sqrt(2 * np.log(f_t) / env_visit[s, a])
                     env_rwd_model[s, a] += ucb
         return env_rwd_model
+
+    @staticmethod
+    @jit
+    def update_env_obsrv_rwd_model(model, obs_space, act_space, visit_count, obsrv_count):
+        env_obsrv_rwd_bar = np.zeros_like(model)
+        for s in obs_space:
+            for a in act_space:
+                if visit_count[s, a] != 0:
+                    if obsrv_count[s, a] == 0:
+                        t = visit_count[s].sum(-1)
+                        env_obsrv_rwd_bar[s, a] = kl_confidence(t,
+                                                                0,
+                                                                visit_count[s, a]
+                                                                )
+
+        return env_obsrv_rwd_bar
