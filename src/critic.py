@@ -181,17 +181,17 @@ class MonQCritic(Critic):
                 if self.env_visit[s, a] != 0:
                     if self.env_obsrv_count[s, a] == 0:
                         t = self.env_visit[s].sum(-1)
-                        env_obsrv_rwd_bar[s, a] += kl_confidence(t,
-                                                                 0,
-                                                                 self.env_visit[s, a]
-                                                                 )
+                        env_obsrv_rwd_bar[s, a] = kl_confidence(t,
+                                                                0,
+                                                                self.env_visit[s, a]
+                                                                )
 
         mon_obsrv_rwd_bar = self.monitor
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     t = self.joint_count[*s].sum((-2, -1))
-                    mon_obsrv_rwd_bar[*s, *a] += kl_confidence(t,
+                    mon_obsrv_rwd_bar[*s, *a] = kl_confidence(t,
                                                                mon_obsrv_rwd_bar[*s, *a],
                                                                self.joint_count[*s, *a]
                                                                )
@@ -238,7 +238,7 @@ class MonQCritic(Critic):
                     else:
                         self.obsrv_q[*s, *a] = (env_obsrv_rwd_bar[se, ae] + mon_obsrv_rwd_bar[*s, *a] +
                                                 + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
-                                                #* (1 - self.env_term[se, ae])
+                                                # * (1 - self.env_term[se, ae])
                                                 )
                     obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
 
