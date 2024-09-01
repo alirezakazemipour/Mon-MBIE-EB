@@ -40,7 +40,6 @@ class Actor(ABC):
         # q_explore = self.critic.obsrv_q[obs_env, obs_mon]
         # return tuple(random_argmax(q_explore, rng))
 
-
     @abstractmethod
     def update(self):
         pass

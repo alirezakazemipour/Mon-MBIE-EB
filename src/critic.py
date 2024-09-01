@@ -158,22 +158,23 @@ class MonQCritic(Critic):
                             residual = p_joint_bar[*s, *a, *ns] + residual
                             p_joint_bar[*s, *a, *ns] = 0
 
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                se, sm = s
-                ae, am = a
-                if self.env_visit[se, ae] == 0:
-                    self.joint_q[se, :, ae, :] = self.joint_max_q
-                elif self.joint_count[*s, *a] == 0:
-                    self.joint_q[*s, *a] = self.joint_max_q
-                else:
-                    self.joint_q[*s, *a] = (env_rwd_model[se, ae] + mon_rwd_bar[*s, *a]
-                                            + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(joint_v)
-                                            * (1 - self.env_term[se, ae])
-                                            )
-                joint_v = np.max(self.joint_q, axis=(-2, -1))
+        for _ in range(self.vi_iter):
+            for s in self.joint_obs_space:
+                for a in self.joint_act_space:
+                    se, sm = s
+                    ae, am = a
+                    if self.env_visit[se, ae] == 0:
+                        self.joint_q[se, :, ae, :] = self.joint_max_q
+                    elif self.joint_count[*s, *a] == 0:
+                        self.joint_q[*s, *a] = self.joint_max_q
+                    else:
+                        self.joint_q[*s, *a] = (env_rwd_model[se, ae] + mon_rwd_bar[*s, *a]
+                                                + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(joint_v)
+                                                * (1 - self.env_term[se, ae])
+                                                )
+                    joint_v = np.max(self.joint_q, axis=(-2, -1))
 
-    def obsrv_mbie(self, rng): # noqa
+    def obsrv_mbie(self, rng):  # noqa
         env_obsrv_rwd_bar = self.env_obsrv_rwd_model
         for s in self.env_obs_space:
             for a in self.env_act_space:
@@ -183,14 +184,14 @@ class MonQCritic(Critic):
                     ucb = self.a * math.sqrt(2 * math.log(f_t) / self.env_obsrv_count[s, a])
                     env_obsrv_rwd_bar[s, a] += ucb
 
-        # mon_obsrv_rwd_bar = self.monitor
-        # for s in self.joint_obs_space:
-        #     for a in self.joint_act_space:
-        #         if self.joint_count[*s, *a] != 0:
-        #             t = self.joint_count[*s].sum((-2, -1))
-        #             mon_obsrv_rwd_bar[*s, *a] += kl_confidence(t,
-        #                                                        mon_obsrv_rwd_bar[*s, *a],
-        #                                                        self.joint_count[*s, *a])
+        mon_obsrv_rwd_bar = self.monitor
+        for s in self.joint_obs_space:
+            for a in self.joint_act_space:
+                if self.joint_count[*s, *a] != 0:
+                    t = self.joint_count[*s].sum((-2, -1))
+                    mon_obsrv_rwd_bar[*s, *a] += kl_confidence(t,
+                                                               mon_obsrv_rwd_bar[*s, *a],
+                                                               self.joint_count[*s, *a])
 
         p_joint_bar = self.joint_dynamics
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
@@ -222,20 +223,21 @@ class MonQCritic(Critic):
                             residual = p_joint_bar[*s, *a, *ns] + residual
                             p_joint_bar[*s, *a, *ns] = 0
 
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                se, sm = s
-                ae, am = a
-                if self.env_obsrv_count[se, ae] == 0:
-                    self.obsrv_q[se, :, ae, :] = self.joint_max_q + 1 / (1 - self.gamma)
-                elif self.joint_count[*s, *a] == 0:
-                    self.obsrv_q[*s, *a] = self.joint_max_q + 1 / (1 - self.gamma)
-                else:
-                    self.obsrv_q[*s, *a] = (env_obsrv_rwd_bar[se, ae] + #mon_obsrv_rwd_bar[*s, *a] +
-                                            + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
-                                            * (1 - self.env_term[se, ae])
-                                            )
-                obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
+        for _ in range(self.vi_iter):
+            for s in self.joint_obs_space:
+                for a in self.joint_act_space:
+                    se, sm = s
+                    ae, am = a
+                    if self.env_obsrv_count[se, ae] == 0:
+                        self.obsrv_q[se, :, ae, :] = 1 / (1 - self.gamma)
+                    elif self.joint_count[*s, *a] == 0:
+                        self.obsrv_q[*s, *a] = 1 / (1 - self.gamma)
+                    else:
+                        self.obsrv_q[*s, *a] = (env_obsrv_rwd_bar[se, ae] + mon_obsrv_rwd_bar[*s, *a] +
+                                                + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
+                                                * (1 - self.env_term[se, ae])
+                                                )
+                    obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
 
     def reset(self):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))
@@ -261,8 +263,7 @@ class MonQCritic(Critic):
 
     @property
     def env_obsrv_rwd_model(self):
-        with np.errstate(divide='ignore', invalid='ignore'):
-            r = self.env_r / self.env_obsrv_count
+        r = self.env_r / (self.env_obsrv_count + 1e-4)
         return r
 
     @property
