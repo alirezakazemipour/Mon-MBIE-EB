@@ -10,7 +10,7 @@ experiment:
   training_steps: 20000
   testing_episodes: 100
   testing_frequency: 100
-  beta2: 0.5
+  beta2: 0.05
 
 critic:
   gamma: 0.99
