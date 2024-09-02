@@ -1,6 +1,6 @@
 import gymnasium
 import hydra
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 import os
 import numpy as np
 from src.actor import Greedy
@@ -8,8 +8,6 @@ from src.critic import MonQCritic
 from src.experiment import MonExperiment
 from src.wrappers import monitor_wrappers
 import pickle
-from tqdm import tqdm
-
 
 @hydra.main(version_base=None, config_path="configs", config_name="default")
 def run(cfg: DictConfig) -> None:
@@ -22,31 +20,6 @@ def run(cfg: DictConfig) -> None:
                                                          **{**cfg.monitor, **cfg.environment.monitor},
                                                          test=True
                                                          )
-
-    # ret = []
-    # for i in tqdm(range(10000)):
-    #     np.random.seed(i)
-    #     ret_e = 0
-    #     obs, _ = env.reset(seed=i)
-    #     t = 0
-    #     while True:
-    #         # while obs["mon"] == 1:
-    #         #     a = {"env": 0, "mon": 0}
-    #         #     obs, r, term, trunc, _ = env.step(a)
-    #         #     ret_e += (0.99 ** t) * (r["env"] + r["mon"])
-    #         #     t += 1
-    #
-    #         a = {"env": 1, "mon": 0}
-    #         obs, r, term, trunc, _ = env.step(a)
-    #         ret_e += (0.99 ** t)*(r["env"] + r["mon"])
-    #         if term or trunc:
-    #             ret.append(ret_e)
-    #             break
-    #         t += 1
-    #
-    # print(np.mean(ret))
-    # print(np.std(ret))
-    # exit()
 
     critic = MonQCritic(env.observation_space["env"].n,
                         env.observation_space["mon"].n,

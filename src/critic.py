@@ -2,7 +2,7 @@ import numpy as np
 import math
 from abc import ABC, abstractmethod
 from omegaconf import DictConfig
-from src.utils import kl_confidence, jittable_max
+from src.utils import kl_confidence, jittable_joint_max
 import itertools
 from numba import jit
 import time
@@ -264,31 +264,32 @@ class MonQCritic(Critic):
     @staticmethod
     @jit
     def value_iteration(num_iter,
-                        joint_obs_space,
-                        joint_act_space,
+                        obs_space,
+                        act_space,
                         env_visit,
-                        joint_q, joint_max_q,
+                        q,
+                        max_q,
                         joint_count,
-                        env_rwd_model,
-                        mon_rwd_bar,
+                        env_rwd,
+                        mon_rwd,
                         gamma,
-                        p_joint_bar,
-                        joint_v,
-                        env_term
+                        p,
+                        v,
+                        term
                         ):
         for _ in range(num_iter):
-            for s in joint_obs_space:
-                for a in joint_act_space:
+            for s in obs_space:
+                for a in act_space:
                     se, sm = s
                     ae, am = a
                     if env_visit[se, ae] == 0:
-                        joint_q[se, :, ae, :] = joint_max_q
+                        q[se, :, ae, :] = max_q
                     elif joint_count[*s, *a] == 0:
-                        joint_q[*s, *a] = joint_max_q
+                        q[*s, *a] = max_q
                     else:
-                        joint_q[*s, *a] = (env_rwd_model[se, ae] + mon_rwd_bar[*s, *a]
-                                           + gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(joint_v)
-                                           * (1 - env_term[se, ae])
-                                           )
-                    joint_v = jittable_max(joint_q)
-        return joint_q
+                        q[*s, *a] = (env_rwd[se, ae] + mon_rwd[*s, *a]
+                                     + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v)
+                                     * (1 - term[se, ae])
+                                     )
+                    v = jittable_joint_max(q)
+        return q
