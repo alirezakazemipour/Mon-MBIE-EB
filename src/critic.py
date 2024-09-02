@@ -2,7 +2,7 @@ import numpy as np
 import math
 from abc import ABC, abstractmethod
 from omegaconf import DictConfig
-from src.utils import random_argmax, kl_confidence, jittable_max
+from src.utils import kl_confidence, jittable_max
 import itertools
 from numba import jit
 import time
@@ -171,14 +171,14 @@ class MonQCritic(Critic):
                                             self.joint_obs_space,
                                             self.joint_act_space,
                                             self.env_visit,
-                                            self.obsrv_q,
+                                            np.zeros_like(self.obsrv_q),
                                             1 / (1 - self.gamma),
                                             self.joint_count,
                                             env_obsrv_rwd_bar,
-                                            np.zeros_like(mon_obsrv_rwd_bar),
+                                            mon_obsrv_rwd_bar,
                                             self.gamma,
                                             p_joint_bar,
-                                            obsrv_v,
+                                            np.zeros_like(obsrv_v),
                                             np.zeros_like(self.env_term)
                                             )
 
