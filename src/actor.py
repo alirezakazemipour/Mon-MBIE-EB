@@ -1,5 +1,5 @@
 import numpy as np
-import random
+import math
 from abc import ABC, abstractmethod
 from omegaconf import DictConfig
 
@@ -30,7 +30,7 @@ class Actor(ABC):
             ae_explore, am_explore = tuple(random_argmax(q_explore, rng))
             q_exploit = self.critic.joint_q[obs_env, obs_mon]
             ae_exploit, am_exploit = tuple(random_argmax(q_exploit, rng))
-            if self.critic.joint_count[obs_env, obs_mon, ae_explore, am_explore] > np.log(t) / beta:
+            if self.critic.joint_count[obs_env, obs_mon, ae_explore, am_explore] > math.log(t) / beta:
                 return ae_exploit, am_exploit
             else:
                 return ae_explore, am_explore
