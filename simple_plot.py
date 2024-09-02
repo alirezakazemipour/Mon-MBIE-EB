@@ -19,7 +19,7 @@ plt.rc('figure', titlesize=BIGGER_SIZE)
 plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Ask", "Button"
+monitor = "Ask", "Button",
 env = (
     "RiverSwim-6-v0",
     "Gridworld-Penalty-3x3-v0",

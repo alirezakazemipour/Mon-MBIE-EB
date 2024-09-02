@@ -1,6 +1,7 @@
 from numba import jit
 import numpy as np
 import random
+import time
 
 
 def random_argmax(x, rng=np.random):
@@ -104,3 +105,27 @@ def kl_confidence(t, emp_mean, num_pulls, precision=1e-5, max_iter=50):
             lower_bound = q
         n += 1
     return (lower_bound + upper_bound) / 2.
+
+@jit
+def jittable_max(a):
+    res = np.zeros(a.shape[:2])
+    for x in range(a.shape[0]):
+        for y in range(a.shape[1]):
+            res[x, y] = np.max(a[x, y])
+    return res
+
+
+if __name__ == "__main__":
+    x = np.random.normal(1, size=(36, 2, 5, 2))
+    r = np.max(x, axis=(-1, -2))
+    t = jittable_max(x)
+
+    start = time.perf_counter()
+    r = np.max(x, axis=(-1, -2))
+    end = time.perf_counter()
+    print("Elapsed (after compilation) = {}s".format((end - start)))
+
+    start = time.perf_counter()
+    t = jittable_max(x)
+    end = time.perf_counter()
+    print("Elapsed (after compilation) = {}s".format((end - start)))

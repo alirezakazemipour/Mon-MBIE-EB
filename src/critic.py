@@ -2,9 +2,10 @@ import numpy as np
 import math
 from abc import ABC, abstractmethod
 from omegaconf import DictConfig
-from src.utils import random_argmax, kl_confidence
+from src.utils import random_argmax, kl_confidence, jittable_max
 import itertools
 from numba import jit
+import time
 
 
 @jit
@@ -130,21 +131,20 @@ class MonQCritic(Critic):
         p_joint_bar = self.joint_dynamics
         joint_v = np.max(self.joint_q, axis=(-2, -1))
 
-        for _ in range(self.vi_iter):
-            for s in self.joint_obs_space:
-                for a in self.joint_act_space:
-                    se, sm = s
-                    ae, am = a
-                    if self.env_visit[se, ae] == 0:
-                        self.joint_q[se, :, ae, :] = self.joint_max_q
-                    elif self.joint_count[*s, *a] == 0:
-                        self.joint_q[*s, *a] = self.joint_max_q
-                    else:
-                        self.joint_q[*s, *a] = (env_rwd_model[se, ae] + mon_rwd_bar[*s, *a]
-                                                + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(joint_v)
-                                                * (1 - self.env_term[se, ae])
-                                                )
-                    joint_v = np.max(self.joint_q, axis=(-2, -1))
+        self.joint_q = self.value_iteration(self.vi_iter,
+                                            self.joint_obs_space,
+                                            self.joint_act_space,
+                                            self.env_visit,
+                                            self.joint_q,
+                                            self.joint_max_q,
+                                            self.joint_count,
+                                            env_rwd_model,
+                                            mon_rwd_bar,
+                                            self.gamma,
+                                            p_joint_bar,
+                                            joint_v,
+                                            self.env_term
+                                            )
 
     def obsrv_mbie(self, rng):  # noqa
         env_obsrv_rwd_bar = self.update_env_obsrv_rwd_model(self.env_obsrv_rwd_model,
@@ -167,21 +167,20 @@ class MonQCritic(Critic):
         p_joint_bar = self.joint_dynamics
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
 
-        for k in range(self.vi_iter):
-            for s in self.joint_obs_space:
-                for a in self.joint_act_space:
-                    se, sm = s
-                    ae, am = a
-                    if self.env_visit[se, ae] == 0:
-                        self.obsrv_q[se, :, ae, :] = 1 / (1 - self.gamma)
-                    elif self.joint_count[*s, *a] == 0:
-                        self.obsrv_q[*s, *a] = 1 / (1 - self.gamma)
-                    else:
-                        self.obsrv_q[*s, *a] = (env_obsrv_rwd_bar[se, ae] + #mon_obsrv_rwd_bar[*s, *a] +
-                                                + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
-                                                # * (1 - self.env_term[se, ae])
-                                                )
-                    obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
+        self.obsrv_q = self.value_iteration(self.vi_iter,
+                                            self.joint_obs_space,
+                                            self.joint_act_space,
+                                            self.env_visit,
+                                            self.obsrv_q,
+                                            1 / (1 - self.gamma),
+                                            self.joint_count,
+                                            env_obsrv_rwd_bar,
+                                            np.zeros_like(mon_obsrv_rwd_bar),
+                                            self.gamma,
+                                            p_joint_bar,
+                                            obsrv_v,
+                                            np.zeros_like(self.env_term)
+                                            )
 
     def reset(self):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))
@@ -261,3 +260,35 @@ class MonQCritic(Critic):
                                                                 )
 
         return env_obsrv_rwd_bar
+
+    @staticmethod
+    @jit
+    def value_iteration(num_iter,
+                        joint_obs_space,
+                        joint_act_space,
+                        env_visit,
+                        joint_q, joint_max_q,
+                        joint_count,
+                        env_rwd_model,
+                        mon_rwd_bar,
+                        gamma,
+                        p_joint_bar,
+                        joint_v,
+                        env_term
+                        ):
+        for _ in range(num_iter):
+            for s in joint_obs_space:
+                for a in joint_act_space:
+                    se, sm = s
+                    ae, am = a
+                    if env_visit[se, ae] == 0:
+                        joint_q[se, :, ae, :] = joint_max_q
+                    elif joint_count[*s, *a] == 0:
+                        joint_q[*s, *a] = joint_max_q
+                    else:
+                        joint_q[*s, *a] = (env_rwd_model[se, ae] + mon_rwd_bar[*s, *a]
+                                           + gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(joint_v)
+                                           * (1 - env_term[se, ae])
+                                           )
+                    joint_v = jittable_max(joint_q)
+        return joint_q
