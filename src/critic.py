@@ -60,7 +60,6 @@ class MonQCritic(Critic):
         self.env_min_r = kwargs["env_min_r"]
         self.a = kwargs["ucb_re"]
         self.b = kwargs["ucb_rm"]
-        self.c = kwargs["ucb_p"]
         self.vi_iter = kwargs["vi_iter"]
 
         self.env_num_obs = env_num_obs
@@ -169,8 +168,6 @@ class MonQCritic(Critic):
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
 
         for k in range(self.vi_iter):
-            # if k == 0:
-            #     self.obsrv_q = np.zeros_like(self.obsrv_q)
             for s in self.joint_obs_space:
                 for a in self.joint_act_space:
                     se, sm = s
@@ -180,7 +177,7 @@ class MonQCritic(Critic):
                     elif self.joint_count[*s, *a] == 0:
                         self.obsrv_q[*s, *a] = 1 / (1 - self.gamma)
                     else:
-                        self.obsrv_q[*s, *a] = (env_obsrv_rwd_bar[se, ae] + mon_obsrv_rwd_bar[*s, *a] +
+                        self.obsrv_q[*s, *a] = (env_obsrv_rwd_bar[se, ae] + #mon_obsrv_rwd_bar[*s, *a] +
                                                 + self.gamma * np.ravel(p_joint_bar[*s, *a]).T @ np.ravel(obsrv_v)
                                                 # * (1 - self.env_term[se, ae])
                                                 )

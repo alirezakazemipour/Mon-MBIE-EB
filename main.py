@@ -8,6 +8,7 @@ from src.critic import MonQCritic
 from src.experiment import MonExperiment
 from src.wrappers import monitor_wrappers
 import pickle
+from tqdm import tqdm
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="default")
