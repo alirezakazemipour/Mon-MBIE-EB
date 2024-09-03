@@ -14,31 +14,23 @@ class Actor(ABC):
         self.reset()
 
     @abstractmethod
-    def __call__(self, obs_env, obs_mon, t, beta, test=False, rng=np.random):
+    def __call__(self, obs_env, obs_mon, explore=False, rng=np.random):
         """
         Draw one action in one state. Not vectorized.
         """
         pass
 
-    def greedy_call(self, obs_env, obs_mon, t, beta, test=False, rng=np.random):
+    def greedy_call(self, obs_env, obs_mon, explore=False, rng=np.random):
         """
         Draw the greedy action, i.e., the one maximizing the critic's estimate
         of the state-action value. Not vectorized.
         """
-        if not test:
-            q_explore = self.critic.obsrv_q[obs_env, obs_mon]
-            ae_explore, am_explore = tuple(random_argmax(q_explore, rng))
-            q_exploit = self.critic.joint_q[obs_env, obs_mon]
-            ae_exploit, am_exploit = tuple(random_argmax(q_exploit, rng))
-            if self.critic.joint_count[obs_env, obs_mon, ae_explore, am_explore] > math.log(t) / beta:
-                return ae_exploit, am_exploit
-            else:
-                return ae_explore, am_explore
+        if explore:
+            q = self.critic.obsrv_q[obs_env, obs_mon]
+            return tuple(random_argmax(q, rng))
         else:
             q = self.critic.joint_q[obs_env, obs_mon]
             return tuple(random_argmax(q, rng))
-        # q_explore = self.critic.obsrv_q[obs_env, obs_mon]
-        # return tuple(random_argmax(q_explore, rng))
 
     @abstractmethod
     def update(self):
@@ -70,8 +62,8 @@ class Greedy(Actor):
 
         Actor.__init__(self, critic)
 
-    def __call__(self, obs_env, obs_mon, t, beta, test=False, rng=np.random):
-        return self.greedy_call(obs_env, obs_mon, t, beta, test, rng)
+    def __call__(self, obs_env, obs_mon, explore=False, rng=np.random):
+        return self.greedy_call(obs_env, obs_mon, explore, rng)
 
     def update(self):
         pass

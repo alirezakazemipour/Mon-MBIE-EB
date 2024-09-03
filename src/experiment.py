@@ -80,6 +80,9 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
             self.critic.opt_pess_mbie(rng)
             self.critic.obsrv_mbie(rng)
+            explore = False
+            if self.tot_episodes % 2 == 0:
+                explore = True
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0
@@ -110,7 +113,7 @@ class MonExperiment:
                 return_train_history.append(train_dict["train/return"])
 
                 tot_steps += 1
-                act = self.actor(obs["env"], obs["mon"], tot_steps, self.beta2, False, rng)
+                act = self.actor(obs["env"], obs["mon"], explore, rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self.env.step(act)
 
@@ -166,7 +169,7 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
             ep_steps = 0
             while True:
-                act = self.actor(obs["env"], obs["mon"], 0, 0, True, rng)
+                act = self.actor(obs["env"], obs["mon"], False, rng)
                 act = {"env": act[0], "mon": act[1]}
                 next_obs, rwd, term, trunc, info = self.env_test.step(act)
                 ep_return_env[ep] += (self.gamma ** ep_steps) * rwd["env"]
