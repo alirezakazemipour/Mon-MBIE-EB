@@ -19,13 +19,13 @@ plt.rc('figure', titlesize=BIGGER_SIZE)
 plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Button", #"Ask",
+monitor = "Button",
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
-    "Gridworld-Corridor-3x4-v0",
+    # "Gridworld-Corridor-3x4-v0",
     # "Gridworld-Empty-Distract-6x6-v0",
-    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
+    "Gridworld-TwoRoom-Quicksand-3x5-v0",
     # "Gridworld-Quicksand-Distract-4x4-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
@@ -55,11 +55,11 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}_1.0", "blue", "100%"),
+        # (f"{monitor}_1.0", "blue", "100%"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
-        # (f"{monitor}_0.1", "brown", "10%"),
+        (f"{monitor}_0.1", "brown", "10%"),
         # (f"{monitor}_0.01", "magenta", "1%")
     ]
 
@@ -70,10 +70,10 @@ for env, monitor in env_mon_combo:
         ref, opt_caut = info[env][monitor]
         runs = []
         for i in range(n_runs):
-            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_21.npz")["test_return"]
             runs.append(x)
-        print(np.argmax(np.array(runs).sum(-1)))
-        exit()
+        # print(np.argmin(np.array(runs).sum(-1)))
+        # exit()
         smoothed = []
         for run in runs:
             val = [run[0]]
@@ -97,6 +97,8 @@ for env, monitor in env_mon_combo:
                 c=color,
                 label=legend
                 )
+        # for run in runs[2:3]:
+        #     plt.plot(np.arange(len(mean_return)), run)
     plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
     ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
     ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
