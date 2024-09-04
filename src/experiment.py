@@ -44,7 +44,7 @@ class MonExperiment:
         self.actor = actor
         self.critic = critic
         self.gamma = critic.gamma
-        self.beta2 = kwargs["beta2"]
+        self.beta = kwargs["beta"]
 
         self.training_steps = training_steps
         self.testing_episodes = testing_episodes
@@ -53,7 +53,8 @@ class MonExperiment:
         self.rng_seed = rng_seed
         self.hide_progress_bar = hide_progress_bar
         self.tot_episodes = None
-        self.exploit_episodes = None
+        self.cnt = None
+        self.explore_episodes = None
 
     def train(self):
         set_rng_seed(self.rng_seed)
@@ -62,7 +63,8 @@ class MonExperiment:
 
         tot_steps = 0
         self.tot_episodes = 0
-        self.cnt  = 1
+        self.cnt = 1
+        self.explore_episodes = 0
         last_ep_return_env = np.nan
         last_ep_return_mon = np.nan
         test_return_env = np.nan
@@ -85,9 +87,10 @@ class MonExperiment:
 
             ################
             explore = False
-            if self.tot_episodes % self.cnt == 0:
-                self.cnt += 1
+            if self.tot_episodes % math.floor(self.cnt) == 0:
+                self.cnt *= self.beta
                 explore = True
+                self.explore_episodes += 1
             ################
 
             obs, _ = self.env.reset(seed=ep_seed)
