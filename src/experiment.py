@@ -1,6 +1,7 @@
 import math
 
 import gymnasium as gym
+import numba
 import numpy as np
 from tqdm import tqdm
 import warnings
@@ -80,9 +81,13 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
             self.critic.opt_pess_mbie(rng)
             self.critic.obsrv_mbie(rng)
+
+            ################
             explore = False
             if self.tot_episodes % 2 == 0:
                 explore = True
+            ################
+
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0

@@ -7,6 +7,7 @@ from src.actor import Greedy
 from src.critic import MonQCritic
 from src.experiment import MonExperiment
 from src.wrappers import monitor_wrappers
+from src.utils import report_river_swim
 import pickle
 
 @hydra.main(version_base=None, config_path="configs", config_name="default")

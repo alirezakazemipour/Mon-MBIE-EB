@@ -134,7 +134,7 @@ class MonQCritic(Critic):
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
                                             self.joint_act_space,
-                                            self.env_obsrv_count,
+                                            self.env_visit,
                                             self.joint_q,
                                             self.joint_max_q,
                                             self.joint_count,
