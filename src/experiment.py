@@ -62,6 +62,7 @@ class MonExperiment:
 
         tot_steps = 0
         self.tot_episodes = 0
+        self.cnt  = 1
         last_ep_return_env = np.nan
         last_ep_return_mon = np.nan
         test_return_env = np.nan
@@ -84,10 +85,10 @@ class MonExperiment:
 
             ################
             explore = False
-            if self.tot_episodes % 2 == 0:
+            if self.tot_episodes % self.cnt == 0:
+                self.cnt += 1
                 explore = True
             ################
-
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0

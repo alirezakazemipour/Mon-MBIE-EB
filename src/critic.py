@@ -163,6 +163,10 @@ class MonQCritic(Critic):
                                                               mon_obsrv_rwd_bar[*s, *a],
                                                               self.joint_count[*s, *a]
                                                               )
+                    # optimism for transitions
+                    f_t = f(t)
+                    ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
+                    mon_obsrv_rwd_bar[*s, *a] += ucb
 
         p_joint_bar = self.joint_dynamics
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
@@ -287,8 +291,7 @@ class MonQCritic(Critic):
                     elif joint_count[*s, *a] == 0:
                         q[*s, *a] = max_q
                     else:
-                        q[*s, *a] = (env_rwd[se, ae] + mon_rwd[*s, *a]
-                                     + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v)
+                        q[*s, *a] = (env_rwd[se, ae] + mon_rwd[*s, *a] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v)
                                      * (1 - term[se, ae])
                                      )
                     v = jittable_joint_max(q)
