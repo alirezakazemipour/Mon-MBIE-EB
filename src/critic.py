@@ -159,10 +159,7 @@ class MonQCritic(Critic):
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     t = self.joint_count[*s].sum((-2, -1))
-                    mon_obsrv_rwd_bar[*s, *a] = kl_confidence(t,
-                                                              mon_obsrv_rwd_bar[*s, *a],
-                                                              self.joint_count[*s, *a]
-                                                              )
+                    mon_obsrv_rwd_bar[*s, *a] = 0
                     # optimism for transitions
                     f_t = f(t)
                     ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
@@ -179,7 +176,7 @@ class MonQCritic(Critic):
                                             1 / (1 - self.gamma),
                                             self.joint_count,
                                             env_obsrv_rwd_bar,
-                                            mon_obsrv_rwd_bar,
+                                            mon_obsrv_rwd_bar,  # can be set to 0
                                             self.gamma,
                                             p_joint_bar,
                                             np.zeros_like(obsrv_v),
