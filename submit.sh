@@ -6,8 +6,8 @@
 #SBATCH --mail-type=ALL
 #SBATCH --account=def-mtaylor3
 #SBATCH --ntasks=1
-#SBATCH --time=2:00:00
-#SBATCH --mem=3000M
+#SBATCH --time=5:00:00
+#SBATCH --mem=6000M
 #SBATCH --cpus-per-task=32
 #SBATCH --tasks-per-node=1
 #SBATCH --job-name="running_everything"
@@ -18,7 +18,7 @@ echo "Starting run at: `date`"
 # Run your simulation step here..
 
 module load python
-cp ofu $SLURM_TMPDIR/
+cp -r ofu $SLURM_TMPDIR/
 cp venv.tar.gz $SLURM_TMPDIR/
 cd $SLURM_TMPDIR/ || exit
 tar -xf venv.tar.gz

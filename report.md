@@ -3,7 +3,7 @@
 1. Apply changes:
     1. ~~observation vs visitation bonus~~
     2. ~~no bonus for minimum reward~~
-    3. KLUCB over the monitor
+    3. ~~KLUCB over the monitor~~
     4. ~~Per goal termination in exploration~~
 2. Experiments with known monitors
 3. Proofs
@@ -22,13 +22,16 @@ commit: [c2f609d](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
    - branch: `mbie_episode`
    - commit: [a8b5d2f](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
    - cluster: cedar
+   - **conclusion**:
 
 2. Per goal termination in exploration
    - branch: `mbie_episode`
    - commit: [952167c](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
    - cluster: beluga
+   - **conclusion**:
    
 3. KLUCB over the monitor
    - branch: `mbie_episode`
-   - commit: [952167c](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
-   - cluster: beluga
+   - commit: [f6df8e7](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+   - cluster: graham
+   - **conclusion**:
