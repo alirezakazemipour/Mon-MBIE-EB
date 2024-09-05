@@ -1,10 +1,10 @@
 ### Things to do
 
 1. Apply changes:
-    1. observation vs visitation bonus 
-    2. no bonus for minimum reward
+    1. ~~observation vs visitation bonus~~
+    2. ~~no bonus for minimum reward~~
     3. KLUCB over the monitor
-    4. Per goal termination in exploration
+    4. ~~Per goal termination in exploration~~
 2. Experiments with known monitors
 3. Proofs
     1. Does MBIE(explore) visit every (observable?) state-action pairs.
@@ -17,11 +17,18 @@ branch: `mbie_episode`
 commit: [c2f609d](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
 
 ### Attempts
+
 1. observation vs visitation bonus and no bonus for minimum reward
-branch: `mbie_episode`
-commit: [a8b5d2f](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
-cluster: cedar
+   - branch: `mbie_episode`
+   - commit: [a8b5d2f](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+   - cluster: cedar
+
 2. Per goal termination in exploration
-branch: `mbie_episode`
-commit: [a8b5d2f](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
-cluster: beluga
+   - branch: `mbie_episode`
+   - commit: [952167c](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+   - cluster: beluga
+   
+3. KLUCB over the monitor
+   - branch: `mbie_episode`
+   - commit: [952167c](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+   - cluster: beluga

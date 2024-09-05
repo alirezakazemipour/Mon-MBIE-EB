@@ -147,21 +147,27 @@ class MonQCritic(Critic):
                                             )
 
     def obsrv_mbie(self, rng):  # noqa
-        term = np.zeros_like(self.env_rwd_model)
-        env_obsrv_rwd_bar, term = self.update_env_obsrv_rwd_model(self.env_obsrv_rwd_model,
-                                                                  self.env_obs_space,
-                                                                  self.env_act_space,
-                                                                  self.env_visit,
-                                                                  self.env_obsrv_count,
-                                                                  term,
-                                                                  )
+        # env_obsrv_rwd_bar = self.update_env_obsrv_rwd_model(self.env_obsrv_rwd_model,
+        #                                                     self.env_obs_space,
+        #                                                     self.env_act_space,
+        #                                                     self.env_visit,
+        #                                                     self.env_obsrv_count,
+        #                                                     )
 
-        mon_obsrv_rwd_bar = self.monitor
+        # the following reward is more conservative than the base code because it checks all the joint state-action
+        # pairs but is theoretically stronger that might not be obvious in our environments.
+        mon_obsrv_rwd_bar = np.zeros_like(self.monitor)
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
+                se, sm = s
+                ae, am = a
                 if self.joint_count[*s, *a] != 0:
-                    t = self.joint_count[*s].sum((-2, -1))
-                    mon_obsrv_rwd_bar[*s, *a] = 0
+                    t = self.joint_count[*s].sum()
+                    if self.env_obsrv_count[se, ae] == 0:
+                        mon_obsrv_rwd_bar[*s, *a] = kl_confidence(t,
+                                                                  0,
+                                                                  self.joint_count[*s, *a]
+                                                                  )
                     # optimism for transitions
                     f_t = f(t)
                     ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
@@ -177,12 +183,12 @@ class MonQCritic(Critic):
                                             np.zeros_like(self.obsrv_q),
                                             1 / (1 - self.gamma),
                                             self.joint_count,
-                                            env_obsrv_rwd_bar,
+                                            np.zeros_like(self.env_rwd_model),
                                             mon_obsrv_rwd_bar,  # can be set to 0
                                             self.gamma,
                                             p_joint_bar,
                                             np.zeros_like(obsrv_v),
-                                            term
+                                            np.zeros_like(self.env_term)
                                             )
 
     def reset(self):
