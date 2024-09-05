@@ -74,7 +74,7 @@ for env, monitor in env_mon_combo:
             runs.append(x)
         # print(np.argmin(np.array(runs).sum(-1)))
         # exit()
-        smoothedd = []
+        smoothed = []
         for run in runs:
             val = [run[0]]
             for tmp in run[1:]:
@@ -104,6 +104,9 @@ for env, monitor in env_mon_combo:
     ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
     ax.xaxis.set_tick_params(labelsize=20)
     ax.yaxis.set_tick_params(labelsize=20)
+    plt.title(f"{monitor}")
+    plt.xlabel("training steps (x100)", weight="bold", fontsize=18)
+    ax.set_xticks(np.arange(0, len(mean_return) + 0.1, 50))
 
     # plt.show()
     plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
