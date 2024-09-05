@@ -114,7 +114,7 @@ class MonQCritic(Critic):
 
         env_rwd_model = self.update_env_rwd_model(self.env_obs_space,
                                                   self.env_act_space,
-                                                  self.env_obsrv_count,
+                                                  self.env_visit,
                                                   self.env_rwd_model,
                                                   self.a
                                                   )
@@ -147,12 +147,14 @@ class MonQCritic(Critic):
                                             )
 
     def obsrv_mbie(self, rng):  # noqa
-        env_obsrv_rwd_bar = self.update_env_obsrv_rwd_model(self.env_obsrv_rwd_model,
-                                                            self.env_obs_space,
-                                                            self.env_act_space,
-                                                            self.env_visit,
-                                                            self.env_obsrv_count
-                                                            )
+        term = np.zeros_like(self.env_rwd_model)
+        env_obsrv_rwd_bar, term = self.update_env_obsrv_rwd_model(self.env_obsrv_rwd_model,
+                                                                  self.env_obs_space,
+                                                                  self.env_act_space,
+                                                                  self.env_visit,
+                                                                  self.env_obsrv_count,
+                                                                  term,
+                                                                  )
 
         mon_obsrv_rwd_bar = self.monitor
         for s in self.joint_obs_space:
@@ -180,7 +182,7 @@ class MonQCritic(Critic):
                                             self.gamma,
                                             p_joint_bar,
                                             np.zeros_like(obsrv_v),
-                                            np.zeros_like(self.env_term)
+                                            term
                                             )
 
     def reset(self):
@@ -236,19 +238,19 @@ class MonQCritic(Critic):
 
     @staticmethod
     @jit
-    def update_env_rwd_model(env_obs_space, env_act_space, env_obsrv, env_rwd_model, a0):
+    def update_env_rwd_model(env_obs_space, env_act_space, count, env_rwd_model, a0):
         for s in env_obs_space:
             for a in env_act_space:
-                if env_obsrv[s, a] != 0:
-                    t = env_obsrv[s].sum()
+                if count[s, a] != 0:
+                    t = count[s].sum()
                     f_t = f(t)
-                    ucb = a0 * np.sqrt(2 * np.log(f_t) / env_obsrv[s, a])
+                    ucb = a0 * np.sqrt(2 * np.log(f_t) / count[s, a])
                     env_rwd_model[s, a] += ucb
         return env_rwd_model
 
     @staticmethod
     @jit
-    def update_env_obsrv_rwd_model(model, obs_space, act_space, visit_count, obsrv_count):
+    def update_env_obsrv_rwd_model(model, obs_space, act_space, visit_count, obsrv_count, term):
         env_obsrv_rwd_bar = np.zeros_like(model)
         for s in obs_space:
             for a in act_space:
@@ -259,8 +261,9 @@ class MonQCritic(Critic):
                                                                 0,
                                                                 visit_count[s, a]
                                                                 )
+                        term[s, a] = 1
 
-        return env_obsrv_rwd_bar
+        return env_obsrv_rwd_bar, term
 
     @staticmethod
     @jit

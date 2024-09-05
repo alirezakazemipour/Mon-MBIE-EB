@@ -82,15 +82,16 @@ class MonExperiment:
                                  )
             ep_seed = cantor_pairing(self.rng_seed, self.tot_episodes)
             rng = np.random.default_rng(ep_seed)
-            self.critic.opt_pess_mbie(rng)
-            self.critic.obsrv_mbie(rng)
 
             ################
-            explore = False
             if self.tot_episodes % math.floor(self.cnt) == 0:
                 self.cnt *= self.beta
                 explore = True
                 self.explore_episodes += 1
+                self.critic.obsrv_mbie(rng)
+            else:
+                self.critic.opt_pess_mbie(rng)
+                explore = False
             ################
 
             obs, _ = self.env.reset(seed=ep_seed)
