@@ -114,7 +114,7 @@ class MonQCritic(Critic):
 
         env_rwd_model = self.update_env_rwd_model(self.env_obs_space,
                                                   self.env_act_space,
-                                                  self.env_visit,
+                                                  self.env_obsrv_count,
                                                   self.env_rwd_model,
                                                   self.a
                                                   )
@@ -236,13 +236,13 @@ class MonQCritic(Critic):
 
     @staticmethod
     @jit
-    def update_env_rwd_model(env_obs_space, env_act_space, env_visit, env_rwd_model, a0):
+    def update_env_rwd_model(env_obs_space, env_act_space, env_obsrv, env_rwd_model, a0):
         for s in env_obs_space:
             for a in env_act_space:
-                if env_visit[s, a] != 0:
-                    t = env_visit[s].sum()
+                if env_obsrv[s, a] != 0:
+                    t = env_obsrv[s].sum()
                     f_t = f(t)
-                    ucb = a0 * np.sqrt(2 * np.log(f_t) / env_visit[s, a])
+                    ucb = a0 * np.sqrt(2 * np.log(f_t) / env_obsrv[s, a])
                     env_rwd_model[s, a] += ucb
         return env_rwd_model
 

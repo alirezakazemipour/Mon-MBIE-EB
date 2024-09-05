@@ -12,3 +12,9 @@
        them?
 
 ### Base code
+
+branch: `mbie_episode`
+commit: [c2f609d](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+
+### Attempts
+1. observation vs visitation bonus and no bonus for minimum reward
