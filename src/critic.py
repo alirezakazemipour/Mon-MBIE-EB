@@ -188,7 +188,7 @@ class MonQCritic(Critic):
                                             self.gamma,
                                             p_joint_bar,
                                             np.zeros_like(obsrv_v),
-                                            self.env_term
+                                            np.zeros_like(self.env_term)
                                             )
 
     def reset(self):
