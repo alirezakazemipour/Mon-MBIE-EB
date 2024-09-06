@@ -9,7 +9,6 @@ def random_argmax(x, rng=np.random):
     """
     Simple random tiebreak for np.argmax() for when there are multiple max values.
     """
-
     best = np.argwhere(x == x.max())
     i = rng.choice(range(best.shape[0]))
     return tuple(best[i])

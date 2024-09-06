@@ -45,7 +45,9 @@ class MonQCritic(Critic):
                  mon_num_obs: int,
                  env_num_act: int,
                  mon_num_act: int,
-                 gamma: float,
+                 mon_rwd_model: np.ndarray,
+                 mon_dynamics: np.ndarray,
+                 monitor: np.ndarray,
                  **kwargs,
                  ):
         """
@@ -56,7 +58,7 @@ class MonQCritic(Critic):
             lr (DictConfig): configuration to initialize the learning rate,
         """
 
-        self.gamma = gamma
+        self.gamma = kwargs["gamma"]
         self.joint_max_q = kwargs["joint_max_q"]
         self.env_min_r = kwargs["env_min_r"]
         self.a = kwargs["ucb_re"]
@@ -71,6 +73,9 @@ class MonQCritic(Critic):
         self.joint_act_space = list(itertools.product(range(self.env_num_act), range(self.mon_num_act)))
         self.env_obs_space = list(range(self.env_num_obs))
         self.env_act_space = list(range(self.env_num_act))
+        self.mon_rwd_model = mon_rwd_model
+        self.monitor = monitor
+        self.mon_dynamics = mon_dynamics
 
         self.env_r = None
         self.env_visit = None
@@ -82,6 +87,7 @@ class MonQCritic(Critic):
         self.joint_transit_count = None
         self.joint_q = None
         self.obsrv_q = None
+        self.env_transit_count = None
 
     def update(self,
                obs_env,
@@ -104,6 +110,7 @@ class MonQCritic(Critic):
         self.joint_count[obs_env, obs_mon, act_env, act_mon] += 1
         self.mon_r[obs_env, obs_mon, act_env, act_mon] += rwd_mon
         self.joint_transit_count[obs_env, obs_mon, act_env, act_mon, next_obs_env, next_obs_mon] += 1
+        self.env_transit_count[obs_env, act_env, next_obs_env] += 1
 
         if term:
             self.env_term[obs_env, act_env] = 1
@@ -119,16 +126,7 @@ class MonQCritic(Critic):
                                                   self.a
                                                   )
 
-        mon_rwd_bar = self.mon_rwd_model
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                if self.joint_count[*s, *a] != 0:
-                    t = self.joint_count[*s].sum((-2, -1))
-                    f_t = f(t)
-                    ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
-                    mon_rwd_bar[*s, *a] += ucb
-
-        p_joint_bar = self.joint_dynamics
+        p_joint_bar = self.env_dynamics[:, None, :, None, :, None] * np.expand_dims(self.mon_dynamics, axis=-2)
         joint_v = np.max(self.joint_q, axis=(-2, -1))
 
         self.joint_q = self.value_iteration(self.vi_iter,
@@ -137,9 +135,8 @@ class MonQCritic(Critic):
                                             self.env_visit,
                                             self.joint_q,
                                             self.joint_max_q,
-                                            self.joint_count,
                                             env_rwd_model,
-                                            mon_rwd_bar,
+                                            self.mon_rwd_model,
                                             self.gamma,
                                             p_joint_bar,
                                             joint_v,
@@ -147,33 +144,25 @@ class MonQCritic(Critic):
                                             )
 
     def obsrv_mbie(self, rng):  # noqa
-        # env_obsrv_rwd_bar = self.update_env_obsrv_rwd_model(self.env_obsrv_rwd_model,
-        #                                                     self.env_obs_space,
-        #                                                     self.env_act_space,
-        #                                                     self.env_visit,
-        #                                                     self.env_obsrv_count,
-        #                                                     )
-
-        # the following reward is more conservative than the base code because it checks all the joint state-action
-        # pairs but is theoretically stronger that might not be obvious in our environments.
-        mon_obsrv_rwd_bar = np.zeros_like(self.monitor)
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                se, sm = s
-                ae, am = a
-                if self.joint_count[*s, *a] != 0:
-                    t = self.joint_count[*s].sum()
-                    if self.env_obsrv_count[se, ae] == 0:
-                        mon_obsrv_rwd_bar[*s, *a] = kl_confidence(t,
-                                                                  0,
-                                                                  self.joint_count[*s, *a]
-                                                                  )
+        env_obsrv_rwd_bar = self.update_env_obsrv_rwd_model(self.env_obsrv_rwd_model,
+                                                            self.env_obs_space,
+                                                            self.env_act_space,
+                                                            self.env_visit,
+                                                            self.env_obsrv_count,
+                                                            self.monitor
+                                                            )
+        for s in self.env_obs_space:
+            for a in self.env_act_space:
+                if self.env_visit[s, a] != 0:
+                    t = self.env_visit[s].sum()
                     # optimism for transitions
                     f_t = f(t)
-                    ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
-                    mon_obsrv_rwd_bar[*s, *a] += ucb
+                    ucb = self.b * math.sqrt(2 * math.log(f_t) / self.env_visit[s, a])
+                    env_obsrv_rwd_bar[s, a] += ucb
 
-        p_joint_bar = self.joint_dynamics
+        mon_obsrv_rwd_bar = np.zeros_like(self.monitor)
+
+        p_joint_bar = self.env_dynamics[:, None, :, None, :, None] * np.expand_dims(self.mon_dynamics, axis=-2)
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
@@ -182,8 +171,7 @@ class MonQCritic(Critic):
                                             self.env_visit,
                                             np.zeros_like(self.obsrv_q),
                                             1 / (1 - self.gamma),
-                                            self.joint_count,
-                                            np.zeros_like(self.env_rwd_model),
+                                            env_obsrv_rwd_bar,
                                             mon_obsrv_rwd_bar,  # can be set to 0
                                             self.gamma,
                                             p_joint_bar,
@@ -196,6 +184,7 @@ class MonQCritic(Critic):
         self.env_visit = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_term = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_obsrv_count = np.zeros((self.env_num_obs, self.env_num_act))
+        self.env_transit_count = np.zeros((self.env_num_obs, self.env_num_act, self.env_num_obs,))
         self.mon_r = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
         self.joint_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
         self.joint_obsrv_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
@@ -219,9 +208,9 @@ class MonQCritic(Critic):
         return r
 
     @property
-    def mon_rwd_model(self):
-        r = self.mon_r / (self.joint_count + 1e-4)
-        return r
+    def env_dynamics(self):
+        p_env = self.env_transit_count / (self.env_visit[..., None] + 1e-4)
+        return p_env
 
     @property
     def joint_dynamics(self):
@@ -231,11 +220,6 @@ class MonQCritic(Critic):
     @property
     def joint_num_obs(self):
         return self.env_num_obs * self.mon_num_obs
-
-    @property
-    def monitor(self):
-        m = self.joint_obsrv_count / (self.joint_count + 1e-4)
-        return m
 
     @property
     def env_monitor(self):
@@ -256,20 +240,19 @@ class MonQCritic(Critic):
 
     @staticmethod
     @jit
-    def update_env_obsrv_rwd_model(model, obs_space, act_space, visit_count, obsrv_count, term):
+    def update_env_obsrv_rwd_model(model, obs_space, act_space, visit_count, obsrv_count, monitor):
         env_obsrv_rwd_bar = np.zeros_like(model)
         for s in obs_space:
             for a in act_space:
                 if visit_count[s, a] != 0:
-                    if obsrv_count[s, a] == 0:
+                    if obsrv_count[s, a] == 0 and np.sum(monitor[s, :, a, :]) > 0:
                         t = visit_count[s].sum(-1)
                         env_obsrv_rwd_bar[s, a] = kl_confidence(t,
                                                                 0,
                                                                 visit_count[s, a]
                                                                 )
-                        term[s, a] = 1
 
-        return env_obsrv_rwd_bar, term
+        return env_obsrv_rwd_bar
 
     @staticmethod
     @jit
@@ -279,7 +262,6 @@ class MonQCritic(Critic):
                         env_visit,
                         q,
                         max_q,
-                        joint_count,
                         env_rwd,
                         mon_rwd,
                         gamma,
@@ -294,8 +276,6 @@ class MonQCritic(Critic):
                     ae, am = a
                     if env_visit[se, ae] == 0:
                         q[se, :, ae, :] = max_q
-                    elif joint_count[*s, *a] == 0:
-                        q[*s, *a] = max_q
                     else:
                         q[*s, *a] = (env_rwd[se, ae] + mon_rwd[*s, *a] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v)
                                      * (1 - term[se, ae])
