@@ -212,20 +212,6 @@ class MonQCritic(Critic):
         p_env = self.env_transit_count / (self.env_visit[..., None] + 1e-4)
         return p_env
 
-    @property
-    def joint_dynamics(self):
-        p_joint = self.joint_transit_count / (self.joint_count[..., None, None] + 1e-4)
-        return p_joint
-
-    @property
-    def joint_num_obs(self):
-        return self.env_num_obs * self.mon_num_obs
-
-    @property
-    def env_monitor(self):
-        m = self.env_obsrv_count / (self.env_visit + 1e-4)
-        return m
-
     @staticmethod
     @jit
     def update_env_rwd_model(env_obs_space, env_act_space, count, env_rwd_model, a0):

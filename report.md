@@ -5,7 +5,7 @@
     2. ~~no bonus for minimum reward~~
     3. ~~KLUCB over the monitor~~
     4. ~~Per goal termination in exploration~~
-2. Experiments with known monitors
+2. ~~Experiments with known monitors~~
 3. Proofs
     1. Does MBIE(explore) visit every (observable?) state-action pairs.
     2. Does the MBIE(exploit) finds the optimal/cautious policy with there is some parts that don't have optimisim on
@@ -34,4 +34,10 @@ commit: [c2f609d](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
    - branch: `mbie_episode`
    - commit: [f6df8e7](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
    - cluster: graham
+   - **conclusion**:
+   
+4. Experiments with known monitors
+   - branch: `mbie_episode_known_monitor`
+   - commit: [35a0f42](https://github.com/alirezakazemipour/ofu/tree/mbie_episode_known_monitor)
+   - cluster: narval
    - **conclusion**:
