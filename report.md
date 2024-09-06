@@ -10,6 +10,7 @@
     1. Does MBIE(explore) visit every (observable?) state-action pairs.
     2. Does the MBIE(exploit) finds the optimal/cautious policy with there is some parts that don't have optimisim on
        them?
+4. Posting the slides
 
 ### Base code
 
@@ -19,25 +20,25 @@ commit: [c2f609d](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
 ### Attempts
 
 1. observation vs visitation bonus and no bonus for minimum reward
-   - branch: `mbie_episode`
-   - commit: [a8b5d2f](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
-   - cluster: cedar
-   - **conclusion**:
+    - branch: `mbie_episode`
+    - commit: [a8b5d2f](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+    - cluster: cedar
+    - **conclusion**: It's fine. Except in Distract + Button 10% that could be corrected by lowering beta.
 
 2. Per goal termination in exploration
-   - branch: `mbie_episode`
-   - commit: [952167c](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
-   - cluster: beluga
-   - **conclusion**:
-   
+    - branch: `mbie_episode`
+    - commit: [952167c](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+    - cluster: beluga
+    - **conclusion**:
+
 3. KLUCB over the monitor
-   - branch: `mbie_episode`
-   - commit: [f6df8e7](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
-   - cluster: graham
-   - **conclusion**:
-   
+    - branch: `mbie_episode`
+    - commit: [f6df8e7](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+    - cluster: graham
+    - **conclusion**:
+
 4. Experiments with known monitors
-   - branch: `mbie_episode_known_monitor`
-   - commit: [35a0f42](https://github.com/alirezakazemipour/ofu/tree/mbie_episode_known_monitor)
-   - cluster: narval
-   - **conclusion**:
+    - branch: `mbie_episode_known_monitor`
+    - commit: [35a0f42](https://github.com/alirezakazemipour/ofu/tree/mbie_episode_known_monitor)
+    - cluster: narval
+    - **conclusion**:
