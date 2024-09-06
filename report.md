@@ -5,6 +5,7 @@
     2. ~~no bonus for minimum reward~~
     3. ~~KLUCB over the monitor~~
     4. ~~Per goal termination in exploration~~
+    5. ~~Natural environment termination during exploration~~ 
 2. ~~Experiments with known monitors~~
 3. Proofs
     1. Does MBIE(explore) visit every (observable?) state-action pairs.
@@ -29,16 +30,23 @@ commit: [c2f609d](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
     - branch: `mbie_episode`
     - commit: [952167c](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
     - cluster: beluga
-    - **conclusion**:
+    - **conclusion**: Was much worse than mine because it lingers on every state-action pairs in partially observable
+      cases. While mine plan the most collectively.
 
 3. KLUCB over the monitor
     - branch: `mbie_episode`
     - commit: [f6df8e7](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
     - cluster: graham
-    - **conclusion**:
+    - **conclusion**: I need to ask Mike about it. Results are slower but much ore on target.
 
 4. Experiments with known monitors
     - branch: `mbie_episode_known_monitor`
     - commit: [35a0f42](https://github.com/alirezakazemipour/ofu/tree/mbie_episode_known_monitor)
     - cluster: narval
+    - **conclusion**:
+   
+5. Natural environment termination during exploration
+6. - branch: N/A
+    - commit: N/A
+    - cluster: cedar
     - **conclusion**:
