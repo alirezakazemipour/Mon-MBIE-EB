@@ -114,7 +114,7 @@ class MonQCritic(Critic):
 
         env_rwd_model = self.update_env_rwd_model(self.env_obs_space,
                                                   self.env_act_space,
-                                                  self.env_visit,
+                                                  self.env_obsrv_count,
                                                   self.env_rwd_model,
                                                   self.a
                                                   )
@@ -188,7 +188,7 @@ class MonQCritic(Critic):
                                             self.gamma,
                                             p_joint_bar,
                                             np.zeros_like(obsrv_v),
-                                            np.zeros_like(self.env_term)
+                                            self.env_term
                                             )
 
     def reset(self):
@@ -256,7 +256,7 @@ class MonQCritic(Critic):
 
     @staticmethod
     @jit
-    def update_env_obsrv_rwd_model(model, obs_space, act_space, visit_count, obsrv_count, term):
+    def update_env_obsrv_rwd_model(model, obs_space, act_space, visit_count, obsrv_count):
         env_obsrv_rwd_bar = np.zeros_like(model)
         for s in obs_space:
             for a in act_space:
@@ -267,9 +267,8 @@ class MonQCritic(Critic):
                                                                 0,
                                                                 visit_count[s, a]
                                                                 )
-                        term[s, a] = 1
 
-        return env_obsrv_rwd_bar, term
+        return env_obsrv_rwd_bar
 
     @staticmethod
     @jit
