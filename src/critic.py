@@ -151,7 +151,6 @@ class MonQCritic(Critic):
                                             )
 
     def obsrv_mbie(self, rng):  # noqa
-        
         # uncertainties for transition
         env_obsrv_rwd_bar = self.update_env_rwd_model(self.env_obs_space,
                                                       self.env_act_space,
