@@ -1,6 +1,6 @@
 defaults:
   - environment: distract
-  - monitor: button
+  - monitor: ask
   - _self_
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -9,7 +9,7 @@ environment:
   render_mode: null
 
 critic:
-    vi_iter: 400
+    vi_iter: 200
 
 experiment:
   datadir: null
