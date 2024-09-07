@@ -126,8 +126,8 @@ class MonQCritic(Critic):
                                                   self.a
                                                   )
 
-        p_joint_bar = self.env_dynamics[:, None, :, None, :, None] * np.expand_dims(self.mon_dynamics, axis=-2)
-        joint_v = np.max(self.joint_q, axis=(-2, -1))
+        p_joint_bar = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
+        joint_v = jittable_joint_max(self.joint_q)
 
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
@@ -158,8 +158,8 @@ class MonQCritic(Critic):
                                                         self.monitor
                                                         )
 
-        p_joint_bar = self.env_dynamics[:, None, :, None, :, None] * np.expand_dims(self.mon_dynamics, axis=-2)
-        obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
+        p_joint_bar = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
+        obsrv_v = jittable_joint_max(self.obsrv_q)
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
@@ -207,6 +207,11 @@ class MonQCritic(Critic):
     def env_dynamics(self):
         p_env = self.env_transit_count / (self.env_visit[..., None] + 1e-4)
         return p_env
+
+    @staticmethod
+    @jit
+    def joint_dynamics(env_dynamics, mon_dynamics):
+        return env_dynamics[:, None, :, None, :, None] * np.expand_dims(mon_dynamics, axis=-2)
 
     @staticmethod
     @jit
