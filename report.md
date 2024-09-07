@@ -31,7 +31,7 @@ commit: [c2f609d](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
     - commit: [952167c](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
     - cluster: beluga
     - **conclusion**: Was much worse than mine because it lingers on every state-action pairs in partially observable
-      cases. While mine plan the most collectively. Maybe it's better to leave it off to the planner and use the natural
+      cases. While mine plan the most collectively. However, asymptotically and theoretically is very strong. Maybe it's better to leave it off to the planner and use the natural
       termination. Edit: Nope, mine is the right way!
 
 3. KLUCB over the monitor
