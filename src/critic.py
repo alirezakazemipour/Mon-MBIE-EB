@@ -123,7 +123,7 @@ class MonQCritic(Critic):
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    t = self.joint_count[*s].sum((-2, -1))
+                    t = self.joint_count[*s].sum()
                     f_t = f(t)
                     ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
                     mon_rwd_bar[*s, *a] += ucb
@@ -174,7 +174,7 @@ class MonQCritic(Critic):
                     mon_obsrv_rwd_bar[*s, *a] += ucb
 
         p_joint_bar = self.joint_dynamics
-        obsrv_v = jittable_joint_max(self.obsrv_q)
+        obsrv_v = np.zeros((self.env_num_obs, self.mon_num_obs))
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
@@ -187,7 +187,7 @@ class MonQCritic(Critic):
                                             mon_obsrv_rwd_bar,  # can be set to 0
                                             self.gamma,
                                             p_joint_bar,
-                                            np.zeros_like(obsrv_v),
+                                            obsrv_v,
                                             np.zeros_like(self.env_term)
                                             )
 
