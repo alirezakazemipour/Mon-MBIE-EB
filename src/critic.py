@@ -125,6 +125,13 @@ class MonQCritic(Critic):
                                                   self.env_rwd_model,
                                                   self.a
                                                   )
+        # uncertainties for transition
+        env_rwd_model = self.update_env_rwd_model(self.env_obs_space,
+                                                  self.env_act_space,
+                                                  self.env_visit,
+                                                  env_rwd_model,
+                                                  self.b
+                                                  )
 
         p_joint_bar = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
         joint_v = jittable_joint_max(self.joint_q)
@@ -144,6 +151,8 @@ class MonQCritic(Critic):
                                             )
 
     def obsrv_mbie(self, rng):  # noqa
+        
+        # uncertainties for transition
         env_obsrv_rwd_bar = self.update_env_rwd_model(self.env_obs_space,
                                                       self.env_act_space,
                                                       self.env_visit,
@@ -159,7 +168,7 @@ class MonQCritic(Critic):
                                                         )
 
         p_joint_bar = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
-        obsrv_v = jittable_joint_max(self.obsrv_q)
+        obsrv_v = np.zeros((self.env_num_obs, self.mon_num_obs))
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
@@ -168,10 +177,10 @@ class MonQCritic(Critic):
                                             np.zeros_like(self.obsrv_q),
                                             1 / (1 - self.gamma),
                                             env_obsrv_rwd_bar,
-                                            mon_obsrv_rwd_bar,  # can be set to 0
+                                            mon_obsrv_rwd_bar,
                                             self.gamma,
                                             p_joint_bar,
-                                            np.zeros_like(obsrv_v),
+                                            obsrv_v,
                                             np.zeros_like(self.env_term)
                                             )
 

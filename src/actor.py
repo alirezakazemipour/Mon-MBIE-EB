@@ -30,7 +30,7 @@ class Actor(ABC):
         else:
             q = self.critic.joint_q[obs_env, obs_mon]
 
-        return tuple(random_argmax(q, rng))
+        return random_argmax(q, rng)
 
     @abstractmethod
     def update(self):
