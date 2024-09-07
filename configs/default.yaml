@@ -1,6 +1,6 @@
 defaults:
-  - environment: distract
-  - monitor: level
+  - environment: river_swim
+  - monitor: button
   - _self_
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -9,7 +9,7 @@ environment:
   render_mode: null
 
 critic:
-    vi_iter: 100
+    vi_iter: 200
 
 experiment:
   datadir: null
