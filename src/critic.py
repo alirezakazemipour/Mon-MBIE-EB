@@ -151,14 +151,12 @@ class MonQCritic(Critic):
                                                       self.b
                                                       )
 
-        mon_obsrv_rwd_bar = np.zeros_like(self.monitor)
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                se, sm = s
-                ae, am = a
-                t = self.env_visit.sum()
-                if self.env_obsrv_count[se, ae] == 0 and np.sum(self.monitor[se, :, ae, :]) > 0:
-                    mon_obsrv_rwd_bar[*s, *a] = self.monitor[*s, *a]
+        mon_obsrv_rwd_bar = self.update_obsrv_rwd_model(self.joint_obs_space,
+                                                        self.joint_act_space,
+                                                        self.env_obsrv_count,
+                                                        np.zeros_like(self.monitor),
+                                                        self.monitor
+                                                        )
 
         p_joint_bar = self.env_dynamics[:, None, :, None, :, None] * np.expand_dims(self.mon_dynamics, axis=-2)
         obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
@@ -221,6 +219,17 @@ class MonQCritic(Critic):
                     ucb = a0 * np.sqrt(2 * np.log(f_t) / count[s, a])
                     env_rwd_model[s, a] += ucb
         return env_rwd_model
+
+    @staticmethod
+    @jit
+    def update_obsrv_rwd_model(obs_space, act_space, count, model, monitor):
+        for s in obs_space:
+            for a in act_space:
+                se, sm = s
+                ae, am = a
+                if count[se, ae] == 0 and np.sum(model[se, :, ae, :]) > 0:
+                    model[*s, *a] = monitor[*s, *a]
+        return model
 
     @staticmethod
     @jit
