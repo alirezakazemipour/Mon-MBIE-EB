@@ -1,6 +1,6 @@
 defaults:
-  - environment: grid_det
-  - monitor: button
+  - environment: two_room
+  - monitor: ask
   - _self_
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -9,11 +9,11 @@ environment:
   render_mode: null
 
 critic:
-    vi_iter: 200
+    vi_iter: 400
 
 experiment:
   datadir: null
-  rng_seed: 27
+  rng_seed: 4
   hide_progress_bar: False
 
 # This will prevent the creation of the 'output' and 'multirun' subfolders,
