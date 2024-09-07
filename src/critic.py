@@ -129,7 +129,7 @@ class MonQCritic(Critic):
                     mon_rwd_bar[*s, *a] += ucb
 
         p_joint_bar = self.joint_dynamics
-        joint_v = np.max(self.joint_q, axis=(-2, -1))
+        joint_v = jittable_joint_max(self.joint_q)
 
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
@@ -174,7 +174,7 @@ class MonQCritic(Critic):
                     mon_obsrv_rwd_bar[*s, *a] += ucb
 
         p_joint_bar = self.joint_dynamics
-        obsrv_v = np.max(self.obsrv_q, axis=(-2, -1))
+        obsrv_v = jittable_joint_max(self.obsrv_q)
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
