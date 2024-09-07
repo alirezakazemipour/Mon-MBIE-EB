@@ -38,8 +38,8 @@ commit: [c2f609d](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
     - branch: `mbie_episode`
     - commit: [f6df8e7](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
     - cluster: graham
-    - **conclusion**: I need to ask Mike about it. Results are slower but much more on target. interesting! But it seems
-      to be the right approach; consider a T-Maze that the agent always start the interaction with the button off and
+    - **conclusion**: I need to ask Mike about it. Results are slower but much more on target because it checks every
+      joint pair. interesting! But it seems to be the right approach; consider a T-Maze that the agent always start the interaction with the button off and
       the button is outside the hallway! Dependency on only environment pairs makes the hallway cells mistakenly
       never-observable!
 
