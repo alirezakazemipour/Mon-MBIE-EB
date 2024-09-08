@@ -163,7 +163,6 @@ class MonExperiment:
                 "joint_q": self.critic.joint_q,
                 "obsrv_q": self.critic.obsrv_q,
                 "joint_count": self.critic.joint_count,
-                "joint_obsrv_count": self.critic.joint_obsrv_count,
                 "monitor": self.critic.monitor,
                 "env_obsrv_count": self.critic.env_obsrv_count,
                 "env_reward_model": self.critic.env_rwd_model
