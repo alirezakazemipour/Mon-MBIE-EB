@@ -59,8 +59,8 @@ class MonQCritic(Critic):
         self.gamma = gamma
         self.joint_max_q = kwargs["joint_max_q"]
         self.env_min_r = kwargs["env_min_r"]
-        self.a = kwargs["ucb_re"]
-        self.b = kwargs["ucb_rm"]
+        self.a = kwargs["ucb_a"]
+        self.b = kwargs["ucb_b"]
         self.vi_iter = kwargs["vi_iter"]
 
         self.env_num_obs = env_num_obs
@@ -184,11 +184,11 @@ class MonQCritic(Critic):
                                             1 / (1 - self.gamma),
                                             self.joint_count,
                                             np.zeros_like(self.env_rwd_model),
-                                            mon_obsrv_rwd_bar,  # can be set to 0
+                                            mon_obsrv_rwd_bar,
                                             self.gamma,
                                             p_joint_bar,
                                             obsrv_v,
-                                            np.zeros_like(self.env_term)
+                                            np.zeros_like(self.env_term)  # Discuss with Mike to conclude
                                             )
 
     def reset(self):
