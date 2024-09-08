@@ -15,5 +15,5 @@ critic:
   gamma: 0.99
   joint_max_q: 300
   env_min_r: 0
-  ucb_re: 0.05
+  ucb_re: 0.5
   ucb_rm: 1.5

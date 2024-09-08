@@ -16,5 +16,4 @@ critic:
   joint_max_q: 10
   env_min_r: -10
   ucb_re: 0.0004
-  ucb_rm: 0.0004
-  ucb_p: 0.0004
+  ucb_rm: 0.004
