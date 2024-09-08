@@ -81,8 +81,6 @@ class MonQCritic(Critic):
         self.env_visit = None
         self.env_term = None
         self.env_obsrv_count = None
-        self.mon_r = None
-        self.joint_count = None
         self.joint_q = None
         self.obsrv_q = None
         self.env_transit_count = None
@@ -104,8 +102,6 @@ class MonQCritic(Critic):
             self.env_r[obs_env, act_env] += rwd_env
 
         self.env_visit[obs_env, act_env] += 1
-        self.joint_count[obs_env, obs_mon, act_env, act_mon] += 1
-        self.mon_r[obs_env, obs_mon, act_env, act_mon] += rwd_mon
         self.env_transit_count[obs_env, act_env, next_obs_env] += 1
 
         if term:
@@ -185,8 +181,6 @@ class MonQCritic(Critic):
         self.env_term = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_obsrv_count = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_transit_count = np.zeros((self.env_num_obs, self.env_num_act, self.env_num_obs,))
-        self.mon_r = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
-        self.joint_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
         self.joint_q = np.ones(
             (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q
         self.obsrv_q = np.ones(
