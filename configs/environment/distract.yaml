@@ -21,4 +21,4 @@ critic:
   joint_max_q: 10
   env_min_r: -1
   ucb_a: 0.004
-  ucb_b: 0.04
+  ucb_b: 0.004

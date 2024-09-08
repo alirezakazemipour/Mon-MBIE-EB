@@ -222,7 +222,7 @@ class MonQCritic(Critic):
             for a in act_space:
                 se, sm = s
                 ae, am = a
-                if count[se, ae] == 0 and np.sum(model[se, :, ae, :]) > 0:
+                if count[se, ae] == 0 and np.sum(monitor[se, :, ae, :]) > 0:
                     model[*s, *a] = monitor[*s, *a]
         return model
 
