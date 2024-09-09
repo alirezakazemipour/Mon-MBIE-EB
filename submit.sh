@@ -1,4 +1,5 @@
 #!/bin/bash
+job="running_everything"
 # ---------------------------------------------------------------------
 # SLURM script for a multi-step job on our clusters.
 # ---------------------------------------------------------------------
@@ -10,7 +11,7 @@
 #SBATCH --mem=6000M
 #SBATCH --cpus-per-task=32
 #SBATCH --tasks-per-node=1
-#SBATCH --job-name="running_everything"
+#SBATCH --job-name="$job"
 # ---------------------------------------------------------------------
 echo "Current working directory: `pwd`"
 echo "Starting run at: `date`"
@@ -25,8 +26,8 @@ tar -xf venv.tar.gz
 source venv/bin/activate
 cd ofu/ || exit
 python main.py -m hydra/launcher=joblib hydra/sweeper=manual_sweeper >/dev/null
-tar -cavf data.tar.xz data
-cp data.tar.xz ~/projects/def-mtaylor3/alirezak
+tar -cavf data_$job.tar.xz data
+cp data_$job.tar.xz ~/projects/def-mtaylor3/alirezak
 
 
 
