@@ -32,21 +32,27 @@ env_mon_combo = itertools.product(env, monitor)
 
 info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
                            "Button": (192.72, "optimal"),
+                           "Level": (199.14, "optimal"),
                            },
         "Gridworld-Penalty-3x3-v0": {"Ask": (9.415, "cautious"),
                                      "Button": (8.878, "cautious"),
+                                     "Level": (9.415, "cautious"),
                                      },
         "Gridworld-Corridor-3x4-v0": {"Ask": (9.409, "optimal"),
                                       "Button": (8.972, "optimal"),
+                                      "Level": (9.409, "optimal"),
                                       },
         "Gridworld-Empty-Distract-6x6-v0": {"Ask": (9.044, "cautious"),
                                             "Button": (8.057, "cautious"),
+                                            "Level": (9.044, "optimal")
                                             },
         "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (9.044, "cautious"),
                                                "Button": (8.413, "cautious"),
+                                               "Level": (9.044, "cautious"),
                                                },
         "Gridworld-Quicksand-Distract-4x4-v0": {"Ask": (9.135, "optimal"),
                                                 "Button": (8.483, "optimal"),
+                                                "Level": (9.135, "optimal"),
                                                 },
         }
 
