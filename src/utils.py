@@ -65,13 +65,13 @@ def report_river_swim(env):
         obs, _ = env.reset(seed=i)
         t = 0
         while True:
-            while obs["mon"] == 1:
-                a = {"env": 0, "mon": 0}
-                obs, r, term, trunc, _ = env.step(a)
-                ret_e += (0.99 ** t) * (r["env"] + r["mon"])
-                t += 1
+            # while obs["mon"] == 1:
+            #     a = {"env": 0, "mon": 0}
+            #     obs, r, term, trunc, _ = env.step(a)
+            #     ret_e += (0.99 ** t) * (r["env"] + r["mon"])
+            #     t += 1
 
-            a = {"env": 1, "mon": 0}
+            a = {"env": 1, "mon": 3}
             obs, r, term, trunc, _ = env.step(a)
             ret_e += (0.99 ** t) * (r["env"] + r["mon"])
             if term or trunc:

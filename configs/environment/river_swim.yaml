@@ -16,4 +16,4 @@ critic:
   joint_max_q: 300
   env_min_r: 0
   ucb_a: 0.05
-  ucb_b: 1.5
+  ucb_b: 0.09

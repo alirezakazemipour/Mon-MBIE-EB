@@ -1,6 +1,6 @@
 defaults:
-  - environment: two_room
-  - monitor: level
+  - environment: river_swim
+  - monitor: button
   - _self_
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
@@ -13,7 +13,7 @@ critic:
 
 experiment:
   datadir: null
-  rng_seed: 4
+  rng_seed: 17
   hide_progress_bar: False
 
 # This will prevent the creation of the 'output' and 'multirun' subfolders,
