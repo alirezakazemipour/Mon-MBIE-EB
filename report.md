@@ -55,3 +55,12 @@ commit: [c2f609d](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
     - commit: N/A
     - cluster: cedar
     - **conclusion**:
+
+# some findings:
+
+1. In simple monitors, knowing the monitor doesn't buy us that much but in complicated ones like `Level` it excels!
+2. We have the edge over Simone's in all scenarios.
+3. What I should show Mike:
+   1. My results in simple monitors with and without monitor's knowledge
+   2. Mine versus Simone's without the monitor's knowledge
+   3. Mine versus Simone's with the monitor's knowledge
