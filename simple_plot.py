@@ -22,11 +22,11 @@ n_runs = 30
 monitor = "Level", #"Button", "Ask",
 env = (
     "RiverSwim-6-v0",
-    # "Gridworld-Penalty-3x3-v0",
-    # "Gridworld-Corridor-3x4-v0",
-    # "Gridworld-Empty-Distract-6x6-v0",
-    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
-    # "Gridworld-Quicksand-Distract-4x4-v0",
+    "Gridworld-Penalty-3x3-v0",
+    "Gridworld-Corridor-3x4-v0",
+    "Gridworld-Empty-Distract-6x6-v0",
+    "Gridworld-TwoRoom-Quicksand-3x5-v0",
+    "Gridworld-Quicksand-Distract-4x4-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
 
@@ -76,7 +76,7 @@ for env, monitor in env_mon_combo:
         ref, opt_caut = info[env][monitor]
         runs = []
         for i in range(n_runs):
-            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_16.npz")["test_return"]
+            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             runs.append(x)
         # print(np.argmax(np.array(runs).sum(-1)))
         # exit()
@@ -114,8 +114,8 @@ for env, monitor in env_mon_combo:
     plt.xlabel("training steps (x100)", weight="bold", fontsize=18)
     ax.set_xticks(np.arange(0, len(mean_return) + 0.1, 50))
 
-    plt.show()
-    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
-    #             format="pdf",
-    #             bbox_inches="tight"
-    #             )
+    # plt.show()
+    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
+                format="pdf",
+                bbox_inches="tight"
+                )
