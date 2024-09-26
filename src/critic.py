@@ -291,6 +291,5 @@ class MonQCritic(Critic):
                         q[*s, *a] = max_q
                     else:
                         q[*s, *a] = rwd[*s, *a] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v) * (1 - term[se, ae])
-                        
                     v = jittable_joint_max(q)
         return q
