@@ -136,7 +136,7 @@ class MonQCritic(Critic):
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
                                             self.joint_act_space,
-                                            self.joint_q,
+                                            np.zeros_like(self.joint_q),
                                             self.joint_max_q,
                                             self.joint_count,
                                             env_rwd_model[:, None, :, None] + mon_rwd_bar[None, :, None, :],
