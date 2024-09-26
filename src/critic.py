@@ -249,7 +249,7 @@ class MonQCritic(Critic):
                     if env_visit[se, ae] == 0:
                         q[se, :, ae, :] = max_q
                     else:
-                        q[*s, *a] = (env_rwd[se, ae] + mon_rwd[*s, *a] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v)
+                        q[*s, *a] = (env_rwd[se, ae] + mon_rwd[sm, am] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v)
                                      * (1 - term[se, ae])
                                      )
                     v = jittable_joint_max(q)

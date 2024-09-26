@@ -186,7 +186,7 @@ def run(cfg: DictConfig) -> None:
             env_test.reset()
             for s in range(env.observation_space["env"].n):
                 for a in range(env.action_space["env"].n):
-                    state = {"env": s, "mon": 1}
+                    state = {"env": s, "mon": 0}
                     env_test.set_state(state)
                     act = {"env": a, "mon": 0}
                     ns, reward, terminated, *_ = env_test.step(act)
@@ -212,6 +212,43 @@ def run(cfg: DictConfig) -> None:
             for am in range(env.action_space["mon"].n - 1):
                 if sm != am:
                     mon_dynamics[:, sm, :, am, 0] = 1
+
+    if "N" in cfg.monitor.id:
+        mon_rwd_model = np.zeros((env.observation_space["env"].n *
+                                  env.observation_space["mon"].n *
+                                  env.action_space["env"].n,
+                                  env.action_space["mon"].n
+                                  )
+                                 )
+        monitor = np.zeros((env.observation_space["env"].n *
+                            env.observation_space["mon"].n *
+                            env.action_space["env"].n,
+                            env.action_space["mon"].n
+                            )
+                           )
+
+        mon_rwd_model = np.diag(np.diag(mon_rwd_model - 0.2 - 0.001)) + 0.001
+
+        monitor = np.diag(np.diag(monitor + cfg.monitor.prob))
+
+        if cfg.environment.monitor.forbidden_states is not None:
+            env_test.reset()
+            for s in range(env.observation_space["env"].n):
+                for a in range(env.action_space["env"].n):
+                    state = {"env": s, "mon": 0}
+                    env_test.set_state(state)
+                    act = {"env": a, "mon": 0}
+                    ns, *_ = env_test.step(act)
+                    if ns["env"] in cfg.environment.monitor.forbidden_states:
+                        monitor[s, :, a, :] = 0
+
+        mon_dynamics = np.ones((env.observation_space["env"].n,
+                                env.observation_space["mon"].n,
+                                env.action_space["env"].n,
+                                env.action_space["mon"].n,
+                                env.observation_space["mon"].n
+                                )
+                               ) / env.observation_space["mon"].n
 
     critic = MonQCritic(env.observation_space["env"].n,
                         env.observation_space["mon"].n,
