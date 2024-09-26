@@ -70,6 +70,8 @@ class MonQCritic(Critic):
         self.joint_act_space = list(itertools.product(range(self.env_num_act), range(self.mon_num_act)))
         self.env_obs_space = list(range(self.env_num_obs))
         self.env_act_space = list(range(self.env_num_act))
+        self.mon_obs_space = list(range(self.mon_num_obs))
+        self.mon_act_space = list(range(self.mon_num_act))
 
         self.env_r = None
         self.env_visit = None
@@ -101,7 +103,7 @@ class MonQCritic(Critic):
 
         self.env_visit[obs_env, act_env] += 1
         self.joint_count[obs_env, obs_mon, act_env, act_mon] += 1
-        self.mon_r[obs_env, obs_mon, act_env, act_mon] += rwd_mon
+        self.mon_r[obs_mon, act_mon] += rwd_mon
         self.joint_transit_count[obs_env, obs_mon, act_env, act_mon, next_obs_env, next_obs_mon] += 1
 
         if term:
@@ -119,13 +121,14 @@ class MonQCritic(Critic):
                                                   )
 
         mon_rwd_bar = self.mon_rwd_model
-        for s in self.joint_obs_space:
-            for a in self.joint_act_space:
-                if self.joint_count[*s, *a] != 0:
-                    t = self.joint_count[*s].sum()
+        cnt = self.joint_count.sum((0, 2))
+        for s in self.mon_obs_space:
+            for a in self.mon_act_space:
+                if cnt[s, a] != 0:
+                    t = cnt[s].sum()
                     f_t = f(t)
-                    ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
-                    mon_rwd_bar[*s, *a] += ucb
+                    ucb = self.b * math.sqrt(2 * math.log(f_t) / cnt[s, a])
+                    mon_rwd_bar[s, a] += ucb
 
         p_joint_bar = self.joint_dynamics
         joint_v = jittable_joint_max(self.joint_q)
@@ -133,12 +136,10 @@ class MonQCritic(Critic):
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
                                             self.joint_act_space,
-                                            self.env_visit,
                                             self.joint_q,
                                             self.joint_max_q,
                                             self.joint_count,
-                                            env_rwd_model,
-                                            mon_rwd_bar,
+                                            env_rwd_model[:, None, :, None] + mon_rwd_bar[None, :, None, :],
                                             self.gamma,
                                             p_joint_bar,
                                             joint_v,
@@ -152,7 +153,6 @@ class MonQCritic(Critic):
         #                                                     self.env_visit,
         #                                                     self.env_obsrv_count,
         #                                                     )
-
 
         # the following reward is more conservative than the base code because it checks all the joint state-action
         # pairs but is theoretically stronger that might not be obvious in our environments.
@@ -179,11 +179,9 @@ class MonQCritic(Critic):
         self.obsrv_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
                                             self.joint_act_space,
-                                            self.env_visit,
                                             np.zeros_like(self.obsrv_q),
                                             1 / (1 - self.gamma),
                                             self.joint_count,
-                                            np.zeros_like(self.env_rwd_model),
                                             mon_obsrv_rwd_bar,
                                             self.gamma,
                                             p_joint_bar,
@@ -196,7 +194,7 @@ class MonQCritic(Critic):
         self.env_visit = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_term = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_obsrv_count = np.zeros((self.env_num_obs, self.env_num_act))
-        self.mon_r = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
+        self.mon_r = np.zeros((self.mon_num_obs, self.mon_num_act))
         self.joint_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
         self.joint_obsrv_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
         self.joint_transit_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act,
@@ -220,7 +218,7 @@ class MonQCritic(Critic):
 
     @property
     def mon_rwd_model(self):
-        r = self.mon_r / (self.joint_count + 1e-4)
+        r = self.mon_r / (self.joint_count.sum((0, 2)) + 1e-4)
         return r
 
     @property
@@ -236,6 +234,7 @@ class MonQCritic(Critic):
     def monitor(self):
         m = self.joint_obsrv_count / (self.joint_count + 1e-4)
         return m
+
     @property
     def env_monitor(self):
         m = self.env_obsrv_count / (self.env_visit + 1e-4)
@@ -274,12 +273,10 @@ class MonQCritic(Critic):
     def value_iteration(num_iter,
                         obs_space,
                         act_space,
-                        env_visit,
                         q,
                         max_q,
                         joint_count,
-                        env_rwd,
-                        mon_rwd,
+                        rwd,
                         gamma,
                         p,
                         v,
@@ -290,13 +287,10 @@ class MonQCritic(Critic):
                 for a in act_space:
                     se, sm = s
                     ae, am = a
-                    if env_visit[se, ae] == 0:
-                        q[se, :, ae, :] = max_q
-                    elif joint_count[*s, *a] == 0:
+                    if joint_count[*s, *a] == 0:
                         q[*s, *a] = max_q
                     else:
-                        q[*s, *a] = (env_rwd[se, ae] + mon_rwd[*s, *a] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v)
-                                     * (1 - term[se, ae])
-                                     )
+                        q[*s, *a] = rwd[*s, *a] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v) * (1 - term[se, ae])
+                        
                     v = jittable_joint_max(q)
         return q
