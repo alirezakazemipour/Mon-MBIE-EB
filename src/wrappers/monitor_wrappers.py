@@ -352,7 +352,7 @@ class Level(Monitor):
         monitor_cost (float): cost for leveling up the monitor state.
     """
 
-    def __init__(self, env, n_levels=2, monitor_cost=0.2, **kwargs):
+    def __init__(self, env, n_levels=3, monitor_cost=0.2, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,

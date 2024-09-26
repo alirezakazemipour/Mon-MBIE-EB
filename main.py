@@ -1,12 +1,13 @@
 import gymnasium
 import hydra
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 import os
 import numpy as np
 from src.actor import Greedy
 from src.critic import MonQCritic
 from src.experiment import MonExperiment
 from src.wrappers import monitor_wrappers
+from src.utils import report_river_swim
 import pickle
 
 
@@ -22,31 +23,6 @@ def run(cfg: DictConfig) -> None:
                                                          test=True
                                                          )
 
-    # ret = []
-    # for i in tqdm(range(10000)):
-    #     np.random.seed(i)
-    #     ret_e = 0
-    #     obs, _ = env.reset(seed=i)
-    #     t = 0
-    #     while True:
-    #         # while obs["mon"] == 1:
-    #         #     a = {"env": 0, "mon": 0}
-    #         #     obs, r, term, trunc, _ = env.step(a)
-    #         #     ret_e += (0.99 ** t) * (r["env"] + r["mon"])
-    #         #     t += 1
-    #
-    #         a = {"env": 1, "mon": 0}
-    #         obs, r, term, trunc, _ = env.step(a)
-    #         ret_e += (0.99 ** t)*(r["env"] + r["mon"])
-    #         if term or trunc:
-    #             ret.append(ret_e)
-    #             break
-    #         t += 1
-    #
-    # print(np.mean(ret))
-    # print(np.std(ret))
-    # exit()
-
     critic = MonQCritic(env.observation_space["env"].n,
                         env.observation_space["mon"].n,
                         env.action_space["env"].n,
@@ -61,11 +37,15 @@ def run(cfg: DictConfig) -> None:
                                **{**cfg.environment.experiment, **cfg.experiment}
                                )
     data = experiment.train()
-    print(f"total episodes: {experiment.tot_episodes}")
-    print("visits:", critic.env_visit.astype(int))
-    print("observs:", critic.env_obsrv_count.astype(int))  # noqa
-    print("rwd model:", critic.env_rwd_model)
-    print("joint count: ", critic.joint_count[-1])
+    print(f"\ntotal episodes: {experiment.tot_episodes}")
+    print(f"\nexplore episodes: {experiment.explore_episodes}")
+    print("\nvisits:", critic.env_visit.astype(int))
+    print("\nobservs:", critic.env_obsrv_count.astype(int))  # noqa
+    print("\nrwd model:", critic.env_rwd_model)
+    # print("\njoint count: ", critic.joint_count[-1])
+    # print("\nmon rwd: ", critic.mon_rwd_model)
+    # print("\ndynamics: ", critic.joint_dynamics)
+
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,

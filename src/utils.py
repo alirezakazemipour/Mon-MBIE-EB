@@ -1,7 +1,8 @@
-import math
 from numba import jit
 import numpy as np
 import random
+import time
+from tqdm import tqdm
 
 
 def random_argmax(x, rng=np.random):
@@ -16,7 +17,7 @@ def random_argmax(x, rng=np.random):
 
 def random_argmin(x, rng=np.random):
     """
-    Simple random tiebreak for np.argmax() for when there are multiple max values.
+    Simple random tiebreak for np.argmin() for when there are multiple max values.
     """
 
     best = np.argwhere(x == x.min())
@@ -25,6 +26,7 @@ def random_argmin(x, rng=np.random):
 
 
 # https://en.wikipedia.org/wiki/Pairing_function
+@jit
 def cantor_pairing(x: int, y: int) -> int:
     """
     Cantor pairing function to uniquely encode two
@@ -55,20 +57,31 @@ def set_rng_seed(seed: int = None) -> None:
     random.seed(seed)
 
 
-def dict_to_id(d: dict) -> str:
-    """
-    Parse a dictionary and generate a unique id.
-    The id will have the initials of every key followed by its value.
-    Entries are separated by underscore.
+def report_river_swim(env):
+    ret = []
+    for i in tqdm(range(1000)):
+        np.random.seed(i)
+        ret_e = 0
+        obs, _ = env.reset(seed=i)
+        t = 0
+        while True:
+            # while obs["mon"] == 1:
+            #     a = {"env": 0, "mon": 0}
+            #     obs, r, term, trunc, _ = env.step(a)
+            #     ret_e += (0.99 ** t) * (r["env"] + r["mon"])
+            #     t += 1
 
-    Example:
-        d = {first_key: 0, some_key: True} -> fk0_skTrue
-    """
+            a = {"env": 1, "mon": 3}
+            obs, r, term, trunc, _ = env.step(a)
+            ret_e += (0.99 ** t) * (r["env"] + r["mon"])
+            if term or trunc:
+                ret.append(ret_e)
+                break
+            t += 1
 
-    def make_prefix(key: str) -> str:
-        return "".join(w[0] for w in key.split("_"))
-
-    return "_".join([f"{make_prefix(k)}{v}" for k, v in d.items()])
+    print(np.mean(ret))
+    print(np.mean(ret) - 1.96 * np.std(ret) / np.sqrt(1000))
+    exit()
 
 
 @jit
@@ -105,3 +118,28 @@ def kl_confidence(t, emp_mean, num_pulls, precision=1e-5, max_iter=50):
             lower_bound = q
         n += 1
     return (lower_bound + upper_bound) / 2.
+
+
+@jit
+def jittable_joint_max(a):
+    res = np.zeros(a.shape[:2])
+    for x in range(a.shape[0]):
+        for y in range(a.shape[1]):
+            res[x, y] = np.max(a[x, y])
+    return res
+
+
+if __name__ == "__main__":
+    x = np.random.normal(1, size=(36, 2, 5, 2))
+    r = np.max(x, axis=(-1, -2))
+    t = jittable_joint_max(x)
+
+    start = time.perf_counter()
+    r = np.max(x, axis=(-1, -2))
+    end = time.perf_counter()
+    print("Elapsed (after compilation) = {}s".format((end - start)))
+
+    start = time.perf_counter()
+    t = jittable_joint_max(x)
+    end = time.perf_counter()
+    print("Elapsed (after compilation) = {}s".format((end - start)))

@@ -1,123 +1,63 @@
-# Leveraging the presence of the monitor
+### Things to do
 
-A long description of this experiment.
+1. Apply changes:
+    1. ~~observation vs visitation bonus~~
+    2. ~~no bonus for minimum reward~~
+    3. ~~KLUCB over the monitor~~
+    4. ~~Per goal termination in exploration~~
+    5. ~~Natural environment termination during exploration~~
+2. ~~Experiments with known monitors~~
+3. Proofs
+    1. Does MBIE(explore) visit every (observable?) state-action pairs.
+    2. Does the MBIE(exploit) finds the optimal/cautious policy with there is some parts that don't have optimisim on
+       them?
+4. Posting the slides
 
-1. Why am I trying to leverage the existence of the monitor, and how?
-2. What are my goals?
-3. How does this tie into the larger project?
+### Base code
 
-**answers**:
+branch: `mbie_episode`
+commit: [c2f609d](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
 
-1. Because it can accelerate the learning of the agent. Meaning that the exploration would be done faster.
-    1. If the monitor was known, then the agent could have a more focused attempts i.e., forgoing the never-observable
-       state-action pairs and perseverance with respect to partially observable state-action pairs until its estimation
-       of the behavior of the monitor matches the prior information.
-2. My goal is to identify the behavior of the monitor before the learning wit respect to the system begins.
-3. By achieving this goal, we improve the sample efficiency of exploration in Mon-MDPs compared to the previous works.
+### Attempts
 
-## Hypothesis
+1. observation vs visitation bonus and no bonus for minimum reward
+    - branch: `mbie_episode`
+    - commit: [a8b5d2f](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+    - cluster: cedar
+    - **conclusion**: It's fine. Except in Distract + Button 10% that could be corrected by lowering beta.
 
-- What do I expect will happen?
-  What does success look like, and how do I measure that?
+2. Per goal termination in exploration
+    - branch: `mbie_episode`
+    - commit: [952167c](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+    - cluster: beluga
+    - **conclusion**: Was much worse than mine because it lingers on every state-action pairs in partially observable
+      cases. While mine plan the most collectively. However, asymptotically and theoretically is very strong. Maybe it's better to leave it off to the planner and use the natural
+      termination. Edit: Nope, mine is the right way!
 
-**answers**:
+3. KLUCB over the monitor
+    - branch: `mbie_episode`
+    - commit: [f6df8e7](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+    - cluster: graham
+    - **conclusion**: I need to ask Mike about it. Results are slower but much more on target because it checks every
+      joint pair. interesting! But it seems to be the right approach; consider a T-Maze that the agent always start the interaction with the button off and
+      the button is outside the hallway! Dependency on only environment pairs makes the hallway cells mistakenly
+      never-observable!
 
-- I expect that the agent has no uncertainty around the probability of seeing the reward at the end of exploration mode
-  so does have identified the monitor.
-- The success would be having an accurate estimate of the probabilities of monitor for each state-action pair.
-- I compare the observability probabilities with the ground truth priors
+4. Experiments with known monitors
+    - branch: `mbie_episode_known_monitor`
+    - commit: [35a0f42](https://github.com/alirezakazemipour/ofu/tree/mbie_episode_known_monitor)
+    - cluster: narval
+    - **conclusion**: Results are slower which is incompatible with the expectations! But, because the other error-prone
+      things, it's not reliable.
 
-## Open Questions
+5. Natural environment termination during exploration
+    - branch: N/A
+    - commit: N/A
+    - cluster: cedar
+    - **conclusion**: does not work! Use mine!
 
-1) When should the exploration-exploitation happen? $\log{t} / N \geq \beta$ where $t$ is the number of episodes and $N$
-   the number of exploration episodes?
-    1. should it be stepwise?
-    2. should it be with respect to the least observed pair?
-2) The agent can turn the monitor on but once it's on how does it help with identifying the monitor?
-
-## Follow-up Questions
-
-1) Is it enough to observe once and then switch or, we should observe at least a number of times?
-2) `Level` and `N` monitors showed that the planning takes exponential time. The only way was to reduce `n_monitor` and increase $\beta$
-
-## Trials
-
-### Failures
-
-#### Code:
-
-##### Date:   Sun Aug 11 11:05:32 2024 -0600
-
-- Short Hash: a3e9c0e
-
-| environment | monitor | obs prob | total episodes | exploration episodes | $\beta$ |
-|-------------|---------|----------|----------------|----------------------|---------|
-| grid_det    | Ask     | 0.6      | 401            | 6                    | 1       |
-| grid_det    | Ask     | 0.6      | 402            | 62                   | 0.1     |
-| grid_det    | Ask     | 0.6      | 402            | 401                  | 0.01    |
-
-##### Configs
-
-- gamma: 0.99
-- joint_max_q: 10
-- obsrv_max_q: 100
-- env_min_r: -10
-- mon_max_r: 0
-- ucb_re: 0.004
-- ucb_rm: 0.004
-- ucb_p: 0.004
-
-##### Outcome
-
-- $\beta = 1$
-  ![](trials/penalty_ask_0.6_beta_1.jpg)
-- $\beta = 0.1$
-  ![](trials/penalty_ask_0.6_beta_0.1.jpg)
-
-- $\beta = 0.01$
-  ![](trials/penalty_ask_0.6_beta_0.01.jpg)
-
-#### Conclusion
-
-1- $\beta = 0.1$ give a good balance for the exploration-exploitation balance.
-
-2- The code seems problematic because there are cells that the monitor is not identified well specifically, cells 0, 3,
-4 and 5.
-
-**Further Analysis on $\beta = 0.1$**
-![](trials/penalty_ask_0.6_beta_0.1_rwd_model.jpg)
-![](trials/penalty_ask_0.6_beta_0.1_ask_obsrv_value.jpg)
-![](trials/penalty_ask_0.6_beta_0.1_notask_obsrv_value.jpg)
-
-1. The difference between asking and not asking in terms of the values is just the monitor (observability) probability.
-   This sounds intuitive as the agent doesn't ask in a single timestep but asks afterward.
-    1. What seems problematic though is that why the value of asking is so high!? The max observability is just 0.6 so
-       the max value would $\frac{0.6}{1 - \gamma} = 60$
-    2. Is it because some state-action pairs are not visited even once and their observability value remains 100?
-
-**Further Analysis on $obsrv_max_q = 60$**
-![](trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_ask_obsrv_value.jpg)
-
-- The observability values change but overestimation is still there. There is definitely something wrong in the code.
-  Because the observability is just the function of initial values that I set. For example, the two middle cells are
-  never-observable so the actions leading to them should have 0 observability and as a result bringing down the
-  observability of their corresponding state, but that doesn't happen. **This is not true because of the max operator in
-  the TD update**.
-
-**Further Analysis Never-Observable State-Action Pairs**
-![](trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_right_action.jpg)
-![](trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_left_action.jpg)
-![](trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_down_action.jpg)
-![](trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_up_action.jpg)
-![](trials/penalty_ask_0.6_beta_0.1_q_obsrv_max_60_monitor_stay_action.jpg)
-
-##### Date:   Sun Aug 11 22:07:24 2024 -0600
-
-- Short Hash: 0f6c088
-
-With the current code the agent keeps the monitor on or asking, but why doesn't it explore randomly after that?
-
-
-### Success
-
-## Results
+6. Combination of above changes. (unknown monitor)
+    - branch: `mbie_episode`
+    - commit: [a222d5c](https://github.com/alirezakazemipour/ofu/tree/mbie_episode)
+    - cluster: graham
+    - **conclusion**:
