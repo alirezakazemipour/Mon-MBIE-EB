@@ -134,8 +134,7 @@ class MonQCritic(Critic):
                                             self.env_visit,
                                             self.joint_q,
                                             self.joint_max_q,
-                                            env_rwd_model,
-                                            self.mon_rwd_model,
+                                            env_rwd_model[:, None, :, None] + self.mon_rwd_model[None, :, None, :],
                                             self.gamma,
                                             p_joint_bar,
                                             joint_v,
@@ -167,8 +166,7 @@ class MonQCritic(Critic):
                                             self.env_visit,
                                             np.zeros_like(self.obsrv_q),
                                             1 / (1 - self.gamma),
-                                            env_obsrv_rwd_bar,
-                                            mon_obsrv_rwd_bar,
+                                            env_obsrv_rwd_bar[:, None, :, None] + mon_obsrv_rwd_bar,
                                             self.gamma,
                                             p_joint_bar,
                                             obsrv_v,
@@ -231,11 +229,10 @@ class MonQCritic(Critic):
     def value_iteration(num_iter,
                         obs_space,
                         act_space,
-                        env_visit,
+                        count,
                         q,
                         max_q,
-                        env_rwd,
-                        mon_rwd,
+                        rwd,
                         gamma,
                         p,
                         v,
@@ -246,11 +243,9 @@ class MonQCritic(Critic):
                 for a in act_space:
                     se, sm = s
                     ae, am = a
-                    if env_visit[se, ae] == 0:
+                    if count[se, ae] == 0:
                         q[se, :, ae, :] = max_q
                     else:
-                        q[*s, *a] = (env_rwd[se, ae] + mon_rwd[sm, am] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v)
-                                     * (1 - term[se, ae])
-                                     )
+                        q[*s, *a] = rwd[*s, *a] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v) * (1 - term[se, ae])
                     v = jittable_joint_max(q)
         return q
