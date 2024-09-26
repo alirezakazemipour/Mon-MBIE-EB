@@ -290,8 +290,9 @@ class N(Monitor):
         monitor_bonus (float): reward for not observing the reward.
     """
 
-    def __init__(self, env, n_monitors=3, monitor_cost=0.2, monitor_bonus=0.001, **kwargs):
+    def __init__(self, env, monitor_cost=0.2, monitor_bonus=0.001, **kwargs):
         Monitor.__init__(self, env, **kwargs)
+        n_monitors = 5
         self.action_space = spaces.Dict({
             "env": env.action_space,
             "mon": spaces.Discrete(n_monitors),
@@ -352,8 +353,9 @@ class Level(Monitor):
         monitor_cost (float): cost for leveling up the monitor state.
     """
 
-    def __init__(self, env, n_levels=3, monitor_cost=0.2, **kwargs):
+    def __init__(self, env, monitor_cost=0.2, **kwargs):
         Monitor.__init__(self, env, **kwargs)
+        n_levels = kwargs["n_levels"]
         self.action_space = spaces.Dict({
             "env": env.action_space,
             "mon": spaces.Discrete(n_levels + 1),  # last action is "do nothing"
