@@ -132,7 +132,7 @@ class MonQCritic(Critic):
                                             self.joint_obs_space,
                                             self.joint_act_space,
                                             self.env_visit,
-                                            self.joint_q,
+                                            np.zeros_like(self.joint_q),
                                             self.joint_max_q,
                                             env_rwd_model[:, None, :, None] + self.mon_rwd_model[None, :, None, :],
                                             self.gamma,
