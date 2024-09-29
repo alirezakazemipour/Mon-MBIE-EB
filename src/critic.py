@@ -127,8 +127,17 @@ class MonQCritic(Critic):
                 if cnt[s, a] != 0:
                     t = cnt[s].sum()
                     f_t = f(t)
-                    ucb = self.b * math.sqrt(2 * math.log(f_t) / cnt[s, a])
+                    ucb = self.a * math.sqrt(2 * math.log(f_t) / cnt[s, a])
                     mon_rwd_bar[s, a] += ucb
+
+        opt4transit = np.zeros_like(self.monitor)
+        for s in self.joint_obs_space:
+            for a in self.joint_act_space:
+                if self.joint_count[*s, *a] != 0:
+                    t = self.joint_count[*s].sum()
+                    f_t = f(t)
+                    ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
+                    opt4transit[*s, *a] += ucb
 
         p_joint_bar = self.joint_dynamics
         joint_v = jittable_joint_max(self.joint_q)
@@ -139,7 +148,8 @@ class MonQCritic(Critic):
                                             np.zeros_like(self.joint_q),
                                             self.joint_max_q,
                                             self.joint_count,
-                                            env_rwd_model[:, None, :, None] + mon_rwd_bar[None, :, None, :],
+                                            env_rwd_model[:, None, :, None] + mon_rwd_bar[None, :, None, :] +
+                                            opt4transit,
                                             self.gamma,
                                             p_joint_bar,
                                             joint_v,
