@@ -53,7 +53,6 @@ class MonExperiment:
         self.rng_seed = rng_seed
         self.hide_progress_bar = hide_progress_bar
         self.tot_episodes = None
-        self.cnt = None
         self.explore_episodes = None
 
     def train(self):
@@ -63,7 +62,6 @@ class MonExperiment:
 
         tot_steps = 0
         self.tot_episodes = 0
-        self.cnt = 1
         self.explore_episodes = 0
         last_ep_return_env = np.nan
         last_ep_return_mon = np.nan
@@ -84,14 +82,12 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
 
             self.critic.opt_pess_mbie(rng)  # off-policy; can be updated every episode!
+            explore = False
             ################
-            if math.log(self.tot_episodes + 1e-4, self.beta) > self.cnt:
-                self.cnt += 1
+            if math.log(self.tot_episodes + 1e-4, self.beta) > self.explore_episodes:
                 explore = True
                 self.explore_episodes += 1
                 self.critic.obsrv_mbie(rng)
-            else:
-                explore = False
             ################
 
             obs, _ = self.env.reset(seed=ep_seed)
@@ -181,6 +177,8 @@ class MonExperiment:
             while True:
                 act = self.actor(obs["env"], obs["mon"], False, rng)
                 act = {"env": act[0], "mon": act[1]}
+                if act["mon"] == 1:
+                    rr = 90
                 next_obs, rwd, term, trunc, info = self.env_test.step(act)
                 ep_return_env[ep] += (self.gamma ** ep_steps) * rwd["env"]
                 ep_return_mon[ep] += (self.gamma ** ep_steps) * rwd["mon"]

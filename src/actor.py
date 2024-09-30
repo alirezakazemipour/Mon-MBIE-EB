@@ -27,10 +27,9 @@ class Actor(ABC):
         """
         if explore:
             q = self.critic.obsrv_q[obs_env, obs_mon]
-            return tuple(random_argmax(q, rng))
         else:
             q = self.critic.joint_q[obs_env, obs_mon]
-            return tuple(random_argmax(q, rng))
+        return tuple(random_argmax(q, rng))
 
     @abstractmethod
     def update(self):

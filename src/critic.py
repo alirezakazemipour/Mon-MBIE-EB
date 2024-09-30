@@ -114,28 +114,28 @@ class MonQCritic(Critic):
 
     def opt_pess_mbie(self, rng):  # noqa
 
-        env_rwd_model = self.update_rwd_model(self.env_obs_space,
-                                              self.env_act_space,
-                                              self.env_obsrv_count,
-                                              self.env_rwd_model,
-                                              self.a
-                                              )
+        env_rwd = self.update_rwd_model(self.env_obs_space,
+                                        self.env_act_space,
+                                        self.env_obsrv_count,
+                                        self.env_rwd_model,
+                                        self.a
+                                        )
 
-        mon_rwd_bar = self.update_rwd_model(self.mon_obs_space,
-                                            self.mon_act_space,
-                                            self.joint_count.sum((0, 2)),
-                                            self.mon_rwd_model,
-                                            self.b
-                                            )
+        mon_rwd = self.update_rwd_model(self.mon_obs_space,
+                                        self.mon_act_space,
+                                        self.joint_count.sum((0, 2)),
+                                        self.mon_rwd_model,
+                                        self.b
+                                        )
 
-        opt4transit = np.zeros_like(self.monitor)
+        ucb4transit = np.zeros_like(self.monitor)
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
                     t = self.joint_count[*s].sum()
                     f_t = f(t)
                     ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
-                    opt4transit[*s, *a] += ucb
+                    ucb4transit[*s, *a] += ucb
 
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
@@ -143,8 +143,7 @@ class MonQCritic(Critic):
                                             np.zeros_like(self.joint_q),
                                             self.joint_max_q,
                                             self.joint_count,
-                                            env_rwd_model[:, None, :, None] + mon_rwd_bar[None, :, None, :] +
-                                            opt4transit,
+                                            env_rwd[:, None, :, None] + mon_rwd[None, :, None, :] + ucb4transit,
                                             self.gamma,
                                             self.joint_dynamics,
                                             np.zeros((self.env_num_obs, self.mon_num_obs)),
@@ -152,15 +151,6 @@ class MonQCritic(Critic):
                                             )
 
     def obsrv_mbie(self, rng):  # noqa
-        # env_obsrv_rwd_bar = self.update_env_obsrv_rwd_model(self.env_obsrv_rwd_model,
-        #                                                     self.env_obs_space,
-        #                                                     self.env_act_space,
-        #                                                     self.env_visit,
-        #                                                     self.env_obsrv_count,
-        #                                                     )
-
-        # the following reward is more conservative than the base code because it checks all the joint state-action
-        # pairs but is theoretically stronger that might not be obvious in our environments.
         mon_obsrv_rwd_bar = np.zeros_like(self.monitor)
         for s in self.joint_obs_space:
             for a in self.joint_act_space:
@@ -204,7 +194,7 @@ class MonQCritic(Critic):
         self.joint_q = np.ones(
             (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q
         self.obsrv_q = np.ones(
-            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * 1 / (1  - self.gamma)
+            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * 1 / (1 - self.gamma)
 
     @property
     def env_rwd_model(self):
@@ -215,17 +205,17 @@ class MonQCritic(Critic):
 
     @property
     def mon_rwd_model(self):
-        r = self.mon_r / (self.joint_count.sum((0, 2)) + 1e-4)
+        r = self.mon_r / (self.joint_count.sum((0, 2)) + 1e-6)
         return r
 
     @property
     def joint_dynamics(self):
-        p_joint = self.joint_transit_count / (self.joint_count[..., None, None] + 1e-4)
+        p_joint = self.joint_transit_count / (self.joint_count[..., None, None] + 1e-6)
         return p_joint
 
     @property
     def monitor(self):
-        m = self.joint_obsrv_count / (self.joint_count + 1e-4)
+        m = self.joint_obsrv_count / (self.joint_count + 1e-6)
         return m
 
     @staticmethod
