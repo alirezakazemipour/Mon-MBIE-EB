@@ -124,7 +124,7 @@ class MonQCritic(Critic):
                                                   )
 
         p_joint_bar = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
-        joint_v = jittable_joint_max(self.joint_q)
+        joint_v = np.zeros((self.env_num_obs, self.mon_num_obs))
 
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,

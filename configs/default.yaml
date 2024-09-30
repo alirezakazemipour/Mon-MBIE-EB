@@ -9,7 +9,7 @@ environment:
   render_mode: null
 
 critic:
-    vi_iter: 50
+    vi_iter: 200
 
 experiment:
   datadir: null
