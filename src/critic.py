@@ -60,6 +60,7 @@ class MonQCritic(Critic):
         self.env_min_r = kwargs["env_min_r"]
         self.a = kwargs["ucb_a"]
         self.b = kwargs["ucb_b"]
+        self.c = kwargs["ucb_c"]
         self.vi_iter = kwargs["vi_iter"]
 
         self.env_num_obs = env_num_obs
@@ -113,22 +114,19 @@ class MonQCritic(Critic):
 
     def opt_pess_mbie(self, rng):  # noqa
 
-        env_rwd_model = self.update_env_rwd_model(self.env_obs_space,
-                                                  self.env_act_space,
-                                                  self.env_obsrv_count,
-                                                  self.env_rwd_model,
-                                                  self.a
-                                                  )
+        env_rwd_model = self.update_rwd_model(self.env_obs_space,
+                                              self.env_act_space,
+                                              self.env_obsrv_count,
+                                              self.env_rwd_model,
+                                              self.a
+                                              )
 
-        mon_rwd_bar = self.mon_rwd_model
-        cnt = self.joint_count.sum((0, 2))
-        for s in self.mon_obs_space:
-            for a in self.mon_act_space:
-                if cnt[s, a] != 0:
-                    t = cnt[s].sum()
-                    f_t = f(t)
-                    ucb = self.a * math.sqrt(2 * math.log(f_t) / cnt[s, a])
-                    mon_rwd_bar[s, a] += ucb
+        mon_rwd_bar = self.update_rwd_model(self.mon_obs_space,
+                                            self.mon_act_space,
+                                            self.joint_count.sum((0, 2)),
+                                            self.mon_rwd_model,
+                                            self.b
+                                            )
 
         opt4transit = np.zeros_like(self.monitor)
         for s in self.joint_obs_space:
@@ -136,11 +134,11 @@ class MonQCritic(Critic):
                 if self.joint_count[*s, *a] != 0:
                     t = self.joint_count[*s].sum()
                     f_t = f(t)
-                    ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
+                    ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
                     opt4transit[*s, *a] += ucb
 
         p_joint_bar = self.joint_dynamics
-        joint_v = jittable_joint_max(self.joint_q)
+        joint_v = np.zeros((self.env_num_obs, self.mon_num_obs))
 
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
@@ -180,7 +178,7 @@ class MonQCritic(Critic):
                                                                   )
                     # optimism for transitions
                     f_t = f(t)
-                    ucb = self.b * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
+                    ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
                     mon_obsrv_rwd_bar[*s, *a] += ucb
 
         p_joint_bar = self.joint_dynamics
@@ -222,11 +220,6 @@ class MonQCritic(Critic):
         return r
 
     @property
-    def env_obsrv_rwd_model(self):
-        r = self.env_r / (self.env_obsrv_count + 1e-4)
-        return r
-
-    @property
     def mon_rwd_model(self):
         r = self.mon_r / (self.joint_count.sum((0, 2)) + 1e-4)
         return r
@@ -237,67 +230,42 @@ class MonQCritic(Critic):
         return p_joint
 
     @property
-    def joint_num_obs(self):
-        return self.env_num_obs * self.mon_num_obs
-
-    @property
     def monitor(self):
         m = self.joint_obsrv_count / (self.joint_count + 1e-4)
         return m
 
-    @property
-    def env_monitor(self):
-        m = self.env_obsrv_count / (self.env_visit + 1e-4)
-        return m
-
     @staticmethod
     @jit
-    def update_env_rwd_model(env_obs_space, env_act_space, count, env_rwd_model, a0):
-        for s in env_obs_space:
-            for a in env_act_space:
+    def update_rwd_model(obs_space, act_space, count, rwd_model, a0):
+        for s in obs_space:
+            for a in act_space:
                 if count[s, a] != 0:
                     t = count[s].sum()
                     f_t = f(t)
                     ucb = a0 * np.sqrt(2 * np.log(f_t) / count[s, a])
-                    env_rwd_model[s, a] += ucb
-        return env_rwd_model
+                    rwd_model[s, a] += ucb
+        return rwd_model
 
     @staticmethod
     @jit
-    def update_env_obsrv_rwd_model(model, obs_space, act_space, visit_count, obsrv_count):
-        env_obsrv_rwd_bar = np.zeros_like(model)
-        for s in obs_space:
-            for a in act_space:
-                if visit_count[s, a] != 0:
-                    if obsrv_count[s, a] == 0:
-                        t = visit_count[s].sum(-1)
-                        env_obsrv_rwd_bar[s, a] = kl_confidence(t,
-                                                                0,
-                                                                visit_count[s, a]
-                                                                )
-
-        return env_obsrv_rwd_bar
-
-    @staticmethod
-    @jit
-    def value_iteration(num_iter,
+    def value_iteration(n_iter,
                         obs_space,
                         act_space,
                         q,
                         max_q,
-                        joint_count,
+                        count,
                         rwd,
                         gamma,
                         p,
                         v,
                         term
                         ):
-        for _ in range(num_iter):
+        for _ in range(n_iter):
             for s in obs_space:
                 for a in act_space:
                     se, sm = s
                     ae, am = a
-                    if joint_count[*s, *a] == 0:
+                    if count[*s, *a] == 0:
                         q[*s, *a] = max_q
                     else:
                         q[*s, *a] = rwd[*s, *a] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v) * (1 - term[se, ae])

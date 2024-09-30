@@ -16,7 +16,7 @@ plt.rc('xtick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('legend', fontsize=17)  # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)
-plt.title(f"EOP", weight="bold")
+# plt.title(f"EOP", weight="bold")
 
 n_runs = 30
 monitor = "Ask",  "Level", "N", "Button"
@@ -69,10 +69,10 @@ for env, monitor in env_mon_combo:
     algos = [
         (f"{monitor}_1.0", "blue", "100%"),
         # (f"{monitor}_0.75", "red", "75%"),
-        # (f"{monitor}_0.5", "green", "50%"),
+        (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
-        # (f"{monitor}_0.1", "brown", "10%"),
-        # (f"{monitor}_0.01", "magenta", "1%")
+        (f"{monitor}_0.1", "brown", "10%"),
+        (f"{monitor}_0.01", "magenta", "1%")
     ]
 
     assert n_runs == 30
@@ -82,7 +82,7 @@ for env, monitor in env_mon_combo:
         ref, opt_caut = info[env][monitor]
         runs = []
         for i in range(n_runs):
-            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_20.npz")["test_return"]
             runs.append(x)
         # print(np.argmin(np.array(runs).sum(-1)))
         # exit()
@@ -116,13 +116,13 @@ for env, monitor in env_mon_combo:
     ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
     ax.xaxis.set_tick_params(labelsize=20)
     ax.yaxis.set_tick_params(labelsize=20)
-    plt.title(f"{monitor}")
+    plt.title(f"{env}_{monitor}")
     plt.xlabel("training steps (x100)", weight="bold", fontsize=18)
     ax.set_xticks(np.arange(0, len(mean_return) + 0.1, 50))
 
-    # plt.show()
-    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
-                format="pdf",
-                bbox_inches="tight"
-                )
+    plt.show()
+    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
+    #             format="pdf",
+    #             bbox_inches="tight"
+    #             )
     plt.close()
