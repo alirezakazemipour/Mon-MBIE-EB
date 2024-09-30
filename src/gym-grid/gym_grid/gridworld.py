@@ -559,12 +559,12 @@ class RiverSwim(Gridworld):
     def __init__(self, **kwargs):
         Gridworld.__init__(self, **kwargs)
         self.grid[0] = 0.01  # we use self.grid for rendering
-        self.grid[-1] = 1.0
+        self.grid[-1] = 10.0
         self.action_space = gym.spaces.Discrete(2)  # only LEFT and RIGHT
 
     def _reset(self, seed: int = None, **kwargs):
         Gridworld._reset(self, seed=seed, **kwargs)
-        self.agent_pos = (0, self.np_random.integers(1, 3))  # init either in 2nd or 3rd cell
+        self.agent_pos = (0, self.np_random.integers(1, 3))  # init either in the 2nd or the 3rd cell
         return self.get_state(), {}
 
     def _step(self, action: int):

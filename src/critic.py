@@ -97,6 +97,8 @@ class MonQCritic(Critic):
                next_obs_env,
                next_obs_mon,
                ):
+        if act_mon == 1:
+            dd = 90
         if not np.isnan(rwd_proxy):
             self.env_obsrv_count[obs_env, act_env] += 1
             self.env_r[obs_env, act_env] += rwd_env
@@ -130,10 +132,10 @@ class MonQCritic(Critic):
 
         ucb4transit = np.zeros_like(self.monitor)
         for s in self.joint_obs_space:
+            t = self.joint_count[*s].sum()
+            f_t = f(t)
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    t = self.joint_count[*s].sum()
-                    f_t = f(t)
                     ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
                     ucb4transit[*s, *a] += ucb
 
@@ -153,18 +155,18 @@ class MonQCritic(Critic):
     def obsrv_mbie(self, rng):  # noqa
         mon_obsrv_rwd_bar = np.zeros_like(self.monitor)
         for s in self.joint_obs_space:
+            t = self.joint_count[*s].sum()
+            f_t = f(t)
             for a in self.joint_act_space:
                 se, sm = s
                 ae, am = a
                 if self.joint_count[*s, *a] != 0:
-                    t = self.joint_count[*s].sum()
                     if self.env_obsrv_count[se, ae] == 0:
                         mon_obsrv_rwd_bar[*s, *a] = kl_confidence(t,
                                                                   0,
                                                                   self.joint_count[*s, *a]
                                                                   )
                     # optimism for transitions
-                    f_t = f(t)
                     ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
                     mon_obsrv_rwd_bar[*s, *a] += ucb
 
@@ -222,10 +224,10 @@ class MonQCritic(Critic):
     @jit
     def update_rwd_model(obs_space, act_space, count, rwd_model, a0):
         for s in obs_space:
+            t = count[s].sum()
+            f_t = f(t)
             for a in act_space:
                 if count[s, a] != 0:
-                    t = count[s].sum()
-                    f_t = f(t)
                     ucb = a0 * np.sqrt(2 * np.log(f_t) / count[s, a])
                     rwd_model[s, a] += ucb
         return rwd_model

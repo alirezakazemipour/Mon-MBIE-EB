@@ -18,7 +18,7 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)
 # plt.title(f"EOP", weight="bold")
 
-n_runs = 30
+n_runs = 5
 monitor = "Ask",  "Level", "N", "Button"
 env = (
     "RiverSwim-6-v0",
@@ -30,7 +30,7 @@ env = (
 )
 env_mon_combo = itertools.product(env, monitor)
 
-info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
+info = {"RiverSwim-6-v0": {"Ask": (76.21, "optimal"),
                            "Button": (192.72, "optimal"),
                            "Level": (199.14, "optimal"),
                            "N": (199.14, "optimal"),
@@ -69,20 +69,20 @@ for env, monitor in env_mon_combo:
     algos = [
         (f"{monitor}_1.0", "blue", "100%"),
         # (f"{monitor}_0.75", "red", "75%"),
-        (f"{monitor}_0.5", "green", "50%"),
+        # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
-        (f"{monitor}_0.1", "brown", "10%"),
-        (f"{monitor}_0.01", "magenta", "1%")
+        # (f"{monitor}_0.1", "brown", "10%"),
+        # (f"{monitor}_0.01", "magenta", "1%")
     ]
 
-    assert n_runs == 30
+    assert n_runs == 5
 
     for conf in algos:
         algo, color, legend = conf
         ref, opt_caut = info[env][monitor]
         runs = []
         for i in range(n_runs):
-            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_20.npz")["test_return"]
+            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             runs.append(x)
         # print(np.argmin(np.array(runs).sum(-1)))
         # exit()

@@ -9,7 +9,7 @@ monitor:
 experiment:
   training_steps: 20000
   testing_episodes: 100
-  testing_frequency: 100
+  testing_frequency: 1000
   beta: 1.025
 
 critic:
@@ -18,3 +18,4 @@ critic:
   env_min_r: -10
   ucb_a: 0.004
   ucb_b: 0.004
+  ucb_c: 0.004

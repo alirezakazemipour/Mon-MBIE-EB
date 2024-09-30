@@ -19,3 +19,4 @@ critic:
   env_min_r: -10
   ucb_a: 0.004
   ucb_b: 0.004
+  ucb_c: 0.004

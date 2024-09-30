@@ -59,7 +59,7 @@ def set_rng_seed(seed: int = None) -> None:
 
 def report_river_swim(env):
     ret = []
-    for i in tqdm(range(1000)):
+    for i in tqdm(range(100)):
         np.random.seed(i)
         ret_e = 0
         obs, _ = env.reset(seed=i)
@@ -71,7 +71,7 @@ def report_river_swim(env):
             #     ret_e += (0.99 ** t) * (r["env"] + r["mon"])
             #     t += 1
 
-            a = {"env": 1, "mon": 3}
+            a = {"env": 1, "mon": 0}
             obs, r, term, trunc, _ = env.step(a)
             ret_e += (0.99 ** t) * (r["env"] + r["mon"])
             if term or trunc:
@@ -80,7 +80,7 @@ def report_river_swim(env):
             t += 1
 
     print(np.mean(ret))
-    print(np.mean(ret) - 1.96 * np.std(ret) / np.sqrt(1000))
+    print(np.mean(ret) - 1.96 * np.std(ret) / np.sqrt(100))
     exit()
 
 

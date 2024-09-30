@@ -3,9 +3,9 @@
 _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
 max_batch_size: null
 params:
-  environment: distract, grid_det, hazard, oneway, river_swim, two_room
+  environment: river_swim
   experiment.hide_progress_bar: True
   experiment.datadir: data
-  experiment.rng_seed: range(0, 30)
-  monitor: ask, button, level, n
-  monitor.prob: 1.00, 0.50, 0.10, 0.01
+  experiment.rng_seed: range(0, 5)
+  monitor: ask, button
+  monitor.prob: 1.00
