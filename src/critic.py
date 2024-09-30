@@ -137,9 +137,6 @@ class MonQCritic(Critic):
                     ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
                     opt4transit[*s, *a] += ucb
 
-        p_joint_bar = self.joint_dynamics
-        joint_v = np.zeros((self.env_num_obs, self.mon_num_obs))
-
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
                                             self.joint_act_space,
@@ -149,8 +146,8 @@ class MonQCritic(Critic):
                                             env_rwd_model[:, None, :, None] + mon_rwd_bar[None, :, None, :] +
                                             opt4transit,
                                             self.gamma,
-                                            p_joint_bar,
-                                            joint_v,
+                                            self.joint_dynamics,
+                                            np.zeros((self.env_num_obs, self.mon_num_obs)),
                                             self.env_term
                                             )
 
@@ -181,9 +178,6 @@ class MonQCritic(Critic):
                     ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
                     mon_obsrv_rwd_bar[*s, *a] += ucb
 
-        p_joint_bar = self.joint_dynamics
-        obsrv_v = np.zeros((self.env_num_obs, self.mon_num_obs))
-
         self.obsrv_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
                                             self.joint_act_space,
@@ -192,8 +186,8 @@ class MonQCritic(Critic):
                                             self.joint_count,
                                             mon_obsrv_rwd_bar,
                                             self.gamma,
-                                            p_joint_bar,
-                                            obsrv_v,
+                                            self.joint_dynamics,
+                                            np.zeros((self.env_num_obs, self.mon_num_obs)),
                                             np.zeros_like(self.env_term)  # Discuss with Mike to conclude
                                             )
 
@@ -210,7 +204,7 @@ class MonQCritic(Critic):
         self.joint_q = np.ones(
             (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q
         self.obsrv_q = np.ones(
-            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q
+            (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * 1 / (1  - self.gamma)
 
     @property
     def env_rwd_model(self):
