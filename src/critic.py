@@ -124,18 +124,17 @@ class MonQCritic(Critic):
                                                   )
 
         p_joint_bar = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
-        joint_v = np.zeros((self.env_num_obs, self.mon_num_obs))
 
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
                                             self.joint_act_space,
                                             self.env_visit,
-                                            np.zeros_like(self.joint_q),
+                                            self.joint_q,
                                             self.joint_max_q,
                                             env_rwd_model[:, None, :, None] + self.mon_rwd_model[None, :, None, :],
                                             self.gamma,
                                             p_joint_bar,
-                                            joint_v,
+                                            jittable_joint_max(self.joint_q),
                                             self.env_term
                                             )
 
@@ -156,18 +155,17 @@ class MonQCritic(Critic):
                                                         )
 
         p_joint_bar = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
-        obsrv_v = np.zeros((self.env_num_obs, self.mon_num_obs))
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
                                             self.joint_act_space,
                                             self.env_visit,
-                                            np.zeros_like(self.obsrv_q),
+                                            self.obsrv_q,
                                             1 / (1 - self.gamma),
                                             env_obsrv_rwd_bar[:, None, :, None] + mon_obsrv_rwd_bar,
                                             self.gamma,
                                             p_joint_bar,
-                                            obsrv_v,
+                                            jittable_joint_max(self.obsrv_q),
                                             np.zeros_like(self.env_term)
                                             )
 
