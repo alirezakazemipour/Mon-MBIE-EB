@@ -49,7 +49,7 @@ def run(cfg: DictConfig) -> None:
     # print("\njoint count: ", critic.joint_count[-1])
     # print("\nmon rwd: ", critic.mon_rwd_model)
     # print("\ndynamics: ", critic.joint_dynamics)
-    print(critic.joint_q)
+    # print(critic.joint_q)
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,

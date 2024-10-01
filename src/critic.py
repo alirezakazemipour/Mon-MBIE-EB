@@ -142,13 +142,13 @@ class MonQCritic(Critic):
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
                                             self.joint_act_space,
-                                            np.zeros_like(self.joint_q),
+                                            self.joint_q,
                                             self.joint_max_q,
                                             self.joint_count,
                                             env_rwd[:, None, :, None] + mon_rwd[None, :, None, :] + ucb4transit,
                                             self.gamma,
                                             self.joint_dynamics,
-                                            np.zeros((self.env_num_obs, self.mon_num_obs)),
+                                            jittable_joint_max(self.joint_q),
                                             self.env_term
                                             )
 
@@ -173,13 +173,13 @@ class MonQCritic(Critic):
         self.obsrv_q = self.value_iteration(self.vi_iter,
                                             self.joint_obs_space,
                                             self.joint_act_space,
-                                            np.zeros_like(self.obsrv_q),
+                                            self.obsrv_q,
                                             1 / (1 - self.gamma),
                                             self.joint_count,
                                             mon_obsrv_rwd_bar,
                                             self.gamma,
                                             self.joint_dynamics,
-                                            np.zeros((self.env_num_obs, self.mon_num_obs)),
+                                            jittable_joint_max(self.obsrv_q),
                                             np.zeros_like(self.env_term)  # Discuss with Mike to conclude
                                             )
 
