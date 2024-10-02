@@ -18,19 +18,19 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 plt.rc('figure', titlesize=BIGGER_SIZE)
 # plt.title(f"EOP", weight="bold")
 
-n_runs = 5
-monitor = "Ask",  "Level", "N", "Button"
+n_runs = 30
+monitor = "Level", "Level", "N", "Button"
 env = (
-    "RiverSwim-6-v0",
-    "Gridworld-Penalty-3x3-v0",
-    "Gridworld-Corridor-3x4-v0",
-    "Gridworld-Empty-Distract-6x6-v0",
-    "Gridworld-TwoRoom-Quicksand-3x5-v0",
+    # "RiverSwim-6-v0",
+    # "Gridworld-Penalty-3x3-v0",
+    # "Gridworld-Corridor-3x4-v0",
+    # "Gridworld-Empty-Distract-6x6-v0",
+    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
     "Gridworld-Quicksand-Distract-4x4-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
 
-info = {"RiverSwim-6-v0": {"Ask": (76.21, "optimal"),
+info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
                            "Button": (192.72, "optimal"),
                            "Level": (199.14, "optimal"),
                            "N": (199.14, "optimal"),
@@ -67,15 +67,15 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}_1.0", "blue", "100%"),
+        # (f"{monitor}_1.0", "blue", "100%"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
-        # (f"{monitor}_0.1", "brown", "10%"),
+        (f"{monitor}_0.1", "brown", "10%"),
         # (f"{monitor}_0.01", "magenta", "1%")
     ]
 
-    assert n_runs == 5
+    assert n_runs == 30
 
     for conf in algos:
         algo, color, legend = conf
@@ -84,8 +84,8 @@ for env, monitor in env_mon_combo:
         for i in range(n_runs):
             x = np.load(f"data/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             runs.append(x)
-        # print(np.argmin(np.array(runs).sum(-1)))
-        # exit()
+        print(np.argmin(np.array(runs).sum(-1)))
+        exit()
         smoothed = []
         for run in runs:
             val = [run[0]]
