@@ -123,17 +123,16 @@ class MonQCritic(Critic):
                                                   self.b
                                                   )
 
-        p_joint_bar = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
+        p = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
 
         self.joint_q = self.value_iteration(self.vi_iter,
-                                            self.joint_obs_space,
-                                            self.joint_act_space,
-                                            self.env_visit,
                                             self.joint_q,
                                             self.joint_max_q,
+                                            np.broadcast_to(self.env_visit[:, None, :, None],
+                                                            self.joint_q.shape).flatten(),
                                             env_rwd_model[:, None, :, None] + self.mon_rwd_model[None, :, None, :],
                                             self.gamma,
-                                            p_joint_bar,
+                                            p.reshape(-1, self.env_num_obs * self.mon_num_obs),
                                             jittable_joint_max(self.joint_q),
                                             self.env_term
                                             )
@@ -154,17 +153,16 @@ class MonQCritic(Critic):
                                                         self.monitor,
                                                         )
 
-        p_joint_bar = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
+        p = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
-                                            self.joint_obs_space,
-                                            self.joint_act_space,
-                                            self.env_visit,
                                             self.obsrv_q,
                                             1 / (1 - self.gamma),
+                                            np.broadcast_to(self.env_visit[:, None, :, None],
+                                                            self.joint_q.shape).flatten(),
                                             env_obsrv_rwd_bar[:, None, :, None] + mon_obsrv_rwd_bar,
                                             self.gamma,
-                                            p_joint_bar,
+                                            p.reshape(-1, self.env_num_obs * self.mon_num_obs),
                                             jittable_joint_max(self.obsrv_q),
                                             np.zeros_like(self.env_term)
                                             )
@@ -222,26 +220,25 @@ class MonQCritic(Critic):
 
     @staticmethod
     @jit
-    def value_iteration(num_iter,
-                        obs_space,
-                        act_space,
-                        count,
+    def value_iteration(n_iter,
                         q,
                         max_q,
+                        count,
                         rwd,
                         gamma,
                         p,
                         v,
                         term
                         ):
-        for _ in range(num_iter):
-            for s in obs_space:
-                for a in act_space:
-                    se, sm = s
-                    ae, am = a
-                    if count[se, ae] == 0:
-                        q[se, :, ae, :] = max_q
-                    else:
-                        q[*s, *a] = rwd[*s, *a] + gamma * np.ravel(p[*s, *a]).T @ np.ravel(v) * (1 - term[se, ae])
-                    v = jittable_joint_max(q)
+        """
+        Asynchronous value iteration
+        """
+        for _ in range(n_iter):
+            z = p @ np.ravel(v).T
+            z = z.reshape(rwd.shape)
+            q = rwd + gamma * z * (1 - term[:, None, :, None])
+            q = q.flatten()
+            q[count == 0] = max_q
+            q = q.reshape(rwd.shape)
+            v = jittable_joint_max(q)
         return q
