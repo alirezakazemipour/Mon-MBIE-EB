@@ -19,14 +19,14 @@ plt.rc('figure', titlesize=BIGGER_SIZE)
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Ask", "Level", "N", "Ask"
+monitor = "N", "Ask", "N", "Level"
 env = (
-    # "RiverSwim-6-v0",
-    # "Gridworld-Penalty-3x3-v0",
-    # "Gridworld-Corridor-3x4-v0",
+    "RiverSwim-6-v0",
+    "Gridworld-Penalty-3x3-v0",
+    "Gridworld-Corridor-3x4-v0",
     "Gridworld-Empty-Distract-6x6-v0",
-    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
-    # "Gridworld-Quicksand-Distract-4x4-v0",
+    "Gridworld-TwoRoom-Quicksand-3x5-v0",
+    "Gridworld-Quicksand-Distract-4x4-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
 
@@ -67,11 +67,11 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        # (f"{monitor}_1.0", "blue", "100%"),
+        (f"{monitor}_1.0", "blue", "100%"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
-        (f"{monitor}_0.1", "brown", "10%"),
+        # (f"{monitor}_0.1", "brown", "10%"),
         # (f"{monitor}_0.01", "magenta", "1%")
     ]
 
@@ -82,7 +82,7 @@ for env, monitor in env_mon_combo:
         ref, opt_caut = info[env][monitor]
         runs = []
         for i in range(n_runs):
-            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_26.npz")["test_return"]
+            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_20.npz")["test_return"]
             runs.append(x)
         # print(np.argmin(np.array(runs).sum(-1)))
         # exit()
