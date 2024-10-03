@@ -41,8 +41,8 @@ def run(cfg: DictConfig) -> None:
                                **{**cfg.environment.experiment, **cfg.experiment}
                                )
     data = experiment.train()
-    # print(f"\ntotal episodes: {experiment.tot_episodes}")
-    # print(f"\nexplore episodes: {experiment.explore_episodes}")
+    print(f"\ntotal episodes: {experiment.tot_episodes}")
+    print(f"\nexplore episodes: {experiment.explore_episodes}")
     # print("\nvisits:", critic.env_visit.astype(int))
     # print("\nobservs:", critic.env_obsrv_count.astype(int))  # noqa
     # print("\nrwd model:", critic.env_rwd_model)
