@@ -1,14 +1,9 @@
 id: Gym-Grid/Gridworld-Empty-Distract-6x6-v0
 monitor:
-  button_cell_id: 31
-  button_flip_act: 1
+  button_cell_id: 0
+  button_flip_act: 0
   forbidden_states:
-    - 2
-    - 8
-#    - 14
-    - 20
-    - 26
-    - 32
+
 
 experiment:
   training_steps: 25000
@@ -18,8 +13,8 @@ experiment:
 
 critic:
   gamma: 0.99
-  joint_max_q: 10
-  env_min_r: -1
-  ucb_a: 0.004
-  ucb_b: 0.004
-  ucb_c: 0.004
+  joint_max_q: 1
+  env_min_r: 0
+  ucb_a: 0.0004
+  ucb_b: 0.0004
+  ucb_c: 0.0004

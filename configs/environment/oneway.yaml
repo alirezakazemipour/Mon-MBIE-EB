@@ -1,7 +1,7 @@
 id: Gym-Grid/Gridworld-Corridor-3x4-v0
 monitor:
-  button_cell_id: 8
-  button_flip_act: 1
+  button_cell_id: 0
+  button_flip_act: 0
   forbidden_states:
 
 
@@ -13,8 +13,8 @@ experiment:
 
 critic:
   gamma: 0.99
-  joint_max_q: 10
+  joint_max_q: 1
   env_min_r: -0.1
-  ucb_a: 0.004
-  ucb_b: 0.004
-  ucb_c: 0.04
+  ucb_a: 0.0004
+  ucb_b: 0.0004
+  ucb_c: 0.0004

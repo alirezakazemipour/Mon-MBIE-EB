@@ -1,10 +1,9 @@
 id: Gym-Grid/Gridworld-TwoRoom-Quicksand-3x5-v0
 monitor:
-  button_cell_id: 13
-  button_flip_act: 1
+  button_cell_id: 0
+  button_flip_act: 0
   forbidden_states:
-    - 7
-    - 8
+
 
 
 experiment:

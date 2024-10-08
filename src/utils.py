@@ -81,6 +81,7 @@ def report_river_swim(env):
 
     print(np.mean(ret))
     print(np.mean(ret) - 1.96 * np.std(ret) / np.sqrt(100))
+    print(np.std(ret))
     exit()
 
 
