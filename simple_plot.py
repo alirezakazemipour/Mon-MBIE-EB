@@ -19,7 +19,7 @@ plt.rc('figure', titlesize=BIGGER_SIZE)
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Level", "N", "Ask", "Button", "Random"
+monitor = "Ask", "N", "Ask", "Button", "Random"
 env = (
     "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -86,49 +86,78 @@ for env, monitor in env_mon_combo:
     for conf in algos:
         algo, color, legend = conf
         ref, opt_caut = info[env][monitor]
-        runs = []
+        my_runs = []
+        s_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
-            runs.append(x)
-        # print(np.argmin(np.array(runs).sum(-1)))
-        # exit()
-        smoothed = []
-        for run in runs:
+            x = np.load(f"data/mine/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            my_runs.append(x)
+            y = np.load(f"data/Simone/iGym-Grid/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
+                "test/return"]
+            s_runs.append(y)
+        print(np.argmin(np.array(my_runs).sum(-1)))
+        exit()
+        my_smoothed = []
+        s_smoothed = []
+        for run in my_runs:
             val = [run[0]]
             for tmp in run[1:]:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
-            smoothed.append(val)
-        mean_return = np.mean(np.asarray(smoothed), axis=0)
-        std_return = np.std(np.asarray(smoothed), axis=0)
-        lower_bound = mean_return - 1.96 * std_return / math.sqrt(n_runs)
-        upper_bound = mean_return + 1.96 * std_return / math.sqrt(n_runs)
-        ax.fill_between(np.arange(len(mean_return)),
-                        lower_bound,
-                        upper_bound,
+            my_smoothed.append(val)
+
+        for run in s_runs:
+            val = [run[0]]
+            for tmp in run[1:]:
+                val.append(0.9 * val[-1] + 0.1 * tmp)
+            s_smoothed.append(val)
+
+        my_mean_return = np.mean(np.asarray(my_smoothed), axis=0)
+        my_std_return = np.std(np.asarray(my_smoothed), axis=0)
+        my_lower_bound = my_mean_return - 1.96 * my_std_return / math.sqrt(n_runs)
+        my_upper_bound = my_mean_return + 1.96 * my_std_return / math.sqrt(n_runs)
+        ax.fill_between(np.arange(len(my_mean_return)),
+                        my_lower_bound,
+                        my_upper_bound,
                         alpha=0.25,
                         color=color
                         )
-        ax.plot(np.arange(len(mean_return)),
-                mean_return,
+        ax.plot(np.arange(len(my_mean_return)),
+                my_mean_return,
                 alpha=1,
                 linewidth=3,
                 c=color,
-                label=legend
+                label="mine"
                 )
-        # for run in runs[2:3]:
-        #     plt.plot(np.arange(len(mean_return)), run)
-    plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
-    ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
-    ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
-    ax.xaxis.set_tick_params(labelsize=20)
-    ax.yaxis.set_tick_params(labelsize=20)
-    plt.title(f"{env}_{monitor}")
-    plt.xlabel("training steps (x100)", weight="bold", fontsize=18)
-    ax.set_xticks(np.arange(0, len(mean_return) + 0.1, 50))
 
-    # plt.show()
-    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
-                format="pdf",
-                bbox_inches="tight"
+        s_mean_return = np.mean(np.asarray(s_smoothed), axis=0)
+        s_std_return = np.std(np.asarray(s_smoothed), axis=0)
+        s_lower_bound = s_mean_return - 1.96 * s_std_return / math.sqrt(n_runs)
+        s_upper_bound = s_mean_return + 1.96 * s_std_return / math.sqrt(n_runs)
+        ax.fill_between(np.arange(len(s_mean_return)),
+                        s_lower_bound,
+                        s_upper_bound,
+                        alpha=0.25,
+                        color="red"
+                        )
+        ax.plot(np.arange(len(s_mean_return)),
+                s_mean_return,
+                alpha=1,
+                linewidth=3,
+                c="red",
+                label="simone"
                 )
+
+        plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
+        ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
+        ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
+        ax.xaxis.set_tick_params(labelsize=20)
+        ax.yaxis.set_tick_params(labelsize=20)
+        plt.title(f"{env}_{monitor}")
+        plt.xlabel("training steps (x100)", weight="bold", fontsize=18)
+        ax.set_xticks(np.arange(0, len(my_mean_return) + 0.1, 50))
+
+    plt.show()
+    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
+    #             format="pdf",
+    #             bbox_inches="tight"
+    #             )
     plt.close()
