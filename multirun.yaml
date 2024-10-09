@@ -24,8 +24,8 @@ hydra:
       environment: river_swim
       experiment.hide_progress_bar: true
       experiment.datadir: data
-      experiment.rng_seed: range(0, 5)
-      monitor: ask, button
+      experiment.rng_seed: range(0, 30)
+      monitor: random
       monitor.prob: 1.0
   help:
     app_name: ${hydra.job.name}
@@ -133,7 +133,7 @@ hydra:
       provider: schema
     output_dir: ???
     choices:
-      monitor: ask
+      monitor: random
       environment: river_swim
       hydra/env: default
       hydra/callbacks: null
@@ -158,18 +158,18 @@ environment:
     beta: 1.1
   critic:
     gamma: 0.99
-    joint_max_q: 200
+    joint_max_q: 30
     env_min_r: 0
-    ucb_a: 0.05
-    ucb_b: 0
-    ucb_c: 1.5
+    ucb_a: 0.5
+    ucb_b: 0.05
+    ucb_c: 0.09
   render_mode: null
 monitor:
-  id: Ask
+  id: Random
   prob: 1
 critic:
   vi_iter: 50
 experiment:
   datadir: null
-  rng_seed: 20
+  rng_seed: 0
   hide_progress_bar: false

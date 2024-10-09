@@ -19,7 +19,7 @@ plt.rc('figure', titlesize=BIGGER_SIZE)
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Ask", "N", "Ask", "Button", "Random"
+monitor = "Random", "N", "Level", "Button", "Random", "Full"
 env = (
     "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -34,37 +34,43 @@ info = {"RiverSwim-6-v0": {"Ask": (19.91, "optimal"),
                            "Button": (19.05, "optimal"),
                            "Level": (19.91, "optimal"),
                            "N": (19.91, "optimal"),
-                           "Random": (19.91, "optimal")
+                           "Random": (19.91, "optimal"),
+                           "Full": (19.91, "optimal"),
                            },
         "Gridworld-Empty-Distract-6x6-v0": {"Ask": (0.904, "optimal"),
                                             "Button": (0.812, "optimal"),
                                             "Level": (0.904, "optimal"),
                                             "N": (0.904, "optimal"),
                                             "Random": (0.904, "optimal"),
+                                            "Full": (0.904, "optimal"),
                                             },
         "Gridworld-Corridor-3x4-v0": {"Ask": (0.764, "optimal"),
                                       "Button": (0.672, "optimal"),
                                       "Level": (0.764, "optimal"),
                                       "N": (0.764, "optimal"),
                                       "Random": (0.764, "optimal"),
+                                      "Full": (0.764, "optimal"),
                                       },
         "Gridworld-Penalty-3x3-v0": {"Ask": (0.941, "optimal"),
                                      "Button": (0.849, "optimal"),
                                      "Level": (0.941, "optimal"),
                                      "N": (0.941, "optimal"),
                                      "Random": (0.941, "optimal"),
+                                     "Full": (0.941, "optimal"),
                                      },
         "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.941, "optimal"),
                                                "Button": (0.849, "optimal"),
                                                "Level": (0.941, "optimal"),
                                                "N": (0.941, "optimal"),
                                                "Random": (0.941, "optimal"),
+                                               "Full": (0.941, "optimal"),
                                                },
         "Gridworld-Quicksand-Distract-4x4-v0": {"Ask": (0.914, "optimal"),
                                                 "Button": (0.821, "optimal"),
                                                 "Level": (0.914, "optimal"),
                                                 "N": (0.914, "optimal"),
                                                 "Random": (0.914, "optimal"),
+                                                "Full": (0.914, "optimal"),
                                                 },
         }
 
@@ -94,8 +100,8 @@ for env, monitor in env_mon_combo:
             y = np.load(f"data/Simone/iGym-Grid/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                 "test/return"]
             s_runs.append(y)
-        print(np.argmin(np.array(my_runs).sum(-1)))
-        exit()
+        # print(np.argmin(np.array(my_runs).sum(-1)))
+        # exit()
         my_smoothed = []
         s_smoothed = []
         for run in my_runs:
