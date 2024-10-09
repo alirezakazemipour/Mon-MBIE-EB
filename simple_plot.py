@@ -19,46 +19,52 @@ plt.rc('figure', titlesize=BIGGER_SIZE)
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Level", "N", "Ask", "Button"
+monitor = "Level", "N", "Ask", "Button", "Random"
 env = (
     "RiverSwim-6-v0",
-    "Gridworld-Penalty-3x3-v0",
+    # "Gridworld-Penalty-3x3-v0",
     "Gridworld-Corridor-3x4-v0",
     "Gridworld-Empty-Distract-6x6-v0",
-    "Gridworld-TwoRoom-Quicksand-3x5-v0",
+    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
     "Gridworld-Quicksand-Distract-4x4-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
 
-info = {"RiverSwim-6-v0": {"Ask": (199.14, "optimal"),
-                           "Button": (192.72, "optimal"),
-                           "Level": (199.14, "optimal"),
-                           "N": (199.14, "optimal"),
+info = {"RiverSwim-6-v0": {"Ask": (19.91, "optimal"),
+                           "Button": (19.05, "optimal"),
+                           "Level": (19.91, "optimal"),
+                           "N": (19.91, "optimal"),
+                           "Random": (19.91, "optimal")
                            },
-        "Gridworld-Penalty-3x3-v0": {"Ask": (9.415, "cautious"),
-                                     "Button": (8.878, "cautious"),
-                                     "Level": (9.415, "cautious"),
-                                     "N": (9.415, "cautious"),
-                                     },
-        "Gridworld-Corridor-3x4-v0": {"Ask": (9.409, "optimal"),
-                                      "Button": (8.972, "optimal"),
-                                      "Level": (9.409, "optimal"),
-                                      "N": (9.409, "optimal"),
-                                      },
-        "Gridworld-Empty-Distract-6x6-v0": {"Ask": (9.044, "cautious"),
-                                            "Button": (8.057, "cautious"),
-                                            "Level": (9.044, "cautious"),
-                                            "N": (9.044, "cautious"),
+        "Gridworld-Empty-Distract-6x6-v0": {"Ask": (0.904, "optimal"),
+                                            "Button": (0.812, "optimal"),
+                                            "Level": (0.904, "optimal"),
+                                            "N": (0.904, "optimal"),
+                                            "Random": (0.904, "optimal"),
                                             },
-        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (9.044, "cautious"),
-                                               "Button": (8.413, "cautious"),
-                                               "Level": (9.044, "cautious"),
-                                               "N": (9.044, "cautious"),
+        "Gridworld-Corridor-3x4-v0": {"Ask": (0.764, "optimal"),
+                                      "Button": (0.672, "optimal"),
+                                      "Level": (0.764, "optimal"),
+                                      "N": (0.764, "optimal"),
+                                      "Random": (0.764, "optimal"),
+                                      },
+        "Gridworld-Penalty-3x3-v0": {"Ask": (0.941, "optimal"),
+                                     "Button": (0.849, "optimal"),
+                                     "Level": (0.941, "optimal"),
+                                     "N": (0.941, "optimal"),
+                                     "Random": (0.941, "optimal"),
+                                     },
+        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.941, "optimal"),
+                                               "Button": (0.849, "optimal"),
+                                               "Level": (0.941, "optimal"),
+                                               "N": (0.941, "optimal"),
+                                               "Random": (0.941, "optimal"),
                                                },
-        "Gridworld-Quicksand-Distract-4x4-v0": {"Ask": (9.135, "optimal"),
-                                                "Button": (8.483, "optimal"),
-                                                "Level": (9.135, "optimal"),
-                                                "N": (9.135, "optimal"),
+        "Gridworld-Quicksand-Distract-4x4-v0": {"Ask": (0.914, "optimal"),
+                                                "Button": (0.821, "optimal"),
+                                                "Level": (0.914, "optimal"),
+                                                "N": (0.914, "optimal"),
+                                                "Random": (0.914, "optimal"),
                                                 },
         }
 
@@ -69,10 +75,10 @@ for env, monitor in env_mon_combo:
     algos = [
         (f"{monitor}_1.0", "blue", "100%"),
         # (f"{monitor}_0.75", "red", "75%"),
-        (f"{monitor}_0.5", "green", "50%"),
+        # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
-        (f"{monitor}_0.1", "brown", "10%"),
-        (f"{monitor}_0.01", "magenta", "1%")
+        # (f"{monitor}_0.1", "brown", "10%"),
+        # (f"{monitor}_0.01", "magenta", "1%")
     ]
 
     assert n_runs == 30
