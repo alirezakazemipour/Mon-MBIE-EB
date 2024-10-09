@@ -435,3 +435,41 @@ class Random(Monitor):
         else:
             proxy_reward = env_reward
         return self._monitor_get_state(), proxy_reward, monitor_reward, False
+
+
+class RandomNonZero(Monitor):
+    """
+    This monitor randomly makes non-zero rewards unobservable.
+    There are no monitor states and actions.
+    The monitor reward is always 0.
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment,
+        prob (float): the probability that the reward is unobservable.
+    """
+
+    def __init__(self, env, prob=0.5, **kwargs):
+        Monitor.__init__(self, env, **kwargs)
+        self.action_space = spaces.Dict({
+            "env": env.action_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.observation_space = spaces.Dict({
+            "env": env.observation_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.prob = prob
+
+    def _monitor_set_state(self, state):
+        return
+
+    def _monitor_get_state(self):
+        return np.array(0)
+
+    def _monitor_step(self, action, env_reward):
+        monitor_reward = 0.0
+        if env_reward != 0 and self.np_random.random() < self.prob:
+            proxy_reward = np.nan
+        else:
+            proxy_reward = env_reward
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
