@@ -448,7 +448,7 @@ class RandomNonZero(Monitor):
         prob (float): the probability that the reward is unobservable.
     """
 
-    def __init__(self, env, prob=0.5, **kwargs):
+    def __init__(self, env, prob, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         self.action_space = spaces.Dict({
             "env": env.action_space,
