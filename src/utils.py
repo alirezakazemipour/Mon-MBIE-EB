@@ -59,7 +59,7 @@ def set_rng_seed(seed: int = None) -> None:
 
 def report_river_swim(env):
     ret = []
-    for i in tqdm(range(100)):
+    for i in tqdm(range(10000)):
         np.random.seed(i)
         ret_e = 0
         obs, _ = env.reset(seed=i)
@@ -79,8 +79,8 @@ def report_river_swim(env):
                 break
             t += 1
 
-    print(np.mean(ret))
-    print(np.mean(ret) - 1.96 * np.std(ret) / np.sqrt(100))
+    print(np.max(ret))
+    print(np.mean(ret) - 1.96 * np.std(ret) / np.sqrt(10000))
     print(np.std(ret))
     exit()
 

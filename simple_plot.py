@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 import itertools
+from matplotlib import ticker
 
 plt.style.use('ggplot')
 
@@ -9,17 +10,17 @@ SMALL_SIZE = 8
 MEDIUM_SIZE = 24
 BIGGER_SIZE = 26
 
-plt.rc('font', size=SMALL_SIZE)  # controls default text sizes
+plt.rc('font', size=SMALL_SIZE, weight='bold')  # controls default text sizes
 plt.rc('axes', titlesize=MEDIUM_SIZE)  # fontsize of the axes title
 plt.rc('axes', labelsize=BIGGER_SIZE)  # fontsize of the x and y labels
 plt.rc('xtick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('legend', fontsize=17)  # legend fontsize
-plt.rc('figure', titlesize=BIGGER_SIZE)
+# plt.rc('figure', titlesize=BIGGER_SIZE)
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "RandomNonZero", "N", "Level", "Button", "Ask", "Full",  # "RandomNonZero"
+monitor = "Full", "N", "Level", "Button", "Ask", "RandomNonZero",  # "RandomNonZero"
 env = (
     "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -30,13 +31,13 @@ env = (
 )
 env_mon_combo = itertools.product(env, monitor)
 
-info = {"RiverSwim-6-v0": {"Ask": (19.91, "optimal"),
-                           "Button": (19.05, "optimal"),
-                           "Level": (19.91, "optimal"),
-                           "N": (19.91, "optimal"),
-                           "Random": (19.91, "optimal"),
-                           "RandomNonZero": (19.91, "optimal"),
-                           "Full": (19.91, "optimal"),
+info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
+                           "Button": (19.14, "optimal"),
+                           "Level": (20.02, "optimal"),
+                           "N": (20.02, "optimal"),
+                           "Random": (20.02, "optimal"),
+                           "RandomNonZero": (20.02, "optimal"),
+                           "Full": (20.02, "optimal"),
                            },
         "Gridworld-Empty-Distract-6x6-v0": {"Ask": (0.904, "optimal"),
                                             "Button": (0.812, "optimal"),
@@ -51,6 +52,7 @@ info = {"RiverSwim-6-v0": {"Ask": (19.91, "optimal"),
                                       "Level": (0.764, "optimal"),
                                       "N": (0.764, "optimal"),
                                       "Random": (0.764, "optimal"),
+                                      "RandomNonZero": (0.764, "optimal"),
                                       "Full": (0.764, "optimal"),
                                       },
         "Gridworld-Penalty-3x3-v0": {"Ask": (0.941, "optimal"),
@@ -80,7 +82,7 @@ info = {"RiverSwim-6-v0": {"Ask": (19.91, "optimal"),
         }
 
 for env, monitor in env_mon_combo:
-    fig, ax = plt.subplots(figsize=(6.4, 4.8))
+    fig, ax = plt.subplots(figsize=(6.4, 4.8), layout="constrained")
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
@@ -105,8 +107,8 @@ for env, monitor in env_mon_combo:
             y = np.load(f"data/Simone/iGym-Grid/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                 "test/return"]
             s_runs.append(y)
-        print(np.argmin(np.array(my_runs).sum(-1)))
-        exit()
+        # print(np.argmin(np.array(my_runs).sum(-1)))
+        # exit()
         my_smoothed = []
         s_smoothed = []
         for run in my_runs:
@@ -134,9 +136,9 @@ for env, monitor in env_mon_combo:
         ax.plot(np.arange(len(my_mean_return)),
                 my_mean_return,
                 alpha=1,
-                linewidth=3,
+                linewidth=4,
                 c=color,
-                label="mine"
+                label="Double MBIE"
                 )
 
         s_mean_return = np.mean(np.asarray(s_smoothed), axis=0)
@@ -152,23 +154,50 @@ for env, monitor in env_mon_combo:
         ax.plot(np.arange(len(s_mean_return)),
                 s_mean_return,
                 alpha=1,
-                linewidth=3,
+                linewidth=4,
                 c="red",
-                label="simone"
+                label="Parisi's et al"
                 )
 
         plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
-        ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
-        ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
-        ax.xaxis.set_tick_params(labelsize=20)
-        ax.yaxis.set_tick_params(labelsize=20)
-        plt.title(f"{env}_{monitor}")
-        plt.xlabel("training steps (x100)", weight="bold", fontsize=18)
+        # ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
+        # ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
+        ax.xaxis.set_tick_params(labelsize=30, colors="black")
+        ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
+        # plt.title(f"{env}_{monitor}")
+        plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
+        ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, len(my_mean_return) + 0.1, 50))
+        ax.set_yticks(np.arange(np.min(my_mean_return),
+                                np.max(my_mean_return) + 0.1 * (np.max(my_mean_return) - np.min(my_mean_return)),
+                                (np.max(my_mean_return) - np.min(my_mean_return)) / 4
+                                )
+                      )
+        ax.yaxis.set_tick_params(labelsize=30, colors="black")
+        ax.yaxis.label.set_color('black')
+        if monitor == "Full":
+            ax.set_ylabel("Discounted test return",
+                          weight="bold",
+                          fontsize=20,
+                          # rotation="horizontal",
+                          # labelpad=50,
+                          # ha='right'
+                          )
+            ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
+        elif monitor == "Button":
+            ax.set_ylabel("Discounted test return",
+                          weight="bold",
+                          fontsize=20,
+                          # rotation="horizontal",
+                          # labelpad=50,
+                          # ha='center'
+                          )
 
-    plt.show()
-    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
-    #             format="pdf",
-    #             bbox_inches="tight"
-    #             )
+    # plt.tight_layout()
+    # plt.show()
+    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
+                format="pdf",
+                bbox_inches="tight"
+                )
     plt.close()
