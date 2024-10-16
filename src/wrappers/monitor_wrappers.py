@@ -288,7 +288,7 @@ class N(Monitor):
 
     def __init__(self, env, monitor_cost=0.2, monitor_bonus=0.001, **kwargs):
         Monitor.__init__(self, env, **kwargs)
-        n_monitors = 5
+        n_monitors = kwargs["n_monitors"]
         self.action_space = spaces.Dict({
             "env": env.action_space,
             "mon": spaces.Discrete(n_monitors),
