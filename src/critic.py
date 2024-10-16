@@ -239,7 +239,7 @@ class MonQCritic(Critic):
                         term
                         ):
         """
-        Asynchronous value iteration
+        Synchronous value iteration
         """
         for _ in range(n_iter):
             z = p @ np.ravel(v).T

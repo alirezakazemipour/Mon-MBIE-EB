@@ -24,8 +24,8 @@ monitor = "Full", "N", "Level", "Button", "Ask", "RandomNonZero",  # "RandomNonZ
 env = (
     "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
-    "Gridworld-Corridor-3x4-v0",
-    "Gridworld-Empty-Distract-6x6-v0",
+    # "Gridworld-Corridor-3x4-v0",
+    # "Gridworld-Empty-Distract-6x6-v0",
     # "Gridworld-TwoRoom-Quicksand-3x5-v0",
     "Gridworld-Quicksand-Distract-4x4-v0",
 )
@@ -156,7 +156,7 @@ for env, monitor in env_mon_combo:
                 alpha=1,
                 linewidth=4,
                 c="red",
-                label="Parisi's et al"
+                label="Parisi et al's"
                 )
 
         plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
@@ -165,7 +165,7 @@ for env, monitor in env_mon_combo:
         ax.xaxis.set_tick_params(labelsize=30, colors="black")
         ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-        # plt.title(f"{env}_{monitor}")
+        plt.title(f"{env}_{monitor}")
         plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, len(my_mean_return) + 0.1, 50))
@@ -176,17 +176,17 @@ for env, monitor in env_mon_combo:
                       )
         ax.yaxis.set_tick_params(labelsize=30, colors="black")
         ax.yaxis.label.set_color('black')
-        if monitor == "Full":
-            ax.set_ylabel("Discounted test return",
+        # if monitor == "Full":
+        ax.set_ylabel("Discounted test return",
                           weight="bold",
                           fontsize=20,
                           # rotation="horizontal",
                           # labelpad=50,
                           # ha='right'
                           )
-            ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-        elif monitor == "Button":
-            ax.set_ylabel("Discounted test return",
+        ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
+        # elif monitor == "Button":
+        ax.set_ylabel("Discounted test return",
                           weight="bold",
                           fontsize=20,
                           # rotation="horizontal",

@@ -1,7 +1,7 @@
 import math
 
 import gymnasium as gym
-import numba
+from numpy.random import SeedSequence, RandomState, MT19937
 import numpy as np
 from tqdm import tqdm
 import warnings
@@ -9,6 +9,7 @@ import warnings
 from src.actor import Actor
 from src.critic import MonQCritic
 from src.utils import set_rng_seed, cantor_pairing
+
 
 
 class MonExperiment:
@@ -177,8 +178,6 @@ class MonExperiment:
             while True:
                 act = self.actor(obs["env"], obs["mon"], False, rng)
                 act = {"env": act[0], "mon": act[1]}
-                if act["mon"] == 1:
-                    rr = 90
                 next_obs, rwd, term, trunc, info = self.env_test.step(act)
                 ep_return_env[ep] += (self.gamma ** ep_steps) * rwd["env"]
                 ep_return_mon[ep] += (self.gamma ** ep_steps) * rwd["mon"]

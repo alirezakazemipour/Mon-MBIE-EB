@@ -1,7 +1,5 @@
 import numpy as np
-import math
 from abc import ABC, abstractmethod
-from omegaconf import DictConfig
 
 from src.utils import random_argmax
 from src.critic import MonQCritic
@@ -29,7 +27,7 @@ class Actor(ABC):
             q = self.critic.obsrv_q[obs_env, obs_mon]
         else:
             q = self.critic.joint_q[obs_env, obs_mon]
-        return tuple(random_argmax(q, rng))
+        return random_argmax(q, rng)
 
     @abstractmethod
     def update(self):
@@ -55,7 +53,6 @@ class Greedy(Actor):
         """
         Args:
             critic (Critic): the critic providing estimates of state-action values,
-            eps (DictConfig): configuration to initialize the exploration coefficient
                 epsilon,
         """
 

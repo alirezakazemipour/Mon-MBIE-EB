@@ -171,7 +171,7 @@ class Ask(Monitor):
     def _monitor_step(self, action, env_reward):
         env_next_obs = self.env.unwrapped.get_state()
 
-        p = self.np_random.random()
+        p = 0
         if action["mon"] == 1:
             if p < self.prob and (env_next_obs not in self.forbidden_states):
                 proxy_reward = env_reward
@@ -237,7 +237,7 @@ class Button(Monitor, ABC):
 
         monitor_reward = 0.0
         proxy_reward = np.nan
-        p = self.np_random.random()
+        p = 0
 
         if self.monitor_state == 1:
             if p < self.prob and env_next_obs not in self.forbidden_states:
@@ -314,7 +314,7 @@ class N(Monitor):
 
         env_next_obs = self.env.unwrapped.get_state()
 
-        p = self.np_random.random()
+        p = 0
         if action["mon"] == self.monitor_state:
             if p < self.prob and (env_next_obs not in self.forbidden_states):
                 proxy_reward = env_reward
@@ -378,7 +378,7 @@ class Level(Monitor):
 
         monitor_reward = 0.0
         proxy_reward = np.nan
-        p = self.np_random.random()
+        p = 0
 
         if self.monitor_state == self.observation_space["mon"].n - 1:
             if p < self.prob and (env_next_obs not in self.forbidden_states):
