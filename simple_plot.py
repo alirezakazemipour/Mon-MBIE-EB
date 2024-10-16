@@ -22,9 +22,9 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 n_runs = 30
 monitor = "Full", "N", "Level", "Button", "Ask", "RandomNonZero",  # "RandomNonZero"
 env = (
-    "RiverSwim-6-v0",
+    # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
-    # "Gridworld-Corridor-3x4-v0",
+    "Gridworld-Corridor-3x4-v0",
     # "Gridworld-Empty-Distract-6x6-v0",
     # "Gridworld-TwoRoom-Quicksand-3x5-v0",
     "Gridworld-Quicksand-Distract-4x4-v0",
@@ -86,7 +86,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}_1.0", "blue", "100%"),
+        (f"{monitor}_1", "blue", "100%"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -195,9 +195,9 @@ for env, monitor in env_mon_combo:
                           )
 
     # plt.tight_layout()
-    # plt.show()
-    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
-                format="pdf",
-                bbox_inches="tight"
-                )
+    plt.show()
+    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
+    #             format="pdf",
+    #             bbox_inches="tight"
+    #             )
     plt.close()

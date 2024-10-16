@@ -206,7 +206,7 @@ class Button(Monitor, ABC):
         env_action_push (int): the environment action to turn the monitor on/off.
     """
 
-    def __init__(self, env, monitor_cost=0.2, **kwargs):
+    def __init__(self, env, monitor_cost=0.2, monitor_end_cost=2.0, **kwargs):
         Monitor.__init__(self, env, **kwargs)
         # no monitor action
         self.action_space = spaces.Dict({"env": env.action_space, "mon": spaces.Discrete(1)})
@@ -215,6 +215,7 @@ class Button(Monitor, ABC):
         self.button_cell_id = kwargs["button_cell_id"]
         self.monitor_state = 0
         self.monitor_cost = monitor_cost
+        self.monitor_end_cost = monitor_end_cost
         self.prob = kwargs["prob"]
         self.button_flip_act = kwargs["button_flip_act"]
         self.forbidden_states = kwargs["forbidden_states"] if kwargs["forbidden_states"] is not None else []
@@ -245,6 +246,8 @@ class Button(Monitor, ABC):
             else:
                 proxy_reward = np.nan
             monitor_reward += -self.monitor_cost
+            if env_terminated:
+                monitor_reward += -self.monitor_end_cost
 
         if action["env"] == self.button_flip_act and env_obs == self.button_cell_id:
             if self.monitor_state == 1:
@@ -288,7 +291,7 @@ class N(Monitor):
 
     def __init__(self, env, monitor_cost=0.2, monitor_bonus=0.001, **kwargs):
         Monitor.__init__(self, env, **kwargs)
-        n_monitors = 5
+        n_monitors = kwargs["n_monitors"]
         self.action_space = spaces.Dict({
             "env": env.action_space,
             "mon": spaces.Discrete(n_monitors),
