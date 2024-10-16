@@ -23,7 +23,7 @@ def run(cfg: DictConfig) -> None:
                                                          test=True
                                                          )
 
-    # report_river_swim(env_test)
+    report_river_swim(env_test)
     # if "RiverSwim-6-v0" in cfg.environment["id"]:
     #     cfg.critic.vi_iter = 800
 
@@ -41,6 +41,7 @@ def run(cfg: DictConfig) -> None:
                                **{**cfg.environment.experiment, **cfg.experiment}
                                )
     data = experiment.train()
+    experiment.test()
     print(f"\ntotal episodes: {experiment.tot_episodes}")
     print(f"\nexplore episodes: {experiment.explore_episodes}")
     print("\nvisits:", critic.env_visit.astype(int))
