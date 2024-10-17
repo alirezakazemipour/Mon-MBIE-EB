@@ -1,6 +1,6 @@
 defaults:
   - environment: hazard
-  - monitor: level
+  - monitor: n
   - _self_
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
