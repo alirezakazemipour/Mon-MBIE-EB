@@ -13,7 +13,7 @@ experiment:
 
 critic:
   gamma: 0.99
-  joint_max_q: 10
+  joint_max_q: 100
   env_min_r: -10
   ucb_a: 0.0004
   ucb_b: 0.004
