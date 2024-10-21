@@ -20,7 +20,7 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Full", "N", "Level", "Button", "Ask", "RandomNonZero",  # "RandomNonZero"
+monitor = "Random", "Ask", "Level", "Button", "RandomNonZero",  "Random"
 env = (
     "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -101,16 +101,25 @@ for env, monitor in env_mon_combo:
         ref, opt_caut = info[env][monitor]
         my_runs = []
         s_runs = []
+        som_runs = []
+        svm_runs = []
         for i in range(n_runs):
             x = np.load(f"data/mine/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             my_runs.append(x)
-            y = np.load(f"data/Simone/iGym-Grid/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
+            x = np.load(f"data/Simone/iGym-Grid/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                 "test/return"]
-            s_runs.append(y)
+            s_runs.append(x)
+            x = np.load(f"data/single_observe_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            som_runs.append(x)
+            x = np.load(f"data/single_visit_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            svm_runs.append(x)
         # print(np.argmin(np.array(my_runs).sum(-1)))
         # exit()
         my_smoothed = []
         s_smoothed = []
+        som_smoothed = []
+        svm_smoothed = []
+
         for run in my_runs:
             val = [run[0]]
             for tmp in run[1:]:
@@ -122,6 +131,18 @@ for env, monitor in env_mon_combo:
             for tmp in run[1:]:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
             s_smoothed.append(val)
+
+        for run in som_runs:
+            val = [run[0]]
+            for tmp in run[1:]:
+                val.append(0.9 * val[-1] + 0.1 * tmp)
+            som_smoothed.append(val)
+
+        for run in svm_runs:
+            val = [run[0]]
+            for tmp in run[1:]:
+                val.append(0.9 * val[-1] + 0.1 * tmp)
+            svm_smoothed.append(val)
 
         my_mean_return = np.mean(np.asarray(my_smoothed), axis=0)
         my_std_return = np.std(np.asarray(my_smoothed), axis=0)
@@ -159,13 +180,49 @@ for env, monitor in env_mon_combo:
                 label="Parisi et al's"
                 )
 
+        som_mean_return = np.mean(np.asarray(som_smoothed), axis=0)
+        som_std_return = np.std(np.asarray(som_smoothed), axis=0)
+        som_lower_bound = som_mean_return - 1.96 * som_std_return / math.sqrt(n_runs)
+        som_upper_bound = som_mean_return + 1.96 * som_std_return / math.sqrt(n_runs)
+        ax.fill_between(np.arange(len(som_mean_return)),
+                        som_lower_bound,
+                        som_upper_bound,
+                        alpha=0.25,
+                        color="green"
+                        )
+        ax.plot(np.arange(len(som_mean_return)),
+                som_mean_return,
+                alpha=1,
+                linewidth=4,
+                c="green",
+                label="Single observe MBIE"
+                )
+
+        svm_mean_return = np.mean(np.asarray(svm_smoothed), axis=0)
+        svm_std_return = np.std(np.asarray(svm_smoothed), axis=0)
+        svm_lower_bound = svm_mean_return - 1.96 * svm_std_return / math.sqrt(n_runs)
+        svm_upper_bound = svm_mean_return + 1.96 * svm_std_return / math.sqrt(n_runs)
+        ax.fill_between(np.arange(len(svm_mean_return)),
+                        svm_lower_bound,
+                        svm_upper_bound,
+                        alpha=0.25,
+                        color="purple"
+                        )
+        ax.plot(np.arange(len(svm_mean_return)),
+                svm_mean_return,
+                alpha=1,
+                linewidth=4,
+                c="purple",
+                label="Single visit MBIE"
+                )
+
         plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
         # ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
         # ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
         ax.xaxis.set_tick_params(labelsize=30, colors="black")
         ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-        # plt.title(f"{env}_{monitor}")
+        plt.title(f"{env}_{monitor}")
         plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, len(my_mean_return) + 0.1, 50))
@@ -197,9 +254,9 @@ for env, monitor in env_mon_combo:
                           )
 
     # plt.tight_layout()
-    # plt.show()
-    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
-                format="pdf",
-                bbox_inches="tight"
-                )
+    plt.show()
+    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
+    #             format="pdf",
+    #             bbox_inches="tight"
+    #             )
     plt.close()

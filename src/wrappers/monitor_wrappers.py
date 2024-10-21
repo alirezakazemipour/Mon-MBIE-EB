@@ -423,7 +423,7 @@ class Random(Monitor):
             "env": env.observation_space,
             "mon": spaces.Discrete(1),
         })  # fmt: skip
-        self.prob = env.np_random.random((env.observation_space.n, env.action_space.n))
+        self.prob = self.np_random.random((env.observation_space.n, env.action_space.n))
 
     def _monitor_set_state(self, state):
         return
