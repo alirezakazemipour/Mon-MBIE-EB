@@ -20,11 +20,11 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Full", "Ask", "Button", "N", "Level", "RandomNonZero",  "Random"
+monitor = "Random", "Ask", "Button", "N", "Level", "RandomNonZero",  "Random"
 env = (
-    "RiverSwim-6-v0",
+    # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
-    "Gridworld-Corridor-3x4-v0",
+    # "Gridworld-Corridor-3x4-v0",
     "Gridworld-Empty-Distract-6x6-v0",
     # "Gridworld-TwoRoom-Quicksand-3x5-v0",
     "Gridworld-Quicksand-Distract-4x4-v0",
@@ -86,7 +86,8 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}_1", "blue", "100%"),
+        (f"{monitor}", "blue", ""),
+        # (f"{monitor}_1", "blue", "100%"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -104,13 +105,13 @@ for env, monitor in env_mon_combo:
         som_runs = []
         svm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/mine/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            x = np.load(f"data/mine/Gym-Grid/{env}/{algo}/data_8.npz")["test_return"]
             my_runs.append(x)
             x = np.load(f"data/Simone/iGym-Grid/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                 "test/return"]
             s_runs.append(x)
-            x = np.load(f"data/single_observe_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
-            som_runs.append(x)
+            # x = np.load(f"data/single_observe_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            # som_runs.append(x)
             x = np.load(f"data/single_visit_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             svm_runs.append(x)
         # print(np.argmin(np.array(my_runs).sum(-1)))
@@ -180,23 +181,23 @@ for env, monitor in env_mon_combo:
                 label="Parisi et al's"
                 )
 
-        som_mean_return = np.mean(np.asarray(som_smoothed), axis=0)
-        som_std_return = np.std(np.asarray(som_smoothed), axis=0)
-        som_lower_bound = som_mean_return - 1.96 * som_std_return / math.sqrt(n_runs)
-        som_upper_bound = som_mean_return + 1.96 * som_std_return / math.sqrt(n_runs)
-        ax.fill_between(np.arange(len(som_mean_return)),
-                        som_lower_bound,
-                        som_upper_bound,
-                        alpha=0.25,
-                        color="green"
-                        )
-        ax.plot(np.arange(len(som_mean_return)),
-                som_mean_return,
-                alpha=1,
-                linewidth=4,
-                c="green",
-                label="Single observe MBIE"
-                )
+        # som_mean_return = np.mean(np.asarray(som_smoothed), axis=0)
+        # som_std_return = np.std(np.asarray(som_smoothed), axis=0)
+        # som_lower_bound = som_mean_return - 1.96 * som_std_return / math.sqrt(n_runs)
+        # som_upper_bound = som_mean_return + 1.96 * som_std_return / math.sqrt(n_runs)
+        # ax.fill_between(np.arange(len(som_mean_return)),
+        #                 som_lower_bound,
+        #                 som_upper_bound,
+        #                 alpha=0.25,
+        #                 color="green"
+        #                 )
+        # ax.plot(np.arange(len(som_mean_return)),
+        #         som_mean_return,
+        #         alpha=1,
+        #         linewidth=4,
+        #         c="green",
+        #         label="Single observe MBIE"
+        #         )
 
         svm_mean_return = np.mean(np.asarray(svm_smoothed), axis=0)
         svm_std_return = np.std(np.asarray(svm_smoothed), axis=0)
