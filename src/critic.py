@@ -248,7 +248,7 @@ class MonQCritic(Critic):
             z = z.reshape(rwd.shape)
             q = rwd + gamma * z * (1 - term[:, None, :, None])
             q = q.flatten()
-            q = np.minimum(q, max_q)
+            # q = np.minimum(q, max_q)
             q[count == 0] = max_q
             q = q.reshape(rwd.shape)
             v = jittable_joint_max(q)
