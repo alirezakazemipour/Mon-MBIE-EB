@@ -147,7 +147,7 @@ class MonQCritic(Critic):
                                             self.gamma,
                                             self.joint_dynamics.reshape(-1, self.env_num_obs * self.mon_num_obs),
                                             jittable_joint_max(self.joint_q),
-                                            np.zeros_like(self.env_term)
+                                            self.env_term
                                             )
 
     def obsrv_mbie(self, rng):  # noqa
@@ -176,7 +176,7 @@ class MonQCritic(Critic):
                                             self.gamma,
                                             self.joint_dynamics.reshape(-1, self.env_num_obs * self.mon_num_obs),
                                             jittable_joint_max(self.obsrv_q),
-                                            np.zeros_like(self.env_term, dtype=np.float32)  # Discuss with Mike to conclude
+                                            self.env_term  # Discuss with Mike to conclude
                                             )
 
     def reset(self):
