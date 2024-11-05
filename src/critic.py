@@ -176,7 +176,7 @@ class MonQCritic(Critic):
                                             self.gamma,
                                             self.joint_dynamics.reshape(-1, self.env_num_obs * self.mon_num_obs),
                                             jittable_joint_max(self.obsrv_q),
-                                            self.env_term  # Discuss with Mike to conclude
+                                            np.zeros_like(self.env_term)
                                             )
 
     def reset(self):
