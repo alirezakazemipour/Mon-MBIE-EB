@@ -147,12 +147,11 @@ class MonQCritic(Critic):
                                             self.gamma,
                                             self.joint_dynamics.reshape(-1, self.env_num_obs * self.mon_num_obs),
                                             jittable_joint_max(self.joint_q),
-                                            self.env_term[:, None, :, None]
+                                            self.env_term
                                             )
 
     def obsrv_mbie(self, rng):  # noqa
         obsrv_rwd_bar = np.zeros_like(self.monitor)
-        term = np.zeros_like(self.monitor)
         for s in self.joint_obs_space:
             t = self.joint_count[*s].sum()
             f_t = f(t)
@@ -165,20 +164,19 @@ class MonQCritic(Critic):
                                                               0,
                                                               self.joint_count[*s, *a]
                                                               )
-                        term[*s, *a] = 1
                     # optimism for transitions
                     ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
                     obsrv_rwd_bar[*s, *a] += ucb
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
                                             self.obsrv_q,
-                                            1,
+                                            1 / (1 - self.gamma),
                                             self.joint_count.flatten(),
                                             obsrv_rwd_bar,
                                             self.gamma,
                                             self.joint_dynamics.reshape(-1, self.env_num_obs * self.mon_num_obs),
                                             jittable_joint_max(self.obsrv_q),
-                                            np.minimum(term + self.env_term[:, None, :, None], 1)
+                                            np.zeros_like(self.env_term)
                                             )
 
     def reset(self):
@@ -248,9 +246,9 @@ class MonQCritic(Critic):
         for _ in range(n_iter):
             z = p @ np.ravel(v).T
             z = z.reshape(rwd.shape)
-            q = rwd + gamma * z * (1 - term)
+            q = rwd + gamma * z * (1 - term[:, None, :, None])
             q = q.flatten()
-            q = np.minimum(q, max_q)
+            # q = np.minimum(q, max_q)
             q[count == 0] = max_q
             q = q.reshape(rwd.shape)
             v = jittable_joint_max(q)
