@@ -151,7 +151,7 @@ class MonQCritic(Critic):
                                             )
 
     def obsrv_mbie(self, rng):  # noqa
-        mon_obsrv_rwd_bar = np.zeros_like(self.monitor)
+        obsrv_rwd_bar = np.zeros_like(self.monitor)
         for s in self.joint_obs_space:
             t = self.joint_count[*s].sum()
             f_t = f(t)
@@ -160,19 +160,19 @@ class MonQCritic(Critic):
                 ae, am = a
                 if self.joint_count[*s, *a] != 0:
                     if self.env_obsrv_count[se, ae] == 0:
-                        mon_obsrv_rwd_bar[*s, *a] = kl_confidence(t,
-                                                                  0,
-                                                                  self.joint_count[*s, *a]
-                                                                  )
+                        obsrv_rwd_bar[*s, *a] = kl_confidence(t,
+                                                              0,
+                                                              self.joint_count[*s, *a]
+                                                              )
                     # optimism for transitions
                     ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
-                    mon_obsrv_rwd_bar[*s, *a] += ucb
+                    obsrv_rwd_bar[*s, *a] += ucb
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
                                             self.obsrv_q,
                                             1 / (1 - self.gamma),
                                             self.joint_count.flatten(),
-                                            mon_obsrv_rwd_bar,
+                                            obsrv_rwd_bar,
                                             self.gamma,
                                             self.joint_dynamics.reshape(-1, self.env_num_obs * self.mon_num_obs),
                                             jittable_joint_max(self.obsrv_q),
