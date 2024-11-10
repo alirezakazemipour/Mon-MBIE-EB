@@ -97,8 +97,6 @@ class MonQCritic(Critic):
                next_obs_env,
                next_obs_mon,
                ):
-        if act_mon == 1:
-            dd = 90
         if not np.isnan(rwd_proxy):
             self.env_obsrv_count[obs_env, act_env] += 1
             self.env_r[obs_env, act_env] += rwd_env

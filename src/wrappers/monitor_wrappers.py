@@ -323,7 +323,7 @@ class N(Monitor):
             monitor_reward = -self.monitor_cost
         else:
             proxy_reward = np.nan
-            monitor_reward = -self.monitor_bonus
+            monitor_reward = self.monitor_bonus
 
         if action["mon"] == self.n_monitors:
             proxy_reward = np.nan
@@ -399,4 +399,81 @@ class Level(Monitor):
             else:
                 self.monitor_state = 0  # reset level
 
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
+
+
+class Random(Monitor):
+    """
+    This monitor randomly makes rewards unobservable.
+    Each reward has a different probability of being observed, which is fixed
+    when the environment is created.
+    There are no monitor states and actions.
+    The monitor reward is always 0.
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment.
+    """
+
+    def __init__(self, env, **kwargs):
+        Monitor.__init__(self, env, **kwargs)
+        self.action_space = spaces.Dict({
+            "env": env.action_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.observation_space = spaces.Dict({
+            "env": env.observation_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.prob = self.np_random.random((env.observation_space.n, env.action_space.n))
+
+    def _monitor_set_state(self, state):
+        return
+
+    def _monitor_get_state(self):
+        return np.array(0)
+
+    def _monitor_step(self, action, env_reward):
+        monitor_reward = 0.0
+        if self.np_random.random() < self.prob[self.unwrapped.get_state(), action["env"]]:
+            proxy_reward = np.nan
+        else:
+            proxy_reward = env_reward
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
+
+
+class RandomNonZero(Monitor):
+    """
+    This monitor randomly makes non-zero rewards unobservable.
+    There are no monitor states and actions.
+    The monitor reward is always 0.
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment,
+        prob (float): the probability that the reward is unobservable.
+    """
+
+    def __init__(self, env, prob, **kwargs):
+        Monitor.__init__(self, env, **kwargs)
+        self.action_space = spaces.Dict({
+            "env": env.action_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.observation_space = spaces.Dict({
+            "env": env.observation_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.prob = prob
+
+    def _monitor_set_state(self, state):
+        return
+
+    def _monitor_get_state(self):
+        return np.array(0)
+
+    def _monitor_step(self, action, env_reward):
+        monitor_reward = 0.0
+        if env_reward != 0 and self.np_random.random() < self.prob:
+            proxy_reward = np.nan
+        else:
+            proxy_reward = env_reward
         return self._monitor_get_state(), proxy_reward, monitor_reward, False
