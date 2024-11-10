@@ -425,6 +425,7 @@ class Random(Monitor):
             "mon": spaces.Discrete(1),
         })  # fmt: skip
         self.prob = self.np_random.random((env.observation_space.n, env.action_space.n))
+        self.forbidden_states = kwargs["forbidden_states"] if kwargs["forbidden_states"] is not None else []
 
     def _monitor_set_state(self, state):
         return
@@ -433,8 +434,10 @@ class Random(Monitor):
         return np.array(0)
 
     def _monitor_step(self, action, env_reward):
+        env_next_obs = self.env.unwrapped.get_state()
         monitor_reward = 0.0
-        if self.np_random.random() < self.prob[self.unwrapped.get_state(), action["env"]]:
+        if (self.np_random.random() < self.prob[self.unwrapped.get_state(), action["env"]] and
+                (env_next_obs not in self.forbidden_states)):
             proxy_reward = np.nan
         else:
             proxy_reward = env_reward
@@ -463,6 +466,7 @@ class RandomNonZero(Monitor):
             "mon": spaces.Discrete(1),
         })  # fmt: skip
         self.prob = prob
+        self.forbidden_states = kwargs["forbidden_states"] if kwargs["forbidden_states"] is not None else []
 
     def _monitor_set_state(self, state):
         return
@@ -471,8 +475,9 @@ class RandomNonZero(Monitor):
         return np.array(0)
 
     def _monitor_step(self, action, env_reward):
+        env_next_obs = self.env.unwrapped.get_state()
         monitor_reward = 0.0
-        if env_reward != 0 and self.np_random.random() < self.prob:
+        if env_reward != 0 and self.np_random.random() < self.prob and (env_next_obs not in self.forbidden_states):
             proxy_reward = np.nan
         else:
             proxy_reward = env_reward
