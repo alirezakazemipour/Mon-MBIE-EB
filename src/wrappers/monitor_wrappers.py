@@ -436,8 +436,8 @@ class Random(Monitor):
     def _monitor_step(self, action, env_reward):
         env_next_obs = self.env.unwrapped.get_state()
         monitor_reward = 0.0
-        if (self.np_random.random() < self.prob[self.unwrapped.get_state(), action["env"]] and
-                (env_next_obs not in self.forbidden_states)):
+        if (self.np_random.random() < self.prob[self.unwrapped.get_state(), action["env"]] or
+                (env_next_obs in self.forbidden_states)):
             proxy_reward = np.nan
         else:
             proxy_reward = env_reward
