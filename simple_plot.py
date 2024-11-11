@@ -20,13 +20,13 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Ask", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
+monitor = "Full", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-Corridor-3x4-v0",
-    # "Gridworld-Empty-Distract-6x6-v0",
-    "Gridworld-TwoRoom-Quicksand-3x5-v0",
+    "Gridworld-Empty-Distract-6x6-v0",
+    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
     # "Gridworld-Quicksand-Distract-4x4-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
@@ -63,13 +63,13 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                                      "RandomNonZero": (0.941, "optimal"),
                                      "Full": (0.941, "optimal"),
                                      },
-        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.941, "optimal"),
-                                               "Button": (0.849, "optimal"),
-                                               "Level": (0.904, "optimal"),
-                                               "N": (0.91, "optimal"),
-                                               "Random": (0.904, "optimal"),
-                                               "RandomNonZero": (0.941, "optimal"),
-                                               "Full": (0.904, "optimal"),
+        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.904, "cautious"),
+                                               "Button": (0.308, "cautious"),
+                                               "Level": (0.904, "cautious"),
+                                               "N": (0.91, "cautious"),
+                                               "Random": (0.904, "cautious"),
+                                               "RandomNonZero": (0.904, "cautious"),
+                                               "Full": (0.941, "optimal"),
                                                },
         "Gridworld-Quicksand-Distract-4x4-v0": {"Ask": (0.914, "optimal"),
                                                 "Button": (0.821, "optimal"),
@@ -105,7 +105,7 @@ for env, monitor in env_mon_combo:
         som_runs = []
         svm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/never_observable/mine/Gym-Grid/{env}/{algo}/data_14.npz")["test_return"]
+            x = np.load(f"data/never_observable/mine/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             my_runs.append(x)
             try:
                 x = np.load(
@@ -230,7 +230,7 @@ for env, monitor in env_mon_combo:
         ax.xaxis.set_tick_params(labelsize=20, colors="black")
         ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-        plt.title(f"{env}_{monitor}")
+        # plt.title(f"{env}_{monitor}")
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, 201, 100))
@@ -270,9 +270,9 @@ for env, monitor in env_mon_combo:
         #     ax.set_ylim(-0.8, 0.25)
 
     # plt.tight_layout()
-    plt.show()
-    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
-    #             format="pdf",
-    #             bbox_inches="tight"
-    #             )
+    # plt.show()
+    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
+                format="pdf",
+                bbox_inches="tight"
+                )
     plt.close()

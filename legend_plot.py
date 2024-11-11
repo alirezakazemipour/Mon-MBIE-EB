@@ -10,7 +10,7 @@ colors = ["blue", "red", "black"]
 f = lambda m, c: plt.plot([], [], marker=m, color=c, linewidth=4, linestyle='--')[0]
 handles = [f("_", colors[i]) for i in range(2)]
 # handles.append(f("_", colors[-1]))
-labels = ["Double MBIE", "Parisi et al's", "Optimal"]
+labels = ["Double MBIE", "Parisi et al's", "Cautious"]
 handles.append(plt.axhline(5, linestyle="dashed", color="k", linewidth=3, label="Optimal"))
 legend = plt.legend(handles, labels, loc=3, framealpha=1, frameon=False, ncols=3)
 

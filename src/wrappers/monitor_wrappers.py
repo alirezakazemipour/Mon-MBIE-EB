@@ -267,7 +267,7 @@ class Button(Monitor, ABC):
 # endregion
 
 
-class N(Monitor):
+class NSupporters(Monitor):
     """
     There are N monitors. At every time step, a random monitor is on.
     If the agent's action matches the monitor state, the agent observes the
@@ -331,6 +331,11 @@ class N(Monitor):
 
         self.monitor_state = self.observation_space["mon"].sample()
         return self._monitor_get_state(), proxy_reward, monitor_reward, False
+
+
+class NExperts(NSupporters):
+    def __init__(self, env, monitor_cost=0.2, monitor_bonus=-0.001, **kwargs):
+        NSupporters.__init__(self, env, monitor_cost, monitor_bonus, **kwargs)
 
 
 class Level(Monitor):

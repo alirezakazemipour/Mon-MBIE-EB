@@ -1,6 +1,6 @@
 defaults:
   - environment: two_room
-  - monitor: random_nonzero
+  - monitor: n_experts
   - _self_
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
