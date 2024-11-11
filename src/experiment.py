@@ -167,9 +167,9 @@ class MonExperiment:
         return data
 
     def test(self):
-        ep_return_env = np.zeros(self.testing_episodes)
-        ep_return_mon = np.zeros(self.testing_episodes)
-        for ep in range(self.testing_episodes):
+        ep_return_env = np.zeros(1000)
+        ep_return_mon = np.zeros(1000)
+        for ep in range(1000):
             ep_seed = cantor_pairing(self.rng_seed, ep)
             obs, _ = self.env_test.reset(seed=ep_seed)
             rng = np.random.default_rng(ep_seed)

@@ -41,7 +41,7 @@ def run(cfg: DictConfig) -> None:
                                **{**cfg.environment.experiment, **cfg.experiment}
                                )
     data = experiment.train()
-    # experiment.test()
+    experiment.test()
     print(f"\ntotal episodes: {experiment.tot_episodes}")
     print(f"\nexplore episodes: {experiment.explore_episodes}")
     # print("\nvisits:", critic.env_visit.astype(int))
