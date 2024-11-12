@@ -20,13 +20,13 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Full", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
+monitor = "N", #"RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-Corridor-3x4-v0",
-    "Gridworld-Empty-Distract-6x6-v0",
-    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
+    # "Gridworld-Empty-Distract-6x6-v0",
+    "Gridworld-TwoRoom-Quicksand-3x5-v0",
     # "Gridworld-Quicksand-Distract-4x4-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
@@ -234,7 +234,7 @@ for env, monitor in env_mon_combo:
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, 201, 100))
-        ax.set_xticklabels([])
+        # ax.set_xticklabels([])
         ax.set_xlim(0, 210)
         # ax.set_yticks(np.arange(np.min(my_mean_return) - 0.05 * (np.max(my_mean_return) - np.min(my_mean_return)),
         #                         ref + 0.1 * ref,
