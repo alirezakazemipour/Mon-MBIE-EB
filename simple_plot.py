@@ -20,13 +20,13 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Random", "Ask", "Button", "NSupporter", "NExpert", "Level", #"RandomNonZero", "Level"
+monitor = "NExpert", "Ask", "Button", "NSupporter", "NExpert", "Level",  # "RandomNonZero", "Level"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-Corridor-3x4-v0",
-    # "Gridworld-Empty-Distract-6x6-v0",
-    "Gridworld-TwoRoom-Quicksand-3x5-v0",
+    "Gridworld-Empty-Distract-6x6-v0",
+    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
     # "Gridworld-Quicksand-Distract-4x4-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
@@ -42,7 +42,8 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
         "Gridworld-Empty-Distract-6x6-v0": {"Ask": (0.904, "optimal"),
                                             "Button": (0.19, "optimal"),
                                             "Level": (0.904, "optimal"),
-                                            "N": (0.915, "optimal"),
+                                            "NSupporter": (0.915, "optimal"),
+                                            "NExpert": (0.904, "optimal"),
                                             "Random": (0.904, "optimal"),
                                             "RandomNonZero": (0.904, "optimal"),
                                             "Full": (0.904, "optimal"),
@@ -87,7 +88,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}", "blue", "0.8"),
+        (f"{monitor}", "blue", "0.05"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -110,9 +111,9 @@ for env, monitor in env_mon_combo:
             my_runs.append(x)
 
             x = np.load(
-                    f"data/stochastically_observable/simone/"
-                    f"iGym-Grid/{env}/{algo}Monitor_{prob}/{monitor}Monitor__{prob}_{i}.npz")[
-                    "test/return"]
+                f"data/stochastically_observable/simone/"
+                f"iGym-Grid/{env}/{algo}Monitor_{prob}/{monitor}Monitor__{prob}_{i}.npz")[
+                "test/return"]
             s_runs.append(x)
             # x = np.load(f"data/single_observe_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             # som_runs.append(x)
@@ -267,9 +268,9 @@ for env, monitor in env_mon_combo:
         #     ax.set_ylim(-0.8, 0.25)
 
     # plt.tight_layout()
-    plt.show()
-    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
-    #             format="pdf",
-    #             bbox_inches="tight"
-    #             )
+    # plt.show()
+    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
+                format="pdf",
+                bbox_inches="tight"
+                )
     plt.close()
