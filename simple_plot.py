@@ -20,7 +20,7 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "N", #"RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
+monitor = "Random", "Ask", "Button", "NSupporter", "NExpert", "Level", #"RandomNonZero", "Level"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -66,7 +66,8 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
         "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.904, "cautious"),
                                                "Button": (0.308, "cautious"),
                                                "Level": (0.904, "cautious"),
-                                               "N": (0.91, "cautious"),
+                                               "NSupporter": (0.91, "cautious"),
+                                               "NExpert": (0.904, "cautious"),
                                                "Random": (0.904, "cautious"),
                                                "RandomNonZero": (0.904, "cautious"),
                                                "Full": (0.941, "optimal"),
@@ -86,8 +87,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}_1", "blue", ""),
-        # (f"{monitor}_1", "blue", "100%"),
+        (f"{monitor}", "blue", "0.8"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -98,31 +98,28 @@ for env, monitor in env_mon_combo:
     assert n_runs == 30
 
     for conf in algos:
-        algo, color, legend = conf
+        algo, color, prob = conf
         ref, opt_caut = info[env][monitor]
         my_runs = []
         s_runs = []
         som_runs = []
         svm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/never_observable/mine/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            x = np.load(f"data/stochastically_observable/mine/"
+                        f"Gym-Grid/{env}/{algo}_{prob}/data_{i}.npz")["test_return"]
             my_runs.append(x)
-            try:
-                x = np.load(
-                    f"data/never_observable/Simone/iGym-Grid/{env}/{algo[:-2]}Monitor_{algo[-1]}/{monitor}Monitor__{algo[-1]}_{i}.npz")[
-                    "test/return"]
-            except:
-                x = np.load(
-                    f"data/never_observable/Simone/iGym-Grid/{env}/{algo[:-2]}Monitor_{algo[-1]}/{monitor}Monitor__0.5_{i}.npz")[
-                    "test/return"]
 
+            x = np.load(
+                    f"data/stochastically_observable/simone/"
+                    f"iGym-Grid/{env}/{algo}Monitor_{prob}/{monitor}Monitor__{prob}_{i}.npz")[
+                    "test/return"]
             s_runs.append(x)
             # x = np.load(f"data/single_observe_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             # som_runs.append(x)
             # x = np.load(f"data/single_visit_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             # svm_runs.append(x)
-        # print(np.argmin(np.array(my_runs).sum(-1)))
-        # exit()
+        print(np.argmin(np.array(my_runs).sum(-1)))
+        exit()
         my_smoothed = []
         s_smoothed = []
         som_smoothed = []
@@ -230,7 +227,7 @@ for env, monitor in env_mon_combo:
         ax.xaxis.set_tick_params(labelsize=20, colors="black")
         ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-        # plt.title(f"{env}_{monitor}")
+        plt.title(f"{env}_{monitor}_{prob}")
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, 201, 100))
@@ -270,9 +267,9 @@ for env, monitor in env_mon_combo:
         #     ax.set_ylim(-0.8, 0.25)
 
     # plt.tight_layout()
-    # plt.show()
-    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
-                format="pdf",
-                bbox_inches="tight"
-                )
+    plt.show()
+    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
+    #             format="pdf",
+    #             bbox_inches="tight"
+    #             )
     plt.close()
