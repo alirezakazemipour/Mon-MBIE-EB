@@ -20,13 +20,13 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "NExpert", "Ask", "Button", "NSupporter", "NExpert", "Level",  # "RandomNonZero", "Level"
+monitor = "NSupporter", "Ask", "Button", "NSupporter", "NExpert", "Level",  # "RandomNonZero"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-Corridor-3x4-v0",
-    "Gridworld-Empty-Distract-6x6-v0",
-    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
+    # "Gridworld-Empty-Distract-6x6-v0",
+    "Gridworld-TwoRoom-Quicksand-3x5-v0",
     # "Gridworld-Quicksand-Distract-4x4-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
@@ -119,8 +119,8 @@ for env, monitor in env_mon_combo:
             # som_runs.append(x)
             # x = np.load(f"data/single_visit_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             # svm_runs.append(x)
-        print(np.argmin(np.array(my_runs).sum(-1)))
-        exit()
+        # print(np.argmin(np.array(my_runs).sum(-1)))
+        # exit()
         my_smoothed = []
         s_smoothed = []
         som_smoothed = []
@@ -231,9 +231,9 @@ for env, monitor in env_mon_combo:
         plt.title(f"{env}_{monitor}_{prob}")
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
-        ax.set_xticks(np.arange(0, 201, 100))
+        ax.set_xticks(np.arange(0, 351, 100))
         # ax.set_xticklabels([])
-        ax.set_xlim(0, 210)
+        ax.set_xlim(0, 350)
         # ax.set_yticks(np.arange(np.min(my_mean_return) - 0.05 * (np.max(my_mean_return) - np.min(my_mean_return)),
         #                         ref + 0.1 * ref,
         #                         (np.max(my_mean_return) - np.min(my_mean_return)) / 5
@@ -268,9 +268,9 @@ for env, monitor in env_mon_combo:
         #     ax.set_ylim(-0.8, 0.25)
 
     # plt.tight_layout()
-    # plt.show()
-    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
-                format="pdf",
-                bbox_inches="tight"
-                )
+    plt.show()
+    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
+    #             format="pdf",
+    #             bbox_inches="tight"
+    #             )
     plt.close()
