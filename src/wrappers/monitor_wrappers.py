@@ -267,17 +267,17 @@ class Button(Monitor, ABC):
 # endregion
 
 
-class N(Monitor):
+class NSupporter(Monitor):
     """
     There are N monitors. At every time step, a random monitor is on.
     If the agent's action matches the monitor state, the agent observes the
     environment reward but receives a negative monitor reward.
     Otherwise it does not observe the environment reward, but receives a smaller
-    positive monitor reward.
+    negative monitor reward.
     For example, if state = 2 and action = 2, the agent observes the environment
     reward and gets reward_monitor = -0.2.
     If state = 2 and action != 2, the agent does not observe the reward but
-    gets reward_monitor = 0.001.
+    gets reward_monitor = -0.001.
 
     Args:
         env (gymnasium.Env): the Gymnasium environment,
@@ -288,14 +288,14 @@ class N(Monitor):
 
     def __init__(self, env, monitor_cost=0.2, monitor_bonus=0.001, **kwargs):
         Monitor.__init__(self, env, **kwargs)
-        n_monitors = kwargs["n_monitors"]
+        self.n_monitors = kwargs["n_monitors"]
         self.action_space = spaces.Dict({
             "env": env.action_space,
-            "mon": spaces.Discrete(n_monitors),
+            "mon": spaces.Discrete(self.n_monitors),
         })  # fmt: skip
         self.observation_space = spaces.Dict({
             "env": env.observation_space,
-            "mon": spaces.Discrete(n_monitors),
+            "mon": spaces.Discrete(self.n_monitors),
         })  # fmt: skip
         self.monitor_state = 0
         self.monitor_cost = monitor_cost
@@ -324,6 +324,54 @@ class N(Monitor):
         else:
             proxy_reward = np.nan
             monitor_reward = self.monitor_bonus
+
+        self.monitor_state = self.observation_space["mon"].sample()
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
+
+
+class NExpert(Monitor):
+    def __init__(self, env, monitor_cost=0.2, monitor_bonus=0.001, **kwargs):
+        Monitor.__init__(self, env, **kwargs)
+        self.n_monitors = kwargs["n_monitors"]
+        self.action_space = spaces.Dict({
+            "env": env.action_space,
+            "mon": spaces.Discrete(self.n_monitors + 1),
+        })  # fmt: skip
+        self.observation_space = spaces.Dict({
+            "env": env.observation_space,
+            "mon": spaces.Discrete(self.n_monitors),
+        })  # fmt: skip
+        self.monitor_state = 0
+        self.monitor_cost = monitor_cost
+        self.monitor_bonus = monitor_bonus
+        self.prob = kwargs["prob"]
+        self.forbidden_states = kwargs["forbidden_states"] if kwargs["forbidden_states"] is not None else []
+
+    def _monitor_set_state(self, state):
+        self.monitor_state = state
+
+    def _monitor_get_state(self):
+        return np.array(self.monitor_state)
+
+    def _monitor_step(self, action, env_reward):
+        assert (action["mon"] < self.action_space["mon"].n), "illegal monitor action"
+
+        env_next_obs = self.env.unwrapped.get_state()
+
+        p = self.np_random.random()
+        if action["mon"] == self.monitor_state:
+            if p < self.prob and (env_next_obs not in self.forbidden_states):
+                proxy_reward = env_reward
+            else:
+                proxy_reward = np.nan
+            monitor_reward = -self.monitor_cost
+        else:
+            proxy_reward = np.nan
+            monitor_reward = -self.monitor_bonus
+
+        if action["mon"] == self.n_monitors:
+            proxy_reward = np.nan
+            monitor_reward = 0
 
         self.monitor_state = self.observation_space["mon"].sample()
         return self._monitor_get_state(), proxy_reward, monitor_reward, False
@@ -395,4 +443,86 @@ class Level(Monitor):
             else:
                 self.monitor_state = 0  # reset level
 
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
+
+
+class Random(Monitor):
+    """
+    This monitor randomly makes rewards unobservable.
+    Each reward has a different probability of being observed, which is fixed
+    when the environment is created.
+    There are no monitor states and actions.
+    The monitor reward is always 0.
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment.
+    """
+
+    def __init__(self, env, **kwargs):
+        Monitor.__init__(self, env, **kwargs)
+        self.action_space = spaces.Dict({
+            "env": env.action_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.observation_space = spaces.Dict({
+            "env": env.observation_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.prob = kwargs["prob"]
+        self.forbidden_states = kwargs["forbidden_states"] if kwargs["forbidden_states"] is not None else []
+
+    def _monitor_set_state(self, state):
+        return
+
+    def _monitor_get_state(self):
+        return np.array(0)
+
+    def _monitor_step(self, action, env_reward):
+        env_next_obs = self.env.unwrapped.get_state()
+        monitor_reward = 0.0
+        if (self.np_random.random() > self.prob or
+                (env_next_obs in self.forbidden_states)):
+            proxy_reward = np.nan
+        else:
+            proxy_reward = env_reward
+        return self._monitor_get_state(), proxy_reward, monitor_reward, False
+
+
+class RandomNonZero(Monitor):
+    """
+    This monitor randomly makes non-zero rewards unobservable.
+    There are no monitor states and actions.
+    The monitor reward is always 0.
+
+    Args:
+        env (gymnasium.Env): the Gymnasium environment,
+        prob (float): the probability that the reward is unobservable.
+    """
+
+    def __init__(self, env, prob, **kwargs):
+        Monitor.__init__(self, env, **kwargs)
+        self.action_space = spaces.Dict({
+            "env": env.action_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.observation_space = spaces.Dict({
+            "env": env.observation_space,
+            "mon": spaces.Discrete(1),
+        })  # fmt: skip
+        self.prob = prob
+        self.forbidden_states = kwargs["forbidden_states"] if kwargs["forbidden_states"] is not None else []
+
+    def _monitor_set_state(self, state):
+        return
+
+    def _monitor_get_state(self):
+        return np.array(0)
+
+    def _monitor_step(self, action, env_reward):
+        env_next_obs = self.env.unwrapped.get_state()
+        monitor_reward = 0.0
+        if env_reward != 0 and self.np_random.random() > self.prob or (env_next_obs in self.forbidden_states):
+            proxy_reward = np.nan
+        else:
+            proxy_reward = env_reward
         return self._monitor_get_state(), proxy_reward, monitor_reward, False

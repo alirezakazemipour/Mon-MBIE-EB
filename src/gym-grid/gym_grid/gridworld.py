@@ -24,7 +24,7 @@ WALL = -3
 # endregion
 
 REWARDS = defaultdict(lambda: 0.0)
-REWARDS[GOOD] = 10
+REWARDS[GOOD] = 1
 REWARDS[BAD] = -10
 REWARDS[GOOD_SMALL] = 0.1
 REWARDS[BAD_SMALL] = -0.1
@@ -293,7 +293,7 @@ class Gridworld(gym.Env):
         if self.np_random.random() < self.random_action_prob:
             action = self.action_space.sample()
         self.last_action = action
-        if self.grid[self.agent_pos] == QCKSND:
+        if self.grid[self.agent_pos] == QCKSND and self.np_random.random() > 0.1:
             pass  # fail to move in quicksand
         else:
             if (
@@ -559,12 +559,12 @@ class RiverSwim(Gridworld):
     def __init__(self, **kwargs):
         Gridworld.__init__(self, **kwargs)
         self.grid[0] = 0.01  # we use self.grid for rendering
-        self.grid[-1] = 1.0
+        self.grid[-1] = 10.0
         self.action_space = gym.spaces.Discrete(2)  # only LEFT and RIGHT
 
     def _reset(self, seed: int = None, **kwargs):
         Gridworld._reset(self, seed=seed, **kwargs)
-        self.agent_pos = (0, self.np_random.integers(1, 3))  # init either in 2nd or 3rd cell
+        self.agent_pos = (0, self.np_random.integers(1, 3))  # init either in the 2nd or the 3rd cell
         return self.get_state(), {}
 
     def _step(self, action: int):
@@ -602,7 +602,7 @@ class RiverSwim(Gridworld):
 
         reward = 0
         if state == last and action == RIGHT and original_action == RIGHT:
-            reward = 10.0
+            reward = 1
         elif state == first and action == LEFT and original_action == LEFT:
             reward = 0.01
 

@@ -22,45 +22,7 @@ def run(cfg: DictConfig) -> None:
                                                          **{**cfg.monitor, **cfg.environment.monitor},
                                                          test=True
                                                          )
-    if "Ask" in cfg.monitor.id:
-        mon_rwd_model = np.zeros((env.observation_space["mon"].n,
-                                  env.action_space["mon"].n
-                                  )
-                                 )
-        monitor = np.zeros((env.observation_space["env"].n *
-                            env.observation_space["mon"].n *
-                            env.action_space["env"].n,
-                            env.action_space["mon"].n
-                            )
-                           )
-
-        mon_rwd_model[:, 1] = -0.2
-
-        monitor[:, 1] = cfg.monitor.prob
-        monitor.resize(env.observation_space["env"].n,
-                       env.observation_space["mon"].n,
-                       env.action_space["env"].n,
-                       env.action_space["mon"].n
-                       )
-        if cfg.environment.monitor.forbidden_states is not None:
-            env_test.reset()
-            for s in range(env.observation_space["env"].n):
-                for a in range(env.action_space["env"].n):
-                    state = {"env": s, "mon": 0}
-                    env_test.set_state(state)
-                    act = {"env": a, "mon": 0}
-                    ns, *_ = env_test.step(act)
-                    if ns["env"] in cfg.environment.monitor.forbidden_states:
-                        monitor[s, :, a, :] = 0
-
-        mon_dynamics = np.ones((env.observation_space["env"].n,
-                                env.observation_space["mon"].n,
-                                env.action_space["env"].n,
-                                env.action_space["mon"].n,
-                                env.observation_space["mon"].n
-                                )
-                               )
-
+    # region Full
     if "Full" in cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n,
                                   env.action_space["mon"].n
@@ -86,9 +48,45 @@ def run(cfg: DictConfig) -> None:
                                 env.observation_space["mon"].n
                                 )
                                )
+    # endregion
 
+    # region Ask
+    if "Ask" in cfg.monitor.id:
+        mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
+        mon_rwd_model[:, 1] = -0.2
+
+        monitor = np.zeros((env.observation_space["env"].n,
+                            env.observation_space["mon"].n,
+                            env.action_space["env"].n,
+                            env.action_space["mon"].n
+                            )
+                           )
+        monitor[..., 1] = cfg.monitor.prob
+        if cfg.environment.monitor.forbidden_states is not None:
+            env_test.reset()
+            for s in range(env.observation_space["env"].n):
+                for a in range(env.action_space["env"].n):
+                    state = {"env": s, "mon": 0}
+                    env_test.set_state(state)
+                    act = {"env": a, "mon": 0}
+                    ns, *_ = env_test.step(act)
+                    if ns["env"] in cfg.environment.monitor.forbidden_states:
+                        monitor[s, :, a, :] = 0
+
+        mon_dynamics = np.ones((env.observation_space["env"].n,
+                                env.observation_space["mon"].n,
+                                env.action_space["env"].n,
+                                env.action_space["mon"].n,
+                                env.observation_space["mon"].n
+                                )
+                               )
+    # endregion
+
+    # region Button
     if "Button" in cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
+        mon_rwd_model[1, :] = -0.2
+
         monitor = np.zeros((env.observation_space["env"].n,
                             env.observation_space["mon"].n,
                             env.action_space["env"].n,
@@ -96,14 +94,8 @@ def run(cfg: DictConfig) -> None:
                             )
                            )
 
-        mon_rwd_model[1, :] = -0.2
-
         monitor[:, 1, ...] = cfg.monitor.prob
-        monitor.resize(env.observation_space["env"].n,
-                       env.observation_space["mon"].n,
-                       env.action_space["env"].n,
-                       env.action_space["mon"].n
-                       )
+
         if cfg.environment.monitor.forbidden_states is not None:
             env_test.reset()
             for s in range(env.observation_space["env"].n):
@@ -132,57 +124,10 @@ def run(cfg: DictConfig) -> None:
         mon_dynamics[button_cell, 1, button_flip_act, 0, 1] = 0
         mon_dynamics[button_cell, 0, button_flip_act, 0, 1] = 1
         mon_dynamics[button_cell, 0, button_flip_act, 0, 0] = 0
+    # endregion
 
-    if "Level" in cfg.monitor.id:
-        mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n)) - 0.2
-
-        monitor = np.zeros((env.observation_space["env"].n,
-                            env.observation_space["mon"].n,
-                            env.action_space["env"].n,
-                            env.action_space["mon"].n
-                            )
-                           )
-
-        mon_rwd_model[..., -1] = 0
-
-        monitor[:, -1, ...] = cfg.monitor.prob
-        monitor.resize(env.observation_space["env"].n,
-                       env.observation_space["mon"].n,
-                       env.action_space["env"].n,
-                       env.action_space["mon"].n
-                       )
-        if cfg.environment.monitor.forbidden_states is not None:
-            env_test.reset()
-            for s in range(env.observation_space["env"].n):
-                for a in range(env.action_space["env"].n):
-                    state = {"env": s, "mon": 0}
-                    env_test.set_state(state)
-                    act = {"env": a, "mon": 0}
-                    ns, reward, terminated, *_ = env_test.step(act)
-                    if ns["env"] in cfg.environment.monitor.forbidden_states:
-                        monitor[s, :, a, :] = 0
-
-        mon_dynamics = np.zeros((env.observation_space["env"].n,
-                                 env.observation_space["mon"].n,
-                                 env.action_space["env"].n,
-                                 env.action_space["mon"].n,
-                                 env.observation_space["mon"].n
-                                 )
-                                )
-        for level in range(cfg.monitor.n_levels - 1):
-            mon_dynamics[:, level, :, level, level + 1] = 1
-
-        mon_dynamics[:, -1, :, -2, -1] = 1
-
-        for level in range(cfg.monitor.n_levels):
-            mon_dynamics[:, level, :, -1, level] = 1
-
-        for sm in range(env.observation_space["mon"].n):
-            for am in range(env.action_space["mon"].n - 1):
-                if sm != am:
-                    mon_dynamics[:, sm, :, am, 0] = 1
-
-    if "N" in cfg.monitor.id:
+    # region NSupporter
+    if "NSupporter" in cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
         mon_rwd_model = np.diag(np.diag(mon_rwd_model - 0.2 - 0.001)) + 0.001
 
@@ -213,6 +158,88 @@ def run(cfg: DictConfig) -> None:
                                 env.observation_space["mon"].n
                                 )
                                ) / env.observation_space["mon"].n
+
+    # endregion
+
+    # region NExpert
+    if "NExpert" in cfg.monitor.id:
+        mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
+        mon_rwd_model = np.diag(np.diag(mon_rwd_model - 0.2 + 0.001)) - 0.001
+        mon_rwd_model = np.hstack([mon_rwd_model, np.zeros((env.observation_space["mon"].n, 1))])
+
+        monitor = np.zeros((env.observation_space["env"].n,
+                            env.observation_space["mon"].n,
+                            env.action_space["env"].n,
+                            env.action_space["mon"].n
+                            )
+                           )
+        for i in range(env.observation_space["mon"].n):
+            monitor[:, i, :, i] = cfg.monitor.prob
+
+        if cfg.environment.monitor.forbidden_states is not None:
+            env_test.reset()
+            for s in range(env.observation_space["env"].n):
+                for a in range(env.action_space["env"].n):
+                    state = {"env": s, "mon": 0}
+                    env_test.set_state(state)
+                    act = {"env": a, "mon": 0}
+                    ns, *_ = env_test.step(act)
+                    if ns["env"] in cfg.environment.monitor.forbidden_states:
+                        monitor[s, :, a, :] = 0
+
+        mon_dynamics = np.ones((env.observation_space["env"].n,
+                                env.observation_space["mon"].n,
+                                env.action_space["env"].n,
+                                env.action_space["mon"].n,
+                                env.observation_space["mon"].n
+                                )
+                               ) / env.observation_space["mon"].n
+
+    # endregion
+
+    if "Level" in cfg.monitor.id:
+        mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n)) - 0.2
+        mon_rwd_model[..., -1] = 0
+
+        monitor = np.zeros((env.observation_space["env"].n,
+                            env.observation_space["mon"].n,
+                            env.action_space["env"].n,
+                            env.action_space["mon"].n
+                            )
+                           )
+
+        monitor[:, -1, ...] = cfg.monitor.prob
+
+        if cfg.environment.monitor.forbidden_states is not None:
+            env_test.reset()
+            for s in range(env.observation_space["env"].n):
+                for a in range(env.action_space["env"].n):
+                    state = {"env": s, "mon": 0}
+                    env_test.set_state(state)
+                    act = {"env": a, "mon": 0}
+                    ns, reward, terminated, *_ = env_test.step(act)
+                    if ns["env"] in cfg.environment.monitor.forbidden_states:
+                        monitor[s, :, a, :] = 0
+
+        mon_dynamics = np.zeros((env.observation_space["env"].n,
+                                 env.observation_space["mon"].n,
+                                 env.action_space["env"].n,
+                                 env.action_space["mon"].n,
+                                 env.observation_space["mon"].n
+                                 )
+                                )
+        for level in range(cfg.monitor.n_levels - 1):
+            mon_dynamics[:, level, :, level, level + 1] = 1
+
+        mon_dynamics[:, -1, :, -2, -1] = 1
+
+        for level in range(cfg.monitor.n_levels):
+            mon_dynamics[:, level, :, -1, level] = 1
+
+        for sm in range(env.observation_space["mon"].n):
+            for am in range(env.action_space["mon"].n - 1):
+                if sm != am:
+                    mon_dynamics[:, sm, :, am, 0] = 1
 
     critic = MonQCritic(env.observation_space["env"].n,
                         env.observation_space["mon"].n,
