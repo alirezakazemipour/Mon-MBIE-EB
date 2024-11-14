@@ -20,7 +20,7 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "NSupporter", "Ask", "Button", "NSupporter", "NExpert", "Level",  # "RandomNonZero"
+monitor = "Random", "Ask", "Button", "NSupporter", "NExpert", "Level",  # "RandomNonZero"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -88,7 +88,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}", "blue", "0.05"),
+        (f"{monitor}", "blue", "0.8"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -228,12 +228,12 @@ for env, monitor in env_mon_combo:
         ax.xaxis.set_tick_params(labelsize=20, colors="black")
         ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-        plt.title(f"{env}_{monitor}_{prob}")
+        # plt.title(f"{env}_{monitor}_{prob}")
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
-        ax.set_xticks(np.arange(0, 351, 100))
-        # ax.set_xticklabels([])
-        ax.set_xlim(0, 350)
+        ax.set_xticks(np.arange(0, 301, 100))
+        ax.set_xticklabels([])
+        ax.set_xlim(0, 300)
         # ax.set_yticks(np.arange(np.min(my_mean_return) - 0.05 * (np.max(my_mean_return) - np.min(my_mean_return)),
         #                         ref + 0.1 * ref,
         #                         (np.max(my_mean_return) - np.min(my_mean_return)) / 5
@@ -245,7 +245,7 @@ for env, monitor in env_mon_combo:
         # ax.yaxis.label.set_color('black')
         ax.set_ylim(0, 1)
 
-        if monitor == "Full":
+        if monitor == "Full" or monitor == "Random":
             # ax.set_ylabel("Discounted test return",
             #               weight="bold",
             #               fontsize=20,
@@ -268,9 +268,9 @@ for env, monitor in env_mon_combo:
         #     ax.set_ylim(-0.8, 0.25)
 
     # plt.tight_layout()
-    plt.show()
-    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
-    #             format="pdf",
-    #             bbox_inches="tight"
-    #             )
+    # plt.show()
+    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
+                format="pdf",
+                bbox_inches="tight"
+                )
     plt.close()

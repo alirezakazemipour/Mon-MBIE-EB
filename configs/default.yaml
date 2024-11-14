@@ -1,6 +1,6 @@
 defaults:
   - environment: distract
-  - monitor: ask
+  - monitor: random
   - _self_
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
