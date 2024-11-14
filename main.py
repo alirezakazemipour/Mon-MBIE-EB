@@ -50,6 +50,37 @@ def run(cfg: DictConfig) -> None:
                                )
     # endregion
 
+    # region Random
+    if "Random" in cfg.monitor.id:
+        mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
+
+        monitor = np.zeros((env.observation_space["env"].n,
+                            env.observation_space["mon"].n,
+                            env.action_space["env"].n,
+                            env.action_space["mon"].n
+                            )
+                           ) + cfg.monitor.prob
+
+        if cfg.environment.monitor.forbidden_states is not None:
+            env_test.reset()
+            for s in range(env.observation_space["env"].n):
+                for a in range(env.action_space["env"].n):
+                    state = {"env": s, "mon": 0}
+                    env_test.set_state(state)
+                    act = {"env": a, "mon": 0}
+                    ns, *_ = env_test.step(act)
+                    if ns["env"] in cfg.environment.monitor.forbidden_states:
+                        monitor[s, :, a, :] = 0
+
+        mon_dynamics = np.ones((env.observation_space["env"].n,
+                                env.observation_space["mon"].n,
+                                env.action_space["env"].n,
+                                env.action_space["mon"].n,
+                                env.observation_space["mon"].n
+                                )
+                               )
+    # endregion
+
     # region Ask
     if "Ask" in cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
