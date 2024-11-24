@@ -88,7 +88,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}", "orange", "0.8"),
+        (f"{monitor}", "orange", "0.05"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -174,14 +174,14 @@ for env, monitor in env_mon_combo:
                         s_lower_bound,
                         s_upper_bound,
                         alpha=0.25,
-                        color="red"
+                        color="blue"
                         )
         ax.plot(np.arange(len(s_mean_return)),
                 s_mean_return,
                 alpha=1,
                 linewidth=4,
-                c="red",
-                label="Parisi et al's"
+                c="blue",
+                label="Double MBIE"
                 )
 
         # som_mean_return = np.mean(np.asarray(som_smoothed), axis=0)
@@ -229,9 +229,9 @@ for env, monitor in env_mon_combo:
         # plt.title(f"{env}_{monitor}_{prob}")
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
-        ax.set_xticks(np.arange(0, 501, 100))
+        ax.set_xticks(np.arange(0, 201, 100))
         # ax.set_xticklabels([])
-        ax.set_xlim(0, 500)
+        ax.set_xlim(0, 200)
         # ax.set_yticks(np.arange(np.min(my_mean_return) - 0.05 * (np.max(my_mean_return) - np.min(my_mean_return)),
         #                         ref + 0.1 * ref,
         #                         (np.max(my_mean_return) - np.min(my_mean_return)) / 5
@@ -266,9 +266,9 @@ for env, monitor in env_mon_combo:
         #     ax.set_ylim(-0.8, 0.25)
 
     # plt.tight_layout()
-    plt.show()
-    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
-    #             format="pdf",
-    #             bbox_inches="tight"
-    #             )
+    # plt.show()
+    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
+                format="pdf",
+                bbox_inches="tight"
+                )
     plt.close()
