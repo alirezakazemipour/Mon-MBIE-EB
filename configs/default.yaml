@@ -1,5 +1,5 @@
 defaults:
-  - environment: distract
+  - environment: distract_snake
   - monitor: random
   - _self_
   - override hydra/hydra_logging: disabled
