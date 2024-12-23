@@ -20,67 +20,77 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Random", "Ask", "Button", "NSupporter", "NExpert", "Level",  # "RandomNonZero"
+monitor = "Button", # "Ask", "Random", "NSupporter", "NExpert", "Level",  # "RandomNonZero"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-Corridor-3x4-v0",
-    "Gridworld-Empty-Distract-6x6-v0",
+    # "Gridworld-Empty-Distract-6x6-v0",
     # "Gridworld-TwoRoom-Quicksand-3x5-v0",
-    # "Gridworld-Quicksand-Distract-4x4-v0",
+    # "Gridworld-Ultimate-Snake-4x4-v0",
+    "Gridworld-Empty-Snake-6x6-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
 
-info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
-                           "Button": (19.14, "optimal"),
-                           "Level": (19.83, "optimal"),
-                           "N": (20.02, "optimal"),
-                           "Random": (20.02, "optimal"),
-                           "RandomNonZero": (20.02, "optimal"),
-                           "Full": (20.02, "optimal"),
+info = {"RiverSwim-6-v0": {"Ask": (20.02, "Optimal"),
+                           "Button": (19.14, "Optimal"),
+                           "Level": (19.83, "Optimal"),
+                           "N": (20.02, "Optimal"),
+                           "Random": (20.02, "Optimal"),
+                           "RandomNonZero": (20.02, "Optimal"),
+                           "Full": (20.02, "Optimal"),
                            },
-        "Gridworld-Empty-Distract-6x6-v0": {"Ask": (0.904, "optimal"),
-                                            "Button": (0.19, "optimal"),
-                                            "Level": (0.904, "optimal"),
-                                            "NSupporter": (0.915, "optimal"),
-                                            "NExpert": (0.904, "optimal"),
-                                            "Random": (0.904, "optimal"),
-                                            "RandomNonZero": (0.904, "optimal"),
-                                            "Full": (0.904, "optimal"),
+        "Gridworld-Empty-Distract-6x6-v0": {"Ask": (0.904, "Optimal"),
+                                            "Button": (0.19, "Optimal"),
+                                            "Level": (0.904, "Optimal"),
+                                            "NSupporter": (0.915, "Optimal"),
+                                            "NExpert": (0.904, "Optimal"),
+                                            "Random": (0.904, "Optimal"),
+                                            "RandomNonZero": (0.904, "Optimal"),
+                                            "Full": (0.904, "Optimal"),
                                             },
-        "Gridworld-Corridor-3x4-v0": {"Ask": (0.764, "optimal"),
-                                      "Button": (0.672, "optimal"),
-                                      "Level": (0.764, "optimal"),
-                                      "N": (0.764, "optimal"),
-                                      "Random": (0.764, "optimal"),
-                                      "RandomNonZero": (0.764, "optimal"),
-                                      "Full": (0.764, "optimal"),
+        "Gridworld-Corridor-3x4-v0": {"Ask": (0.764, "Optimal"),
+                                      "Button": (0.672, "Optimal"),
+                                      "Level": (0.764, "Optimal"),
+                                      "N": (0.764, "Optimal"),
+                                      "Random": (0.764, "Optimal"),
+                                      "RandomNonZero": (0.764, "Optimal"),
+                                      "Full": (0.764, "Optimal"),
                                       },
-        "Gridworld-Penalty-3x3-v0": {"Ask": (0.941, "optimal"),
-                                     "Button": (0.849, "optimal"),
-                                     "Level": (0.941, "optimal"),
-                                     "N": (0.941, "optimal"),
-                                     "Random": (0.941, "optimal"),
-                                     "RandomNonZero": (0.941, "optimal"),
-                                     "Full": (0.941, "optimal"),
+        "Gridworld-Penalty-3x3-v0": {"Ask": (0.941, "Optimal"),
+                                     "Button": (0.849, "Optimal"),
+                                     "Level": (0.941, "Optimal"),
+                                     "N": (0.941, "Optimal"),
+                                     "Random": (0.941, "Optimal"),
+                                     "RandomNonZero": (0.941, "Optimal"),
+                                     "Full": (0.941, "Optimal"),
                                      },
-        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.904, "cautious"),
-                                               "Button": (0.308, "cautious"),
-                                               "Level": (0.904, "cautious"),
-                                               "NSupporter": (0.91, "cautious"),
-                                               "NExpert": (0.904, "cautious"),
-                                               "Random": (0.904, "cautious"),
-                                               "RandomNonZero": (0.904, "cautious"),
-                                               "Full": (0.941, "optimal"),
+        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.904, "Cautious"),
+                                               "Button": (0.308, "Cautious"),
+                                               "Level": (0.904, "Cautious"),
+                                               "NSupporter": (0.91, "Cautious"),
+                                               "NExpert": (0.904, "Cautious"),
+                                               "Random": (0.904, "Cautious"),
+                                               "RandomNonZero": (0.904, "Cautious"),
+                                               "Full": (0.941, "Optimal"),
                                                },
-        "Gridworld-Quicksand-Distract-4x4-v0": {"Ask": (0.914, "optimal"),
-                                                "Button": (0.821, "optimal"),
-                                                "Level": (0.914, "optimal"),
-                                                "N": (0.914, "optimal"),
-                                                "Random": (0.914, "optimal"),
-                                                "RandomNonZero": (0.914, "optimal"),
-                                                "Full": (0.914, "optimal"),
-                                                },
+        "Gridworld-Ultimate-Snake-4x4-v0": {"Ask": (0.914, "Optimal"),
+                                            "Button": (0.821, "Optimal"),
+                                            "Level": (0.914, "Optimal"),
+                                            "N": (0.914, "Optimal"),
+                                            "Random": (0.914, "Optimal"),
+                                            "RandomNonZero": (0.914, "Optimal"),
+                                            "Full": (0.914, "Optimal"),
+                                            },
+        "Gridworld-Empty-Snake-6x6-v0": {"Ask": (0.904, "Cautious"),
+                                         "Button": (0.19, "Cautious"),
+                                         "Level": (0.904, "Cautious"),
+                                         "NSupporter": (0.915, "Cautious"),
+                                         "NExpert": (0.904, "Cautious"),
+                                         "Random": (0.904, "Cautious"),
+                                         "RandomNonZero": (0.904, "Cautious"),
+                                         "Full": (0.904, "Cautious"),
+                                         },
         }
 
 for env, monitor in env_mon_combo:
@@ -183,7 +193,7 @@ for env, monitor in env_mon_combo:
                 alpha=1,
                 linewidth=4,
                 c="red",
-                label="Parisi et al's"
+                label="Directed-E$\mathbf{^2}$"
                 )
 
         # som_mean_return = np.mean(np.asarray(som_smoothed), axis=0)
@@ -228,8 +238,8 @@ for env, monitor in env_mon_combo:
         ax.xaxis.set_tick_params(labelsize=20, colors="black")
         ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-        # plt.title(f"{env}_{monitor}_{prob}")
-        # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
+        # plt.title(f"Shaded areas represent 95% CI")
+        plt.xlabel("Training Steps (x$10^3$)", weight="bold", fontsize=20)
         ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, 501, 100))
         # ax.set_xticklabels([])
@@ -243,18 +253,19 @@ for env, monitor in env_mon_combo:
         #                         ref + 0.05 * (np.max(my_mean_return) - np.min(my_mean_return))])
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
-        ax.set_ylim(0, 1)
+        ax.set_ylim(-1, 0.25)
 
-        if monitor == "Full" or monitor == "Random":
-            # ax.set_ylabel("Discounted test return",
-            #               weight="bold",
-            #               fontsize=20,
-            #               # rotation="horizontal",
-            #               # labelpad=50,
-            #               # ha='right'
-            #               )
-            # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-            ax.set_yticks([0.2, 0.5, 0.8, 1])
+        if monitor == "Full" or monitor == "Button":
+            ax.set_ylabel("Discounted Test Return",
+                          weight="bold",
+                          fontsize=20,
+                          # rotation="horizontal",
+                          # labelpad=50,
+                          # ha='right'
+                          color="k"
+                          )
+            ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
+            ax.set_yticks([-0.8, -0.6, -0.4, -0.2, 0, 0.2])
         else:
             ax.set_yticklabels([])
         # if monitor == "Button":

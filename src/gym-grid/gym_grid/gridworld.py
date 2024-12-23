@@ -45,7 +45,6 @@ GRAY = (100, 100, 100)
 # region GRIDS
 GRIDS = {
     "river_swim_6": [[EMPTY for _ in range(6)]],
-    "20_straight": [[EMPTY for _ in range(20)]],
     "2x2_empty": [
         [EMPTY, EMPTY],
         [EMPTY, GOOD],
@@ -65,11 +64,18 @@ GRIDS = {
         [EMPTY, BAD, EMPTY],
         [EMPTY, EMPTY, EMPTY],
     ],
-    "10x10_empty": [[EMPTY for _ in range(10)] for _ in range(10)],
     "6x6_distract": [[EMPTY for _ in range(6)] for _ in range(6)],
     "6x6_snake": [
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, BAD, EMPTY],
+        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
+        [GOOD_SMALL, EMPTY, EMPTY, EMPTY, EMPTY, GOOD],
+    ],
+    "6x6_wasp": [
+        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY, EMPTY, BAD_SMALL, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
@@ -93,9 +99,9 @@ GRIDS = {
         [RIGHT, EMPTY, QCKSND, GOOD_SMALL, EMPTY],
         [UP, EMPTY, EMPTY, EMPTY, EMPTY],
     ],
-    "3x5_two_room_quicksand": [
+    "3x5_ultimate_snake": [
         [EMPTY, LEFT, GOOD, EMPTY, EMPTY],
-        [EMPTY, QCKSND, EMPTY, EMPTY, EMPTY],
+        [EMPTY, QCKSND, EMPTY, BAD, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
     ],
     "3x4_corridor": [
@@ -103,21 +109,8 @@ GRIDS = {
         [GOOD_SMALL, BAD_SMALL, BAD_SMALL, GOOD],
         [EMPTY, LEFT, LEFT, LEFT],
     ],
-    "2x11_two_room_distract": [
-        [GOOD_SMALL, EMPTY, EMPTY, EMPTY, RIGHT, DOWN, LEFT, EMPTY, EMPTY, EMPTY, GOOD],
-        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-    ],
-    "5x5_barrier": [
-        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-        [EMPTY, LEFT, UP, RIGHT, EMPTY],
-        [EMPTY, LEFT, GOOD, EMPTY, EMPTY],
-        [EMPTY, LEFT, DOWN, RIGHT, EMPTY],
-        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-    ],
 }
 
-GRIDS["10x10_empty"][-1][-1] = GOOD
-GRIDS["20_straight"][-1][-1] = GOOD
 GRIDS["6x6_distract"][-1][-1] = GOOD
 GRIDS["6x6_distract"][-1][0] = GOOD_SMALL
 

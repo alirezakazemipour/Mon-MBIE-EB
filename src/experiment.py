@@ -82,7 +82,7 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
 
             self.critic.opt_pess_mbie(rng)  # off-policy; can be updated every episode!
-            explore = True
+            explore = False
             ################
             if math.log(self.tot_episodes + 1e-4, self.beta) > self.explore_episodes:
                 explore = True
