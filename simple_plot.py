@@ -20,7 +20,7 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Full",#, "Button", "Ask", "Random", "NSupporter", "NExpert", "Level",  # "RandomNnZero"
+monitor = "RandomNonZero", # "Full", "Button", "Ask", "NSupporter", "NExpert", "Level",  # "Random"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -28,7 +28,7 @@ env = (
     # "Gridworld-Empty-Distract-6x6-v0",
     # "Gridworld-TwoRoom-Quicksand-3x5-v0",
     # "Gridworld-Ultimate-Snake-4x4-v0",
-    "Gridworld-Empty-Snake-6x6-v0",
+    "Gridworld-Snake-6x6-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
 
@@ -82,15 +82,15 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "Optimal"),
                                             "RandomNonZero": (0.914, "Optimal"),
                                             "Full": (0.914, "Optimal"),
                                             },
-        "Gridworld-Empty-Snake-6x6-v0": {"Ask": (0.904, "Cautious"),
-                                         "Button": (0.19, "Cautious"),
-                                         "Level": (0.904, "Cautious"),
-                                         "NSupporter": (0.915, "Cautious"),
-                                         "NExpert": (0.904, "Cautious"),
-                                         "Random": (0.904, "Cautious"),
-                                         "RandomNonZero": (0.904, "Cautious"),
-                                         "Full": (0.904, "Cautious"),
-                                         },
+        "Gridworld-Snake-6x6-v0": {"Ask": (0.904, "Cautious"),
+                                   "Button": (0.19, "Cautious"),
+                                   "Level": (0.904, "Cautious"),
+                                   "NSupporter": (0.915, "Cautious"),
+                                   "NExpert": (0.904, "Cautious"),
+                                   "Random": (0.904, "Cautious"),
+                                   "RandomNonZero": (0.904, "Cautious"),
+                                   "Full": (0.904, "Cautious"),
+                                   },
         }
 
 for env, monitor in env_mon_combo:
@@ -98,7 +98,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}", "blue", "1"),
+        (f"{monitor}", "blue", "0.5"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -117,7 +117,7 @@ for env, monitor in env_mon_combo:
         svm_runs = []
         for i in range(n_runs):
             x = np.load(f"data/stochastically_observable/mine/"
-                        f"Gym-Grid/{env}/{algo}_{prob}/data_8.npz")["test_return"]
+                        f"Gym-Grid/{env}/{algo}_{prob}/data_{i}.npz")["test_return"]
             my_runs.append(x)
 
             x = np.load(
@@ -138,13 +138,13 @@ for env, monitor in env_mon_combo:
 
         for run in my_runs:
             val = [run[0]]
-            for tmp in run[1:200]:
+            for tmp in run[1:]:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
             my_smoothed.append(val)
 
         for run in s_runs:
             val = [run[0]]
-            for tmp in run[1:200]:
+            for tmp in run[1:]:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
             s_smoothed.append(val)
 
@@ -279,9 +279,9 @@ for env, monitor in env_mon_combo:
         #     ax.set_ylim(-0.8, 0.25)
 
     # plt.tight_layout()
-    plt.show()
-    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
-    #             format="pdf",
-    #             bbox_inches="tight"
-    #             )
+    # plt.show()
+    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
+                format="pdf",
+                bbox_inches="tight"
+                )
     plt.close()
