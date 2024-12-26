@@ -57,7 +57,7 @@ def register_envs():
     )
 
     register(
-        id="Gridworld-Empty-Snake-6x6-v0",
+        id="Gridworld-Snake-6x6-v0",
         entry_point="gym_grid.gridworld:Gridworld",
         max_episode_steps=50,
         kwargs={
@@ -93,11 +93,11 @@ def register_envs():
     )
 
     register(
-        id="Gridworld-TwoRoom-Quicksand-3x5-v0",
+        id="Gridworld-Bypass-3x5-v0",
         entry_point="gym_grid.gridworld:Gridworld",
         max_episode_steps=50,
         kwargs={
-            "grid": "3x5_two_room_quicksand",
+            "grid": "3x5_bypass",
         },
     )
 
