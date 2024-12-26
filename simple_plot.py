@@ -20,11 +20,11 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Full", "RandomNonZero", "Ask", "Button", "N", "Level"#, "Random"
+monitor = "NExpert", #"Full", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
-    # "RiverSwim-6-v0",
+    "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
-    "Gridworld-Corridor-3x4-v0",
+    # "Gridworld-Corridor-3x4-v0",
     # "Gridworld-Empty-Distract-6x6-v0",
     # "Gridworld-TwoRoom-Quicksand-3x5-v0",
     # "Gridworld-Quicksand-Distract-4x4-v0",
@@ -35,6 +35,7 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                            "Button": (19.14, "optimal"),
                            "Level": (19.83, "optimal"),
                            "N": (20.02, "optimal"),
+                           "NExpert": (20.02, "optimal"),
                            "Random": (20.02, "optimal"),
                            "RandomNonZero": (20.02, "optimal"),
                            "Full": (20.02, "optimal"),
@@ -105,15 +106,15 @@ for env, monitor in env_mon_combo:
         som_runs = []
         svm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/mine/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            x = np.load(f"data/neurips/mine/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             my_runs.append(x)
-            x = np.load(f"data/Simone/iGym-Grid/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
+            x = np.load(f"data/neurips/Simone/iGym-Grid/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                 "test/return"]
             s_runs.append(x)
             # x = np.load(f"data/single_observe_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
             # som_runs.append(x)
-            x = np.load(f"data/single_visit_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
-            svm_runs.append(x)
+            # x = np.load(f"data/single_visit_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            # svm_runs.append(x)
         # print(np.argmin(np.array(my_runs).sum(-1)))
         # exit()
         my_smoothed = []
@@ -226,8 +227,8 @@ for env, monitor in env_mon_combo:
         # plt.title(f"{env}_{monitor}")
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
-        ax.set_xticks(np.arange(0, 201, 100))
-        ax.set_xticklabels([])
+        ax.set_xticks(np.arange(0, 201, 40))
+        # ax.set_xticklabels([])
         ax.set_xlim(0, 210)
         # ax.set_yticks(np.arange(np.min(my_mean_return) - 0.05 * (np.max(my_mean_return) - np.min(my_mean_return)),
         #                         ref + 0.1 * ref,
@@ -238,9 +239,9 @@ for env, monitor in env_mon_combo:
         #                         ref + 0.05 * (np.max(my_mean_return) - np.min(my_mean_return))])
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
-        ax.set_ylim(0, 1)
+        # ax.set_ylim(0, 20)
 
-        if monitor == "Full":
+        # if monitor == "Full":
             # ax.set_ylabel("Discounted test return",
             #               weight="bold",
             #               fontsize=20,
@@ -249,9 +250,9 @@ for env, monitor in env_mon_combo:
             #               # ha='right'
             #               )
             # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-            ax.set_yticks([0.2, 0.5, 0.8, 1])
-        else:
-            ax.set_yticklabels([])
+            # ax.set_yticks([0.2, 0.5, 0.8, 1])
+        # else:
+            # ax.set_yticklabels([])
         # elif monitor == "Button":
         #     ax.set_ylabel("Discounted test return",
         #                   weight="bold",
