@@ -3,9 +3,8 @@
 _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
 max_batch_size: null
 params:
-  environment: distract_snake
+  environment: distract_snake, bypass
   experiment.hide_progress_bar: True
   experiment.datadir: data
   experiment.rng_seed: range(0, 30)
-  monitor: full, ask, button, n_supporter, n_expert, level, random
-  monitor.prob: 1, 0.8, 0.2, 0.05
+  monitor: full, ask, button, n_supporter, level, random_nonzero

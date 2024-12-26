@@ -99,7 +99,7 @@ GRIDS = {
         [RIGHT, EMPTY, QCKSND, GOOD_SMALL, EMPTY],
         [UP, EMPTY, EMPTY, EMPTY, EMPTY],
     ],
-    "3x5_ultimate_snake": [
+    "3x5_bypass": [
         [EMPTY, LEFT, GOOD, EMPTY, EMPTY],
         [EMPTY, QCKSND, EMPTY, BAD, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
