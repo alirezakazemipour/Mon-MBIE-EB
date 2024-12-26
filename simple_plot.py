@@ -20,7 +20,7 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Random", #"Full", "Button", "Ask", "NSupporter", "Level",  # "Random"
+monitor = "Button", #"Full", "Button", "Ask", "NSupporter", "Level",  # "Random"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -91,7 +91,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}", "blue", "0.5"),
+        (f"{monitor}", "blue", "1"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -182,8 +182,8 @@ for env, monitor in env_mon_combo:
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
         # plt.xlabel("Training Steps (x$10^3$)", weight="bold", fontsize=20)
         ax.xaxis.label.set_color('black')
-        # ax.set_xticks(np.arange(0, 201, 100))
-        ax.set_xticklabels([])
+        ax.set_xticks(np.arange(0, 201, 100))
+        # ax.set_xticklabels([])
         ax.set_xlim(0, 200)
         # ax.set_yticks(np.arange(np.min(my_mean_return) - 0.05 * (np.max(my_mean_return) - np.min(my_mean_return)),
         #                         ref + 0.1 * ref,
@@ -194,9 +194,9 @@ for env, monitor in env_mon_combo:
         #                         ref + 0.05 * (np.max(my_mean_return) - np.min(my_mean_return))])
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
-        ax.set_ylim(0, 1)
+        ax.set_ylim(-1, 0.2)
 
-        if monitor == "Random":
+        if monitor == "Button":
             # ax.set_ylabel("Discounted Test Return",
             #               weight="bold",
             #               fontsize=20,
@@ -206,7 +206,7 @@ for env, monitor in env_mon_combo:
             #               color="k"
             #               )
             # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-            ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
+            ax.set_yticks([-0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4])
         else:
             ax.set_yticklabels([])
         # if monitor == "Button":
