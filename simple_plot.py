@@ -20,15 +20,16 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "RandomNonZero", # "Full", "Button", "Ask", "NSupporter", "NExpert", "Level",  # "Random"
+monitor = "Random", #"Full", "Button", "Ask", "NSupporter", "Level",  # "Random"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-Corridor-3x4-v0",
     # "Gridworld-Empty-Distract-6x6-v0",
-    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
     # "Gridworld-Ultimate-Snake-4x4-v0",
     "Gridworld-Snake-6x6-v0",
+    # "Gridworld-Bypass-3x5-v0",
+
 )
 env_mon_combo = itertools.product(env, monitor)
 
@@ -65,23 +66,15 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "Optimal"),
                                      "RandomNonZero": (0.941, "Optimal"),
                                      "Full": (0.941, "Optimal"),
                                      },
-        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.904, "Cautious"),
-                                               "Button": (0.308, "Cautious"),
-                                               "Level": (0.904, "Cautious"),
-                                               "NSupporter": (0.91, "Cautious"),
-                                               "NExpert": (0.904, "Cautious"),
-                                               "Random": (0.904, "Cautious"),
-                                               "RandomNonZero": (0.904, "Cautious"),
-                                               "Full": (0.941, "Optimal"),
-                                               },
-        "Gridworld-Ultimate-Snake-4x4-v0": {"Ask": (0.914, "Optimal"),
-                                            "Button": (0.821, "Optimal"),
-                                            "Level": (0.914, "Optimal"),
-                                            "N": (0.914, "Optimal"),
-                                            "Random": (0.914, "Optimal"),
-                                            "RandomNonZero": (0.914, "Optimal"),
-                                            "Full": (0.914, "Optimal"),
-                                            },
+        "Gridworld-Bypass-3x5-v0": {"Ask": (0.904, "Cautious"),
+                                    "Button": (0.308, "Cautious"),
+                                    "Level": (0.904, "Cautious"),
+                                    "NSupporter": (0.91, "Cautious"),
+                                    "NExpert": (0.904, "Cautious"),
+                                    "Random": (0.904, "Cautious"),
+                                    "RandomNonZero": (0.904, "Cautious"),
+                                    "Full": (0.941, "Optimal"),
+                                    },
         "Gridworld-Snake-6x6-v0": {"Ask": (0.904, "Cautious"),
                                    "Button": (0.19, "Cautious"),
                                    "Level": (0.904, "Cautious"),
@@ -125,10 +118,7 @@ for env, monitor in env_mon_combo:
                 f"iGym-Grid/{env}/{algo}Monitor_{prob}/{monitor}Monitor__{prob}_{i}.npz")[
                 "test/return"]
             s_runs.append(x)
-            # x = np.load(f"data/single_observe_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
-            # som_runs.append(x)
-            # x = np.load(f"data/single_visit_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
-            # svm_runs.append(x)
+
         # print(np.argmin(np.array(my_runs).sum(-1)))
         # exit()
         my_smoothed = []
@@ -147,18 +137,6 @@ for env, monitor in env_mon_combo:
             for tmp in run[1:]:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
             s_smoothed.append(val)
-
-        for run in som_runs:
-            val = [run[0]]
-            for tmp in run[1:]:
-                val.append(0.9 * val[-1] + 0.1 * tmp)
-            som_smoothed.append(val)
-
-        for run in svm_runs:
-            val = [run[0]]
-            for tmp in run[1:]:
-                val.append(0.9 * val[-1] + 0.1 * tmp)
-            svm_smoothed.append(val)
 
         my_mean_return = np.mean(np.asarray(my_smoothed), axis=0)
         my_std_return = np.std(np.asarray(my_smoothed), axis=0)
@@ -196,53 +174,16 @@ for env, monitor in env_mon_combo:
                 label="Directed-E$\mathbf{^2}$"
                 )
 
-        # som_mean_return = np.mean(np.asarray(som_smoothed), axis=0)
-        # som_std_return = np.std(np.asarray(som_smoothed), axis=0)
-        # som_lower_bound = som_mean_return - 1.96 * som_std_return / math.sqrt(n_runs)
-        # som_upper_bound = som_mean_return + 1.96 * som_std_return / math.sqrt(n_runs)
-        # ax.fill_between(np.arange(len(som_mean_return)),
-        #                 som_lower_bound,
-        #                 som_upper_bound,
-        #                 alpha=0.25,
-        #                 color="green"
-        #                 )
-        # ax.plot(np.arange(len(som_mean_return)),
-        #         som_mean_return,
-        #         alpha=1,
-        #         linewidth=4,
-        #         c="green",
-        #         label="Single observe MBIE"
-        #         )
-
-        # svm_mean_return = np.mean(np.asarray(svm_smoothed), axis=0)
-        # svm_std_return = np.std(np.asarray(svm_smoothed), axis=0)
-        # svm_lower_bound = svm_mean_return - 1.96 * svm_std_return / math.sqrt(n_runs)
-        # svm_upper_bound = svm_mean_return + 1.96 * svm_std_return / math.sqrt(n_runs)
-        # ax.fill_between(np.arange(len(svm_mean_return)),
-        #                 svm_lower_bound,
-        #                 svm_upper_bound,
-        #                 alpha=0.25,
-        #                 color="purple"
-        #                 )
-        # ax.plot(np.arange(len(svm_mean_return)),
-        #         svm_mean_return,
-        #         alpha=1,
-        #         linewidth=4,
-        #         c="purple",
-        #         label="Single visit MBIE"
-        #         )
-
         plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
         # ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
         # ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
         ax.xaxis.set_tick_params(labelsize=20, colors="black")
         ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-        # plt.title(f"Shaded areas represent 95% CI")
-        plt.xlabel("Training Steps (x$10^3$)", weight="bold", fontsize=20)
+        # plt.xlabel("Training Steps (x$10^3$)", weight="bold", fontsize=20)
         ax.xaxis.label.set_color('black')
         # ax.set_xticks(np.arange(0, 201, 100))
-        # ax.set_xticklabels([])
+        ax.set_xticklabels([])
         ax.set_xlim(0, 200)
         # ax.set_yticks(np.arange(np.min(my_mean_return) - 0.05 * (np.max(my_mean_return) - np.min(my_mean_return)),
         #                         ref + 0.1 * ref,
@@ -255,15 +196,15 @@ for env, monitor in env_mon_combo:
         # ax.yaxis.label.set_color('black')
         ax.set_ylim(0, 1)
 
-        if monitor == "Full" or monitor == "Button":
-            ax.set_ylabel("Discounted Test Return",
-                          weight="bold",
-                          fontsize=20,
-                          # rotation="horizontal",
-                          # labelpad=50,
-                          # ha='right'
-                          color="k"
-                          )
+        if monitor == "Random":
+            # ax.set_ylabel("Discounted Test Return",
+            #               weight="bold",
+            #               fontsize=20,
+            #               # rotation="horizontal",
+            #               # labelpad=50,
+            #               # ha='right'
+            #               color="k"
+            #               )
             # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
             ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
         else:
