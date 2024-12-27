@@ -20,14 +20,13 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Random", "Ask", "Button", "NSupporter", "NExpert", "Level",  # "RandomNonZero"
+monitor = "Button", #"Ask", "Button", "NSupporter", "NExpert", "Level",  # "RandomNonZero"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-Corridor-3x4-v0",
-    "Gridworld-Empty-Distract-6x6-v0",
-    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
-    # "Gridworld-Quicksand-Distract-4x4-v0",
+    # "Gridworld-Snake-6x6-v0",
+    "Gridworld-Bypass-3x5-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
 
@@ -39,7 +38,7 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                            "RandomNonZero": (20.02, "optimal"),
                            "Full": (20.02, "optimal"),
                            },
-        "Gridworld-Empty-Distract-6x6-v0": {"Ask": (0.904, "optimal"),
+        "Gridworld-Snake-6x6-v0": {"Ask": (0.904, "optimal"),
                                             "Button": (0.19, "optimal"),
                                             "Level": (0.904, "optimal"),
                                             "NSupporter": (0.915, "optimal"),
@@ -64,7 +63,7 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                                      "RandomNonZero": (0.941, "optimal"),
                                      "Full": (0.941, "optimal"),
                                      },
-        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.904, "cautious"),
+        "Gridworld-Bypass-3x5-v0": {"Ask": (0.904, "cautious"),
                                                "Button": (0.308, "cautious"),
                                                "Level": (0.904, "cautious"),
                                                "NSupporter": (0.91, "cautious"),
@@ -88,7 +87,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}", "orange", "0.05"),
+        (f"{monitor}", "green", "0.05"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -241,9 +240,9 @@ for env, monitor in env_mon_combo:
         #                         ref + 0.05 * (np.max(my_mean_return) - np.min(my_mean_return))])
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
-        ax.set_ylim(0, 1)
+        ax.set_ylim(-1, 0.4)
 
-        if monitor == "Full" or monitor == "Random":
+        if monitor == "Button" or monitor == "Random":
             # ax.set_ylabel("Discounted test return",
             #               weight="bold",
             #               fontsize=20,
@@ -252,7 +251,7 @@ for env, monitor in env_mon_combo:
             #               # ha='right'
             #               )
             # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-            ax.set_yticks([0.2, 0.5, 0.8, 1])
+            ax.set_yticks([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4])
         else:
             ax.set_yticklabels([])
         # if monitor == "Button":
