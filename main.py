@@ -51,7 +51,7 @@ def run(cfg: DictConfig) -> None:
     # endregion
 
     # region Random
-    if "Random" in cfg.monitor.id:
+    if "Random" == cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
 
         monitor = np.zeros((env.observation_space["env"].n,
