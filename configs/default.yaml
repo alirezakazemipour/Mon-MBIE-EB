@@ -1,5 +1,5 @@
 defaults:
-  - environment: 6x6_wasp
+  - environment: oneway
   - monitor: button
   - _self_
   - override hydra/hydra_logging: disabled
@@ -12,7 +12,7 @@ critic:
     vi_iter: 50
 
 experiment:
-  datadir: data
+  datadir: null
   rng_seed: 0
   hide_progress_bar: False
 
