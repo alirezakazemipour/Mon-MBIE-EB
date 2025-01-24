@@ -20,13 +20,13 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Button", #"Ask", "Button", "NSupporter", "NExpert", "Level",  # "RandomNonZero"
+monitor = "Full", "Ask", "NSupporter", "RandomNonZero", "Level"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-Corridor-3x4-v0",
-    # "Gridworld-Snake-6x6-v0",
-    "Gridworld-Bypass-3x5-v0",
+    "Gridworld-Snake-6x6-v0",
+    # "Gridworld-Bypass-3x5-v0",
 )
 env_mon_combo = itertools.product(env, monitor)
 
@@ -87,7 +87,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}", "green", "0.05"),
+        (f"{monitor}", "green", "0.05" if monitor != "Full" else "1"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -102,26 +102,27 @@ for env, monitor in env_mon_combo:
         ref, opt_caut = info[env][monitor]
         my_runs = []
         s_runs = []
-        som_runs = []
-        svm_runs = []
+        knm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/known_monitor/mine/"
+            x = np.load(f"data/stochastically_observable/mine/"
                         f"Gym-Grid/{env}/{algo}_{prob}/data_{i}.npz")["test_return"]
             my_runs.append(x)
 
-            x = np.load(f"data/stochastically_observable/mine/"
-                        f"Gym-Grid/{env}/{algo}_{prob}/data_{i}.npz")["test_return"]
+            x = np.load(
+                f"data/stochastically_observable/simone/"
+                f"iGym-Grid/{env}/{algo}Monitor_{prob}/{monitor}Monitor__{prob}_{i}.npz")[
+                "test/return"]
             s_runs.append(x)
-            # x = np.load(f"data/single_observe_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
-            # som_runs.append(x)
-            # x = np.load(f"data/single_visit_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
-            # svm_runs.append(x)
+
+            x = np.load(f"data/known_monitor/mine/"
+                        f"Gym-Grid/{env}/{algo}_{prob}/data_{i}.npz")["test_return"]
+            knm_runs.append(x)
+
         # print(np.argmin(np.array(my_runs).sum(-1)))
         # exit()
         my_smoothed = []
         s_smoothed = []
-        som_smoothed = []
-        svm_smoothed = []
+        knm_smoothed = []
 
         for run in my_runs:
             val = [run[0]]
@@ -135,17 +136,11 @@ for env, monitor in env_mon_combo:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
             s_smoothed.append(val)
 
-        for run in som_runs:
+        for run in knm_runs:
             val = [run[0]]
             for tmp in run[1:]:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
-            som_smoothed.append(val)
-
-        for run in svm_runs:
-            val = [run[0]]
-            for tmp in run[1:]:
-                val.append(0.9 * val[-1] + 0.1 * tmp)
-            svm_smoothed.append(val)
+            knm_smoothed.append(val)
 
         my_mean_return = np.mean(np.asarray(my_smoothed), axis=0)
         my_std_return = np.std(np.asarray(my_smoothed), axis=0)
@@ -155,14 +150,14 @@ for env, monitor in env_mon_combo:
                         my_lower_bound,
                         my_upper_bound,
                         alpha=0.25,
-                        color=color
+                        color="blue"
                         )
         ax.plot(np.arange(len(my_mean_return)),
                 my_mean_return,
                 alpha=1,
                 linewidth=4,
-                c=color,
-                label="Double MBIE"
+                c="blue",
+                label="Known Monitor"
                 )
 
         s_mean_return = np.mean(np.asarray(s_smoothed), axis=0)
@@ -173,14 +168,14 @@ for env, monitor in env_mon_combo:
                         s_lower_bound,
                         s_upper_bound,
                         alpha=0.25,
-                        color="blue"
+                        color="red"
                         )
         ax.plot(np.arange(len(s_mean_return)),
                 s_mean_return,
                 alpha=1,
                 linewidth=4,
-                c="blue",
-                label="Double MBIE"
+                c="red",
+                label="Directed-E$^2$"
                 )
 
         # som_mean_return = np.mean(np.asarray(som_smoothed), axis=0)
@@ -201,23 +196,23 @@ for env, monitor in env_mon_combo:
         #         label="Single observe MBIE"
         #         )
 
-        # svm_mean_return = np.mean(np.asarray(svm_smoothed), axis=0)
-        # svm_std_return = np.std(np.asarray(svm_smoothed), axis=0)
-        # svm_lower_bound = svm_mean_return - 1.96 * svm_std_return / math.sqrt(n_runs)
-        # svm_upper_bound = svm_mean_return + 1.96 * svm_std_return / math.sqrt(n_runs)
-        # ax.fill_between(np.arange(len(svm_mean_return)),
-        #                 svm_lower_bound,
-        #                 svm_upper_bound,
-        #                 alpha=0.25,
-        #                 color="purple"
-        #                 )
-        # ax.plot(np.arange(len(svm_mean_return)),
-        #         svm_mean_return,
-        #         alpha=1,
-        #         linewidth=4,
-        #         c="purple",
-        #         label="Single visit MBIE"
-        #         )
+        knm_mean_return = np.mean(np.asarray(knm_smoothed), axis=0)
+        knm_std_return = np.std(np.asarray(knm_smoothed), axis=0)
+        knm_lower_bound = knm_mean_return - 1.96 * knm_std_return / math.sqrt(n_runs)
+        knm_upper_bound = knm_mean_return + 1.96 * knm_std_return / math.sqrt(n_runs)
+        ax.fill_between(np.arange(len(knm_mean_return)),
+                        knm_lower_bound,
+                        knm_upper_bound,
+                        alpha=0.25,
+                        color="green"
+                        )
+        ax.plot(np.arange(len(knm_mean_return)),
+                knm_mean_return,
+                alpha=1,
+                linewidth=4,
+                c="green",
+                label="Known Monitor"
+                )
 
         plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
         # ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
@@ -240,9 +235,9 @@ for env, monitor in env_mon_combo:
         #                         ref + 0.05 * (np.max(my_mean_return) - np.min(my_mean_return))])
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
-        ax.set_ylim(-1, 0.4)
+        ax.set_ylim(0, 1)
 
-        if monitor == "Button" or monitor == "Random":
+        if monitor == "Button" or monitor == "Full":
             # ax.set_ylabel("Discounted test return",
             #               weight="bold",
             #               fontsize=20,
@@ -251,7 +246,7 @@ for env, monitor in env_mon_combo:
             #               # ha='right'
             #               )
             # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-            ax.set_yticks([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4])
+            ax.set_yticks([0.2, 0.5, 0.8, 1])
         else:
             ax.set_yticklabels([])
         # if monitor == "Button":
