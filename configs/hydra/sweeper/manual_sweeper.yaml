@@ -7,5 +7,5 @@ params:
   experiment.hide_progress_bar: True
   experiment.datadir: data
   experiment.rng_seed: range(0, 30)
-  monitor: random, ask, button, n_supporter, random, level
+  monitor: random_nonzero, ask, button, n_supporter, random, level
   monitor.prob: 0.8, 0.2, 0.05
