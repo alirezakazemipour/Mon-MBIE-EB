@@ -81,6 +81,40 @@ def run(cfg: DictConfig) -> None:
                                )
     # endregion
 
+    # region RandomNonZero
+    if "RandomNonZero" == cfg.monitor.id:
+        mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
+
+        monitor = np.zeros((env.observation_space["env"].n,
+                            env.observation_space["mon"].n,
+                            env.action_space["env"].n,
+                            env.action_space["mon"].n
+                            )
+                           ) + cfg.monitor.prob
+
+        if cfg.environment.monitor.forbidden_states is not None:
+            env_test.reset()
+            for s in range(env.observation_space["env"].n):
+                for a in range(env.action_space["env"].n):
+                    state = {"env": s, "mon": 0}
+                    env_test.set_state(state)
+                    act = {"env": a, "mon": 0}
+                    ns, rwd, *_ = env_test.step(act)
+                    if ns["env"] in cfg.environment.monitor.forbidden_states:
+                        monitor[s, :, a, :] = 0
+
+                    if rwd["env"] == 0 and ns["env"] not in cfg.environment.monitor.forbidden_states:
+                        monitor[s, :, a, :] = 1
+
+        mon_dynamics = np.ones((env.observation_space["env"].n,
+                                env.observation_space["mon"].n,
+                                env.action_space["env"].n,
+                                env.action_space["mon"].n,
+                                env.observation_space["mon"].n
+                                )
+                               )
+    # endregion
+
     # region Ask
     if "Ask" in cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
@@ -293,7 +327,7 @@ def run(cfg: DictConfig) -> None:
     # print(f"\nexplore episodes: {experiment.explore_episodes}")
     # print("\nvisits:", critic.env_visit.astype(int))
     # print("\nobservs:", critic.env_obsrv_count.astype(int))  # noqa
-    # print("\nrwd model:", critic.env_rwd_model)
+    print("\nrwd model:", critic.env_rwd_model)
     # print("\njoint count: ", critic.j[-1])
     # print("\nmon rwd: ", critic.mon_rwd_model)
     # print("\ndynamics: ", critic.env_dynamics)

@@ -21,12 +21,12 @@ hydra:
     _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
     max_batch_size: null
     params:
-      environment: distract, two_room
+      environment: 6x6_snake
       experiment.hide_progress_bar: true
       experiment.datadir: data
       experiment.rng_seed: range(0, 30)
-      monitor: random
-      monitor.prob: 0.8, 0.2, 0.05
+      monitor: random_nonzero, full
+      monitor.prob: 0.05
   help:
     app_name: ${hydra.job.name}
     header: '${hydra.help.app_name} is powered by Hydra.
@@ -134,7 +134,7 @@ hydra:
     output_dir: ???
     choices:
       monitor: random
-      environment: distract
+      environment: 6x6_snake
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -146,7 +146,7 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Grid/Gridworld-Empty-Distract-6x6-v0
+  id: Gym-Grid/Gridworld-Snake-6x6-v0
   monitor:
     button_cell_id: 31
     button_flip_act: 1
