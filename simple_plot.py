@@ -20,7 +20,7 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Full", #"Full", "RandomNonZero", "Ask", "NSupporter", "Level",  # "Random"
+monitor = "Ask", "Level", "NSupporter", #"Ask", "NSupporter", "Level",  # "Random"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",

@@ -1,7 +1,6 @@
 import math
 
 import gymnasium as gym
-import numba
 import numpy as np
 from tqdm import tqdm
 import warnings
@@ -9,6 +8,7 @@ import warnings
 from src.actor import Actor
 from src.critic import MonQCritic
 from src.utils import set_rng_seed, cantor_pairing
+from src.wrappers.monitor_wrappers import Button
 
 
 class MonExperiment:
@@ -71,6 +71,9 @@ class MonExperiment:
 
         return_train_history = []
         return_test_history = []
+        goal_cnt_hist = []
+        button_cnt_hist = []
+        unobsrv_cnt_hist = []
         while tot_steps < self.training_steps:
             pbar.update(tot_steps - pbar.n)
             last_ep_return = last_ep_return_env + last_ep_return_mon
@@ -110,6 +113,11 @@ class MonExperiment:
                                      "test/return": (test_return_env + test_return_mon).mean(),
                                      }
                     return_test_history.append(test_dict["test/return"])
+                    if self.env.spec.id == gym.envs.spec("Gym-Grid/Gridworld-Snake-6x6-v0").id and isinstance(self.env,
+                                                                                                              Button):
+                        goal_cnt_hist.append(self.critic.env_visit[-1, 4])
+                        button_cnt_hist.append(self.critic.env_visit[31, 1])
+                        unobsrv_cnt_hist.append(self.critic.env_visit[[2, 8, 20, 26, 32]].mean())
 
                 train_dict = {
                     "train/return_env": last_ep_return_env,
@@ -162,7 +170,10 @@ class MonExperiment:
                 "joint_obsrv_count": self.critic.joint_obsrv_count,
                 "monitor": self.critic.monitor,
                 "env_obsrv_count": self.critic.env_obsrv_count,
-                "env_reward_model": self.critic.env_rwd_model
+                "env_reward_model": self.critic.env_rwd_model,
+                "goal_cnt_hist": goal_cnt_hist,
+                "button_cnt_hist": button_cnt_hist,
+                "unobsrv_cnt_hist": unobsrv_cnt_hist
                 }
         return data
 
