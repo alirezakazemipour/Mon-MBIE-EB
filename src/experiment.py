@@ -72,7 +72,8 @@ class MonExperiment:
         return_train_history = []
         return_test_history = []
         goal_cnt_hist = []
-        button_cnt_hist = []
+        button_off_cnt_hist = []
+        button_on_cnt_hist = []
         unobsrv_cnt_hist = []
         while tot_steps < self.training_steps:
             pbar.update(tot_steps - pbar.n)
@@ -116,7 +117,8 @@ class MonExperiment:
                     if self.env.spec.id == gym.envs.spec("Gym-Grid/Gridworld-Snake-6x6-v0").id and isinstance(self.env,
                                                                                                               Button):
                         goal_cnt_hist.append(self.critic.env_visit[-1, 4])
-                        button_cnt_hist.append(self.critic.env_visit[31, 1])
+                        button_off_cnt_hist.append(self.critic.joint_count[31, 0, 1, 0])
+                        button_on_cnt_hist.append(self.critic.joint_count[31, 1, 1, 0])
                         unobsrv_cnt_hist.append(self.critic.env_visit[[2, 8, 20, 26, 32]].mean())
 
                 train_dict = {
@@ -172,7 +174,8 @@ class MonExperiment:
                 "env_obsrv_count": self.critic.env_obsrv_count,
                 "env_reward_model": self.critic.env_rwd_model,
                 "goal_cnt_hist": goal_cnt_hist,
-                "button_cnt_hist": button_cnt_hist,
+                "button_on_cnt_hist": button_on_cnt_hist,
+                "button_off_cnt_hist": button_off_cnt_hist,
                 "unobsrv_cnt_hist": unobsrv_cnt_hist
                 }
         return data
