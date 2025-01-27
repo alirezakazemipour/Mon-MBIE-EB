@@ -30,7 +30,7 @@ for i in range(n_runs):
                 f"Gridworld-Snake-6x6-v0/Button_0.05/data_{i}.npz")
 
     my_goals.append(x["goal_cnt_hist"])
-    my_buttons.append(x["button_off_cnt_hist"])
+    my_buttons.append(x["button_off_cnt_hist"] + x["button_on_cnt_hist"])
     my_unobsrvs.append(x["unobsrv_cnt_hist"])
 
     x = np.load(
@@ -38,7 +38,7 @@ for i in range(n_runs):
         f"Gridworld-Snake-6x6-v0/ButtonMonitor_0.05/ButtonMonitor__0.05_{i}.npz")
 
     s_goals.append(x["train/goal_cnt_hist"])
-    s_buttons.append(x["train/button_off_cnt_hist"])
+    s_buttons.append(x["train/button_off_cnt_hist"] + x["train/button_on_cnt_hist"])
     s_unobsrvs.append(x["train/unobsrv_cnt_hist"])
 
 my_goals_smoothed = []
@@ -253,4 +253,25 @@ plt.savefig(f"/Users/alirezakazemipour/Desktop/Unobserved_Visited.pdf",
                 format="pdf",
                 bbox_inches="tight"
                 )
-plt.close()
+# plt.close()
+# plt.show()
+
+# labels = [0, 1000, 2000, 3000, 4000]
+# fig, ax = plt.subplots()
+# ax.set_ylabel('Area Under the Curve')
+# ax.bar(np.arange(5),
+#        (my_mean_unobsrvs[0], my_mean_unobsrvs[1000], my_mean_unobsrvs[2000], my_mean_unobsrvs[3000], my_mean_unobsrvs[4000]),
+#        width=0.25)
+# # ax.errorbar(np.arange(5), (my_mean_unobsrvs[0], my_mean_unobsrvs[1000], my_mean_unobsrvs[2000], my_mean_unobsrvs[3000], my_mean_unobsrvs[4000])
+# #             , yerr=(my_std_unobsrvs[0], my_std_unobsrvs[1000], my_std_unobsrvs[2000], my_std_unobsrvs[3000], my_std_unobsrvs[4000])
+# #             , fmt="o", color="k")
+#
+# ax.bar(np.arange(5) + .25,
+#        (s_mean_unobsrvs[0], s_mean_unobsrvs[1000], my_mean_unobsrvs[2000], my_mean_unobsrvs[3000], my_mean_unobsrvs[4000]),
+#        width=0.25)
+# # ax.errorbar(np.arange(5) + 0.75, (s_mean_unobsrvs[0], s_mean_unobsrvs[1000], s_mean_unobsrvs[2000], s_mean_unobsrvs[3000], s_mean_unobsrvs[4000],
+# #                                   )
+# #             , yerr=(s_std_unobsrvs[0], s_std_unobsrvs[1000], s_std_unobsrvs[2000], s_std_unobsrvs[3000], s_std_unobsrvs[4000])
+# #             , fmt="o", color="k")
+# plt.xticks(np.arange(5) + 0.75, ["0", "1000", "2000", "3000", "4000"])
+# plt.show()
