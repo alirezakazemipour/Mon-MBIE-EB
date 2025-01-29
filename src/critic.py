@@ -82,6 +82,7 @@ class MonQCritic(Critic):
         self.joint_q = None
         self.obsrv_q = None
         self.env_transit_count = None
+        self.joint_count = None
 
     def update(self,
                obs_env,
@@ -104,6 +105,8 @@ class MonQCritic(Critic):
 
         if term:
             self.env_term[obs_env, act_env] = 1
+
+        self.joint_count[obs_env, obs_mon, act_env, act_mon] += 1
 
         return 0
 
@@ -172,6 +175,7 @@ class MonQCritic(Critic):
         self.env_visit = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_term = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_obsrv_count = np.zeros((self.env_num_obs, self.env_num_act))
+        self.joint_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
         self.env_transit_count = np.zeros((self.env_num_obs, self.env_num_act, self.env_num_obs,))
         self.joint_q = np.ones(
             (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q
