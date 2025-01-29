@@ -248,7 +248,7 @@ plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
 # plt.show()
 plt.ylim([-100, 4000])
 ax.set_yticks([0, 1000, 2000, 3000, 4000])
-ax.set_yticklabels([])
+# ax.set_yticklabels([])
 plt.savefig(f"/Users/alirezakazemipour/Desktop/Unobserved_Visited.pdf",
                 format="pdf",
                 bbox_inches="tight"

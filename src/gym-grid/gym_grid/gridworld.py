@@ -66,12 +66,12 @@ GRIDS = {
     ],
     "6x6_distract": [[EMPTY for _ in range(6)] for _ in range(6)],
     "6x6_snake": [
+        [EMPTY, EMPTY, BAD, EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, BAD, EMPTY, BAD, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-        [EMPTY, EMPTY, EMPTY, EMPTY, BAD, EMPTY],
-        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
-        [GOOD_SMALL, EMPTY, EMPTY, EMPTY, EMPTY, GOOD],
+        [EMPTY, EMPTY, BAD, EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, BAD, EMPTY, EMPTY, EMPTY],
+        [GOOD_SMALL, EMPTY, BAD, EMPTY, EMPTY, GOOD],
     ],
     "6x6_wasp": [
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
