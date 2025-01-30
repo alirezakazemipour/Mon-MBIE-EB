@@ -134,7 +134,7 @@ class MonQCritic(Critic):
             f_t = f(t)
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
+                    ucb = self.c * math.sqrt(math.log(f_t) / self.joint_count[*s, *a])
                     ucb4transit[*s, *a] += ucb
 
         self.joint_q = self.value_iteration(self.vi_iter,
@@ -163,7 +163,7 @@ class MonQCritic(Critic):
                                                               self.joint_count[*s, *a]
                                                               )
                     # optimism for transitions
-                    ucb = self.c * math.sqrt(2 * math.log(f_t) / self.joint_count[*s, *a])
+                    ucb = self.c * math.sqrt(math.log(f_t) / self.joint_count[*s, *a])
                     obsrv_rwd_bar[*s, *a] += ucb
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
@@ -222,7 +222,7 @@ class MonQCritic(Critic):
             f_t = f(t)
             for a in act_space:
                 if count[s, a] != 0:
-                    ucb = a0 * np.sqrt(2 * np.log(f_t) / count[s, a])
+                    ucb = a0 * np.sqrt(np.log(f_t) / count[s, a])
                     rwd_model[s, a] += ucb
         return rwd_model
 

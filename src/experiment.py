@@ -108,7 +108,17 @@ class MonExperiment:
                 if tot_steps % self.testing_frequency == 0:
                     self.actor.eval()
                     self.critic.eval()
-                    test_return_env, test_return_mon = self.test()
+
+                    (test_return_env,
+                     test_return_mon,
+                     goal_cnt,
+                     button_off_cnt,
+                     button_on_cnt,
+                     unobsrv_cnt,
+                     snake_cnt,
+                     gold_bar_cnt
+                     ) = self.test()
+
                     self.actor.train()
                     self.critic.train()
                     with warnings.catch_warnings():  # ignore 'mean of empty slice'
@@ -120,12 +130,12 @@ class MonExperiment:
                     return_test_history.append(test_dict["test/return"])
                     if self.env.spec.id == gym.envs.spec("Gym-Grid/Gridworld-Snake-6x6-v0").id and isinstance(self.env,
                                                                                                               Button):
-                        goal_cnt_hist.append(self.critic.env_visit[-1, 4])
-                        snake_cnt_hist.append(self.critic.env_visit[10].sum())
-                        gold_bar_cnt_hist.append(self.critic.env_visit[30, 4])
-                        button_off_cnt_hist.append(self.critic.joint_count[31, 0, 1, 0])
-                        button_on_cnt_hist.append(self.critic.joint_count[31, 1, 1, 0])
-                        unobsrv_cnt_hist.append(self.critic.env_visit[[2, 8, 20, 26, 32]].mean())
+                        goal_cnt_hist.append(goal_cnt)
+                        snake_cnt_hist.append(snake_cnt)
+                        gold_bar_cnt_hist.append(gold_bar_cnt)
+                        button_off_cnt_hist.append(button_off_cnt)
+                        button_on_cnt_hist.append(button_on_cnt)
+                        unobsrv_cnt_hist.append(unobsrv_cnt / 5)
 
                 train_dict = {
                     "train/return_env": last_ep_return_env,
@@ -191,6 +201,14 @@ class MonExperiment:
     def test(self):
         ep_return_env = np.zeros(self.testing_episodes)
         ep_return_mon = np.zeros(self.testing_episodes)
+
+        goal_cnt = np.zeros(self.testing_episodes)
+        button_off_cnt = np.zeros(self.testing_episodes)
+        button_on_cnt = np.zeros(self.testing_episodes)
+        unobsrv_cnt = np.zeros(self.testing_episodes)
+        snake_cnt = np.zeros(self.testing_episodes)
+        gold_bar_cnt = np.zeros(self.testing_episodes)
+
         for ep in range(self.testing_episodes):
             ep_seed = cantor_pairing(self.rng_seed, ep)
             obs, _ = self.env_test.reset(seed=ep_seed)
@@ -199,6 +217,20 @@ class MonExperiment:
             while True:
                 act = self.actor(obs["env"], obs["mon"], False, rng)
                 act = {"env": act[0], "mon": act[1]}
+
+                if obs["env"] == 35 and act["env"] == 4:
+                    goal_cnt[ep] += 1
+                elif obs["env"] in [2, 8, 20, 26, 32]:
+                    unobsrv_cnt[ep] += 1
+                elif obs["env"] == 10:
+                    snake_cnt[ep] += 1
+                elif obs["env"] == 35 and act["env"] == 4:
+                    gold_bar_cnt[ep] += 1
+                elif obs["env"] == 31 and obs["mon"] == 0 and act["env"] == 1 and act["mon"] == 0:
+                    button_off_cnt[ep] += 1
+                elif obs["env"] == 31 and obs["mon"] == 1 and act["env"] == 1 and act["mon"] == 0:
+                    button_on_cnt[ep] += 1
+
                 next_obs, rwd, term, trunc, info = self.env_test.step(act)
                 ep_return_env[ep] += (self.gamma ** ep_steps) * rwd["env"]
                 ep_return_mon[ep] += (self.gamma ** ep_steps) * rwd["mon"]
@@ -207,4 +239,12 @@ class MonExperiment:
                 obs = next_obs
                 ep_steps += 1
 
-        return ep_return_env, ep_return_mon
+        return (ep_return_env,
+                ep_return_mon,
+                goal_cnt.mean(),
+                button_off_cnt.mean(),
+                button_on_cnt.mean(),
+                unobsrv_cnt.mean(),
+                snake_cnt.mean(),
+                gold_bar_cnt.mean()
+                )

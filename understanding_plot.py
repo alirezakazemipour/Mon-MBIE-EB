@@ -26,7 +26,7 @@ s_buttons = []
 s_unobsrvs = []
 
 for i in range(n_runs):
-    x = np.load(f"data/understanding/mine/Gym-Grid/"
+    x = np.load(f"data/understanding/new_snake/mine/Gym-Grid/"
                 f"Gridworld-Snake-6x6-v0/Button_0.05/data_{i}.npz")
 
     my_goals.append(x["goal_cnt_hist"])
@@ -34,12 +34,13 @@ for i in range(n_runs):
     my_unobsrvs.append(x["unobsrv_cnt_hist"])
 
     x = np.load(
-        f"data/understanding/simone/iGym-Grid/"
+        f"data/understanding/new_snake/simone/iGym-Grid/"
         f"Gridworld-Snake-6x6-v0/ButtonMonitor_0.05/ButtonMonitor__0.05_{i}.npz")
 
     s_goals.append(x["train/goal_cnt_hist"])
     s_buttons.append(x["train/button_off_cnt_hist"] + x["train/button_on_cnt_hist"])
     s_unobsrvs.append(x["train/unobsrv_cnt_hist"])
+    # print(len(x["train/goal_cnt_hist"]))
 
 my_goals_smoothed = []
 my_buttons_smoothed = []
@@ -246,14 +247,14 @@ plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
 #               )
 # plt.title("State-Action Pairs with Unobservable Rewards", weight='bold')
 # plt.show()
-plt.ylim([-100, 4000])
-ax.set_yticks([0, 1000, 2000, 3000, 4000])
+# plt.ylim([-100, 4000])
+# ax.set_yticks([0, 1000, 2000, 3000, 4000])
 # ax.set_yticklabels([])
 plt.savefig(f"/Users/alirezakazemipour/Desktop/Unobserved_Visited.pdf",
                 format="pdf",
                 bbox_inches="tight"
                 )
-# plt.close()
+plt.close()
 # plt.show()
 
 # labels = [0, 1000, 2000, 3000, 4000]
