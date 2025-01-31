@@ -8,11 +8,11 @@ plt.rcParams["font.family"] = 'serif'
 
 colors = ["blue", "red", "green", "black"]
 f = lambda m, c: plt.plot([], [], marker=m, color=c, linewidth=4, linestyle='--')[0]
-handles = [f("_", colors[i]) for i in range(3)]
+handles = [f("_", colors[i]) for i in range(2)]
 # handles.append(f("_", colors[-1]))
-labels = ["Monitored MBIE-EB", "Directed-E$\mathbf{^2}$", "Known Monitor", "Optimal/Cautious"]
+labels = ["Monitored MBIE-EB", "Directed-E$\mathbf{^2}$", "Minimax Optimal"]
 handles.append(plt.axhline(5, linestyle="dashed", color="k", linewidth=3, label="Optimal"))
-legend = plt.legend(handles, labels, loc=3, framealpha=1, frameon=True, ncols=4, prop={'weight':'bold'})
+legend = plt.legend(handles, labels, loc=3, framealpha=1, frameon=True, ncols=3, prop={'weight':'bold'})
 
 
 def export_legend(legend, filename="legend.png"):

@@ -87,7 +87,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}", "green", "1" if monitor != "Full" else "1"),
+        (f"{monitor}", "green", "0.05" if monitor != "Full" else "1"),
         # (f"{monitor}_0.75", "red", "75%"),
         # (f"{monitor}_0.5", "green", "50%"),
         # (f"{monitor}_0.25", "orange", "25%"),
@@ -104,13 +104,13 @@ for env, monitor in env_mon_combo:
         s_runs = []
         knm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/understanding/new_snake/mine/"
+            x = np.load(f"data/understanding/test_visit/mine/"
                         f"Gym-Grid/{env}/{algo}_{prob}/data_{i}.npz")["test_return"]
             print(len(x))
             my_runs.append(x)
 
             x = np.load(
-                f"data/understanding/new_snake/simone/"
+                f"data/understanding/test_visit/simone/"
                 f"iGym-Grid/{env}/{algo}Monitor_{prob}/{monitor}Monitor__{prob}_{i}.npz")[
                 "test/return"]
             print(len(x))
@@ -186,19 +186,19 @@ for env, monitor in env_mon_combo:
         knm_std_return = np.std(np.asarray(knm_smoothed), axis=0)
         knm_lower_bound = knm_mean_return - 1.96 * knm_std_return / math.sqrt(n_runs)
         knm_upper_bound = knm_mean_return + 1.96 * knm_std_return / math.sqrt(n_runs)
-        # ax.fill_between(np.arange(len(knm_mean_return)),
-        #                 knm_lower_bound,
-        #                 knm_upper_bound,
-        #                 alpha=0.25,
-        #                 color="green"
-        #                 )
-        # ax.plot(np.arange(len(knm_mean_return)),
-        #         knm_mean_return,
-        #         alpha=1,
-        #         linewidth=4,
-        #         c="green",
-        #         label="Known Monitor"
-        #         )
+        ax.fill_between(np.arange(len(knm_mean_return)),
+                        knm_lower_bound,
+                        knm_upper_bound,
+                        alpha=0.25,
+                        color="green"
+                        )
+        ax.plot(np.arange(len(knm_mean_return)),
+                knm_mean_return,
+                alpha=1,
+                linewidth=4,
+                c="green",
+                label="Known Monitor"
+                )
 
         plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
         # ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
