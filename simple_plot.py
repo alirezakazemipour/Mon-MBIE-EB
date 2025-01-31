@@ -20,7 +20,7 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Full", "Ask", "NSupporter", "RandomNonZero", "Level"
+monitor = "Button", "Full", "Ask", "NSupporter", "RandomNonZero", "Level"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -164,19 +164,19 @@ for env, monitor in env_mon_combo:
         s_std_return = np.std(np.asarray(s_smoothed), axis=0)
         s_lower_bound = s_mean_return - 1.96 * s_std_return / math.sqrt(n_runs)
         s_upper_bound = s_mean_return + 1.96 * s_std_return / math.sqrt(n_runs)
-        ax.fill_between(np.arange(len(s_mean_return)),
-                        s_lower_bound,
-                        s_upper_bound,
-                        alpha=0.25,
-                        color="red"
-                        )
-        ax.plot(np.arange(len(s_mean_return)),
-                s_mean_return,
-                alpha=1,
-                linewidth=4,
-                c="red",
-                label="Directed-E$^2$"
-                )
+        # ax.fill_between(np.arange(len(s_mean_return)),
+        #                 s_lower_bound,
+        #                 s_upper_bound,
+        #                 alpha=0.25,
+        #                 color="red"
+        #                 )
+        # ax.plot(np.arange(len(s_mean_return)),
+        #         s_mean_return,
+        #         alpha=1,
+        #         linewidth=4,
+        #         c="red",
+        #         label="Directed-E$^2$"
+        #         )
 
         # som_mean_return = np.mean(np.asarray(som_smoothed), axis=0)
         # som_std_return = np.std(np.asarray(som_smoothed), axis=0)
@@ -235,7 +235,7 @@ for env, monitor in env_mon_combo:
         #                         ref + 0.05 * (np.max(my_mean_return) - np.min(my_mean_return))])
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
-        ax.set_ylim(0, 1)
+        ax.set_ylim(-0.7, 0.3)
 
         if monitor == "Button" or monitor == "Full":
             # ax.set_ylabel("Discounted test return",
@@ -246,7 +246,7 @@ for env, monitor in env_mon_combo:
             #               # ha='right'
             #               )
             # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-            ax.set_yticks([0.2, 0.5, 0.8, 1])
+            ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
         else:
             ax.set_yticklabels([])
         # if monitor == "Button":
