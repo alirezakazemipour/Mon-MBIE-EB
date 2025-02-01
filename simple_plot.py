@@ -20,7 +20,7 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 # plt.title(f"EOP", weight="bold")
 
 n_runs = 30
-monitor = "Button", "Full", "Ask", "NSupporter", "RandomNonZero", "Level"
+monitor = "Button", #"Full", "Ask", "NSupporter", "RandomNonZero", "Level"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -104,7 +104,7 @@ for env, monitor in env_mon_combo:
         s_runs = []
         knm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/stochastically_observable/mine/"
+            x = np.load(f"data/understanding/new_snake/mine/"
                         f"Gym-Grid/{env}/{algo}_{prob}/data_{i}.npz")["test_return"]
             my_runs.append(x)
 
@@ -114,7 +114,7 @@ for env, monitor in env_mon_combo:
                 "test/return"]
             s_runs.append(x)
 
-            x = np.load(f"data/known_monitor/mine/"
+            x = np.load(f"data/understanding/new_snake/known_monitor/"
                         f"Gym-Grid/{env}/{algo}_{prob}/data_{i}.npz")["test_return"]
             knm_runs.append(x)
 
@@ -178,24 +178,6 @@ for env, monitor in env_mon_combo:
         #         label="Directed-E$^2$"
         #         )
 
-        # som_mean_return = np.mean(np.asarray(som_smoothed), axis=0)
-        # som_std_return = np.std(np.asarray(som_smoothed), axis=0)
-        # som_lower_bound = som_mean_return - 1.96 * som_std_return / math.sqrt(n_runs)
-        # som_upper_bound = som_mean_return + 1.96 * som_std_return / math.sqrt(n_runs)
-        # ax.fill_between(np.arange(len(som_mean_return)),
-        #                 som_lower_bound,
-        #                 som_upper_bound,
-        #                 alpha=0.25,
-        #                 color="green"
-        #                 )
-        # ax.plot(np.arange(len(som_mean_return)),
-        #         som_mean_return,
-        #         alpha=1,
-        #         linewidth=4,
-        #         c="green",
-        #         label="Single observe MBIE"
-        #         )
-
         knm_mean_return = np.mean(np.asarray(knm_smoothed), axis=0)
         knm_std_return = np.std(np.asarray(knm_smoothed), axis=0)
         knm_lower_bound = knm_mean_return - 1.96 * knm_std_return / math.sqrt(n_runs)
@@ -223,9 +205,9 @@ for env, monitor in env_mon_combo:
         # plt.title(f"{env}_{monitor}_{prob}")
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
-        ax.set_xticks(np.arange(0, 201, 100))
+        ax.set_xticks(np.arange(0, 301, 100))
         # ax.set_xticklabels([])
-        ax.set_xlim(0, 200)
+        ax.set_xlim(0, 300)
         # ax.set_yticks(np.arange(np.min(my_mean_return) - 0.05 * (np.max(my_mean_return) - np.min(my_mean_return)),
         #                         ref + 0.1 * ref,
         #                         (np.max(my_mean_return) - np.min(my_mean_return)) / 5
@@ -260,9 +242,51 @@ for env, monitor in env_mon_combo:
         #     ax.set_ylim(-0.8, 0.25)
 
     # plt.tight_layout()
-    # plt.show()
-    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
-                format="pdf",
-                bbox_inches="tight"
-                )
+
+    # inset Axes....
+    x1, x2, y1, y2 = 0, 300, 0.1, 0.3  # subregion of the original image
+    axins = ax.inset_axes((0.55, 0.15, 0.47, 0.47),
+        xlim=(x1, x2), ylim=(y1, y2), xticklabels=[], yticklabels=[])
+
+    axins.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
+    axins.plot(np.arange(len(knm_mean_return)),
+            knm_mean_return,
+            alpha=1,
+            linewidth=4,
+            c="green",
+            label="Known Monitor"
+            )
+    axins.fill_between(np.arange(len(knm_mean_return)),
+                    knm_lower_bound,
+                    knm_upper_bound,
+                    alpha=0.25,
+                    color="green"
+                    )
+
+    axins.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
+
+    axins.fill_between(np.arange(len(my_mean_return)),
+                    my_lower_bound,
+                    my_upper_bound,
+                    alpha=0.25,
+                    color="blue"
+                    )
+    axins.plot(np.arange(len(my_mean_return)),
+            my_mean_return,
+            alpha=1,
+            linewidth=4,
+            c="blue",
+            )
+
+    axins.set_yticks([0.1, 0.3])
+    axins.set_xticks(np.arange(0, 301, 100))
+    axins.set_xlim(0, 300)
+    ax.indicate_inset_zoom(axins, edgecolor="black")
+
+
+    plt.show()
+    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
+    #             format="pdf",
+    #             bbox_inches="tight"
+    #             )
     plt.close()
