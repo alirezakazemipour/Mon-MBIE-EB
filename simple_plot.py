@@ -186,19 +186,19 @@ for env, monitor in env_mon_combo:
         knm_std_return = np.std(np.asarray(knm_smoothed), axis=0)
         knm_lower_bound = knm_mean_return - 1.96 * knm_std_return / math.sqrt(n_runs)
         knm_upper_bound = knm_mean_return + 1.96 * knm_std_return / math.sqrt(n_runs)
-        ax.fill_between(np.arange(len(knm_mean_return)),
-                        knm_lower_bound,
-                        knm_upper_bound,
-                        alpha=0.25,
-                        color="green"
-                        )
-        ax.plot(np.arange(len(knm_mean_return)),
-                knm_mean_return,
-                alpha=1,
-                linewidth=4,
-                c="green",
-                label="Known Monitor"
-                )
+        # ax.fill_between(np.arange(len(knm_mean_return)),
+        #                 knm_lower_bound,
+        #                 knm_upper_bound,
+        #                 alpha=0.25,
+        #                 color="green"
+        #                 )
+        # ax.plot(np.arange(len(knm_mean_return)),
+        #         knm_mean_return,
+        #         alpha=1,
+        #         linewidth=4,
+        #         c="green",
+        #         label="Known Monitor"
+        #         )
 
         plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
         # ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
@@ -212,13 +212,6 @@ for env, monitor in env_mon_combo:
         ax.set_xticks(np.arange(0, 301, 100))
         # ax.set_xticklabels([])
         ax.set_xlim(0, 300)
-        # ax.set_yticks(np.arange(np.min(my_mean_return) - 0.05 * (np.max(my_mean_return) - np.min(my_mean_return)),
-        #                         ref + 0.1 * ref,
-        #                         (np.max(my_mean_return) - np.min(my_mean_return)) / 5
-        #                         )
-        #               )
-        # ax.set_ylim([np.min(my_mean_return) - 0.05 * (np.max(my_mean_return) - np.min(my_mean_return)),
-        #                         ref + 0.05 * (np.max(my_mean_return) - np.min(my_mean_return))])
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
         # ax.set_ylim(-0.7, 0.3)
@@ -246,6 +239,36 @@ for env, monitor in env_mon_combo:
         #     ax.set_ylim(-0.8, 0.25)
 
     # plt.tight_layout()
+
+    # inset Axes....
+    x1, x2, y1, y2 = 0, 300, -0.7, 0.3  # subregion of the original image
+    axins = ax.inset_axes((0.4, 0.62, 0.52, 0.28),
+                          xlim=(x1, x2), ylim=(y1, y2), xticklabels=[0, 10, 20, 30], yticklabels=[-0.7, 0.3])
+
+    axins.fill_between(np.arange(len(my_mean_return)),
+                       my_lower_bound,
+                       my_upper_bound,
+                       alpha=0.25,
+                       color="blue"
+                       )
+    axins.plot(np.arange(len(my_mean_return)),
+               my_mean_return,
+               alpha=1,
+               linewidth=3,
+               c="blue",
+               )
+    axins.axhline(ref, linestyle="--", color="k", linewidth=2, label=f"{opt_caut}")
+
+
+    axins.set_yticks([-0.7, 0.3])
+    axins.set_xticks(np.arange(0, 301, 100))
+    axins.set_xlim(0, 300)
+    axins.xaxis.set_tick_params(labelsize=15, colors="black")
+    axins.yaxis.set_tick_params(labelsize=15, colors="black")
+    ax.indicate_inset_zoom(axins, edgecolor="black", linewidth=2)
+
+
+
     # plt.show()
     plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
                 format="pdf",
