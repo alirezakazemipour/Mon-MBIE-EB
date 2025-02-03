@@ -243,50 +243,11 @@ for env, monitor in env_mon_combo:
 
     # plt.tight_layout()
 
-    # inset Axes....
-    x1, x2, y1, y2 = 0, 300, 0.1, 0.3  # subregion of the original image
-    axins = ax.inset_axes((0.55, 0.15, 0.47, 0.47),
-        xlim=(x1, x2), ylim=(y1, y2), xticklabels=[], yticklabels=[])
-
-    axins.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
-    axins.plot(np.arange(len(knm_mean_return)),
-            knm_mean_return,
-            alpha=1,
-            linewidth=4,
-            c="green",
-            label="Known Monitor"
-            )
-    axins.fill_between(np.arange(len(knm_mean_return)),
-                    knm_lower_bound,
-                    knm_upper_bound,
-                    alpha=0.25,
-                    color="green"
-                    )
-
-    axins.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
-
-    axins.fill_between(np.arange(len(my_mean_return)),
-                    my_lower_bound,
-                    my_upper_bound,
-                    alpha=0.25,
-                    color="blue"
-                    )
-    axins.plot(np.arange(len(my_mean_return)),
-            my_mean_return,
-            alpha=1,
-            linewidth=4,
-            c="blue",
-            )
-
-    axins.set_yticks([0.1, 0.3])
-    axins.set_xticks(np.arange(0, 301, 100))
-    axins.set_xlim(0, 300)
-    ax.indicate_inset_zoom(axins, edgecolor="black")
 
 
-    plt.show()
-    # plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
-    #             format="pdf",
-    #             bbox_inches="tight"
-    #             )
+    # plt.show()
+    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",
+                format="pdf",
+                bbox_inches="tight"
+                )
     plt.close()
