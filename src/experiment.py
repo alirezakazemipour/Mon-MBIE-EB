@@ -78,6 +78,9 @@ class MonExperiment:
         unobsrv_cnt_hist = []
         snake_cnt_hist = []
         gold_bar_cnt_hist = []
+        beta_hist = []
+        beta_m_hist = []
+        beta_e_hist = []
 
         while tot_steps < self.training_steps:
             pbar.update(tot_steps - pbar.n)
@@ -135,7 +138,10 @@ class MonExperiment:
                         gold_bar_cnt_hist.append(gold_bar_cnt)
                         button_off_cnt_hist.append(button_off_cnt)
                         button_on_cnt_hist.append(button_on_cnt)
-                        unobsrv_cnt_hist.append(unobsrv_cnt / 5)
+                        unobsrv_cnt_hist.append(unobsrv_cnt)
+                        beta_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.joint_count)).mean())
+                        beta_m_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.joint_count.sum((0, 2))).mean()))
+                        beta_e_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.env_obsrv_count)).mean())
 
                 train_dict = {
                     "train/return_env": last_ep_return_env,
@@ -194,7 +200,10 @@ class MonExperiment:
                 "button_off_cnt_hist": button_off_cnt_hist,
                 "unobsrv_cnt_hist": unobsrv_cnt_hist,
                 "snake_cnt_hist": snake_cnt_hist,
-                "gold_bar_cnt_hist": gold_bar_cnt_hist
+                "gold_bar_cnt_hist": gold_bar_cnt_hist,
+                "beta_hist": beta_hist,
+                "beta_m_hist": beta_m_hist,
+                "beta_e_hist": beta_e_hist
                 }
         return data
 
@@ -224,7 +233,7 @@ class MonExperiment:
                     unobsrv_cnt[ep] += 1
                 elif obs["env"] == 10:
                     snake_cnt[ep] += 1
-                elif obs["env"] == 35 and act["env"] == 4:
+                elif obs["env"] == 30 and act["env"] == 4:
                     gold_bar_cnt[ep] += 1
                 elif obs["env"] == 31 and obs["mon"] == 0 and act["env"] == 1 and act["mon"] == 0:
                     button_off_cnt[ep] += 1

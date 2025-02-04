@@ -16,12 +16,18 @@ plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('legend', fontsize=17)  # legend fontsize
 
 n_runs = 30
+prob = 1
+mode = "on"
 
 my_goals = []
 my_buttons = []
 my_unobsrvs = []
 my_snakes = []
 my_gbs = []
+
+my_betas = []
+my_beta_ms = []
+my_beta_es = []
 
 s_goals = []
 s_snakes = []
@@ -31,22 +37,25 @@ s_gbs = []
 
 for i in range(n_runs):
     x = np.load(f"data/understanding/test_visit/mine/Gym-Grid/"
-                f"Gridworld-Snake-6x6-v0/Button_0.05/data_{i}.npz")
+                f"Gridworld-Snake-6x6-v0/Button_{prob}/data_{i}.npz")
 
     my_goals.append(x["goal_cnt_hist"])
-    my_buttons.append(x["button_off_cnt_hist"] + x["button_on_cnt_hist"])
-    my_unobsrvs.append(x["unobsrv_cnt_hist"] * 5)
+    my_buttons.append(x[f"button_{mode}_cnt_hist"])
+    my_unobsrvs.append(x["unobsrv_cnt_hist"])
     my_snakes.append(x["snake_cnt_hist"])
     my_gbs.append(x["gold_bar_cnt_hist"])
+    my_betas.append(x["beta_hist"])
+    my_beta_ms.append(x["beta_m_hist"])
+    my_beta_es.append(x["beta_e_hist"])
 
     x = np.load(
         f"data/understanding/test_visit/simone/iGym-Grid/"
-        f"Gridworld-Snake-6x6-v0/ButtonMonitor_0.05/ButtonMonitor__0.05_{i}.npz")
+        f"Gridworld-Snake-6x6-v0/ButtonMonitor_{prob}/ButtonMonitor__{prob}_{i}.npz")
 
     s_goals.append(x["test/goal_cnt_hist"])
     s_snakes.append(x["test/snake_cnt_hist"])
-    s_buttons.append(x["test/button_off_cnt_hist"] + x["test/button_on_cnt_hist"])
-    s_unobsrvs.append(x["test/unobsrv_cnt_hist"] * 5)
+    s_buttons.append(x[f"test/button_{mode}_cnt_hist"])
+    s_unobsrvs.append(x["test/unobsrv_cnt_hist"])
     s_gbs.append(x["test/gold_bar_cnt_hist"])
     # print(len(x["train/goal_cnt_hist"]))
 
@@ -55,6 +64,9 @@ my_snakes_smoothed = []
 my_buttons_smoothed = []
 my_unobsrvs_smoothed = []
 my_gbs_smoothed = []
+my_betas_smoothed = []
+my_beta_ms_smoothed = []
+my_beta_es_smoothed = []
 
 s_goals_smoothed = []
 s_snakes_smoothed = []
@@ -62,22 +74,51 @@ s_buttons_smoothed = []
 s_unobsrvs_smoothed = []
 s_gbs_smoothed = []
 
-for g, b, u, s, gb in zip(my_goals, my_buttons, my_unobsrvs, my_snakes, my_gbs):
-    val_g, val_b, val_u, val_s, val_gb = [g[0]], [b[0]], [u[0]], [s[0]], [gb[0]]
+for g, b, u, s, gb, beta, beta_m, beta_e in zip(my_goals,
+                                                my_buttons,
+                                                my_unobsrvs,
+                                                my_snakes,
+                                                my_gbs,
+                                                my_betas,
+                                                my_beta_ms,
+                                                my_beta_es
+                                                ):
+    val_g, val_b, val_u, val_s, val_gb, val_beta, val_beta_m, val_beta_e = ([g[0]],
+                                                                            [b[0]],
+                                                                            [u[0]],
+                                                                            [s[0]],
+                                                                            [gb[0]],
+                                                                            [beta[0]],
+                                                                            [beta_m[0]],
+                                                                            [beta_e[0]]
+                                                                            )
 
-    for tmp_g, tmp_b, tmp_u, tmp_s, tmp_gb in zip(g[1:], b[1:], u[1:], s[1:], gb[1:]):
+    for tmp_g, tmp_b, tmp_u, tmp_s, tmp_gb, tmp_beta, tmp_beta_m, tmp_beta_e in zip(g[1:],
+                                                                                    b[1:],
+                                                                                    u[1:],
+                                                                                    s[1:],
+                                                                                    gb[1:],
+                                                                                    beta[1:],
+                                                                                    beta_m[1:],
+                                                                                    beta_e[1:]
+                                                                                    ):
         val_g.append(0.9 * val_g[-1] + 0.1 * tmp_g)
         val_b.append(0.9 * val_b[-1] + 0.1 * tmp_b)
         val_u.append(0.9 * val_u[-1] + 0.1 * tmp_u)
         val_s.append(0.9 * val_s[-1] + 0.1 * tmp_s)
-        val_gb.append(0.9 * val_s[-1] + 0.1 * tmp_gb)
-
+        val_gb.append(0.9 * val_gb[-1] + 0.1 * tmp_gb)
+        val_beta.append(0.9 * val_beta[-1] + 0.1 * tmp_beta)
+        val_beta_m.append(0.9 * val_beta_m[-1] + 0.1 * tmp_beta_m)
+        val_beta_e.append(0.9 * val_beta_e[-1] + 0.1 * tmp_beta_e)
 
     my_goals_smoothed.append(val_g)
     my_buttons_smoothed.append(val_b)
     my_unobsrvs_smoothed.append(val_u)
     my_snakes_smoothed.append(val_s)
     my_gbs_smoothed.append(val_gb)
+    my_betas_smoothed.append(val_beta)
+    my_beta_ms_smoothed.append(val_beta_m)
+    my_beta_es_smoothed.append(val_beta_e)
 
 for g, b, u, s, gb in zip(s_goals, s_buttons, s_unobsrvs, s_snakes, s_gbs):
     val_g, val_b, val_u, val_s, val_gb = [g[0]], [b[0]], [u[0]], [s[0]], [gb[0]]
@@ -86,7 +127,7 @@ for g, b, u, s, gb in zip(s_goals, s_buttons, s_unobsrvs, s_snakes, s_gbs):
         val_g.append(0.9 * val_g[-1] + 0.1 * tmp_g)
         val_b.append(0.9 * val_b[-1] + 0.1 * tmp_b)
         val_u.append(0.9 * val_u[-1] + 0.1 * tmp_u)
-        val_s.append(0.9 * val_s[-1] + 0.1 * tmp_s)
+        val_s.append(0.9 * val_gb[-1] + 0.1 * tmp_s)
         val_gb.append(0.9 * val_s[-1] + 0.1 * tmp_gb)
         s_gbs_smoothed.append(val_gb)
 
@@ -148,12 +189,12 @@ ax.plot(np.arange(len(s_mean_goals)),
 # ax.set_yticks([0, 10000, 20000, 30000, 40000])
 # ax.set_yticklabels([])
 ax.set_xticks(np.arange(0, 301, 100))
-        # ax.set_xticklabels([])
+# ax.set_xticklabels([])
 ax.set_xlim(0, 300)
-plt.savefig(f"/Users/alirezakazemipour/Desktop/Goal_Visited.pdf",
-                format="pdf",
-                bbox_inches="tight"
-                )
+plt.savefig(f"/Users/alirezakazemipour/Desktop/Goal_Visited_{prob}.pdf",
+            format="pdf",
+            bbox_inches="tight"
+            )
 # plt.show()
 plt.close()
 ################# Button #########################
@@ -170,19 +211,28 @@ my_mean_buttons = np.mean(np.asarray(my_buttons_smoothed), axis=0)
 my_std_buttons = np.std(np.asarray(my_buttons_smoothed), axis=0)
 my_lower_bound = my_mean_buttons - 1.96 * my_std_buttons / math.sqrt(n_runs)
 my_upper_bound = my_mean_buttons + 1.96 * my_std_buttons / math.sqrt(n_runs)
-ax.fill_between(np.arange(len(my_mean_buttons)),
-                my_lower_bound,
-                my_upper_bound,
-                alpha=0.25,
-                color="blue"
-                )
-ax.plot(np.arange(len(my_mean_buttons)),
-        my_mean_buttons,
-        alpha=1,
-        linewidth=4,
-        c="blue",
-        label="Double MBIE"
-        )
+# ax.fill_between(np.arange(len(my_mean_buttons)),
+#                 my_lower_bound,
+#                 my_upper_bound,
+#                 alpha=0.25,
+#                 color="blue"
+#                 )
+# ax.plot(np.arange(len(my_mean_buttons)),
+#         my_mean_buttons,
+#         alpha=1,
+#         linewidth=4,
+#         c="blue",
+#         label="Double MBIE"
+#         )
+
+for i in range(24, 25):
+    ax.plot(np.arange(len(my_mean_buttons)),
+            my_buttons_smoothed[i],
+            alpha=1,
+            linewidth=4,
+            # c="blue",
+            label="Double MBIE"
+            )
 
 s_mean_buttons = np.mean(np.asarray(s_buttons_smoothed), axis=0)
 s_std_buttons = np.std(np.asarray(s_buttons_smoothed), axis=0)
@@ -206,16 +256,16 @@ ax.plot(np.arange(len(s_mean_buttons)),
 # plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
 # ax.set_yticks([0, 10000, 20000, 30000, 40000])
 #
-# plt.ylim([-1000, 40000])
-# plt.show()
-ax.set_yticklabels([])
+plt.ylim([0, 0.55])
+plt.show()
+# ax.set_yticklabels([])
 ax.set_xticks(np.arange(0, 301, 100))
-        # ax.set_xticklabels([])
+# ax.set_xticklabels([])
 ax.set_xlim(0, 300)
-plt.savefig(f"/Users/alirezakazemipour/Desktop/Button_Visited.pdf",
-                format="pdf",
-                bbox_inches="tight"
-                )
+plt.savefig(f"/Users/alirezakazemipour/Desktop/Button_{mode}_Visited_{prob}.pdf",
+            format="pdf",
+            bbox_inches="tight"
+            )
 plt.close()
 ################# Unobservs #########################
 
@@ -275,16 +325,16 @@ ax.plot(np.arange(len(s_mean_unobsrvs)),
 #               )
 # plt.title("State-Action Pairs with Unobservable Rewards", weight='bold')
 ax.set_xticks(np.arange(0, 301, 100))
-        # ax.set_xticklabels([])
+# ax.set_xticklabels([])
 ax.set_xlim(0, 300)
 # plt.show()
 # plt.ylim([-100, 4000])
 # ax.set_yticks([0, 1000, 2000, 3000, 4000])
 # ax.set_yticklabels([])
-plt.savefig(f"/Users/alirezakazemipour/Desktop/Unobserved_Visited.pdf",
-                format="pdf",
-                bbox_inches="tight"
-                )
+plt.savefig(f"/Users/alirezakazemipour/Desktop/Unobserved_Visited_{prob}.pdf",
+            format="pdf",
+            bbox_inches="tight"
+            )
 plt.close()
 # plt.show()
 
@@ -335,38 +385,55 @@ ax.plot(np.arange(len(my_mean_snakes)),
         label="Double MBIE"
         )
 
+# for i in range(30):
+#     ax.plot(np.arange(len(my_mean_snakes)),
+#             my_snakes_smoothed[i],
+#             alpha=1,
+#             linewidth=4,
+#             # c="blue",
+#             label="Double MBIE"
+#             )
+
 s_mean_snakes = np.mean(np.asarray(s_snakes_smoothed), axis=0)
 s_std_snakes = np.std(np.asarray(s_snakes_smoothed), axis=0)
 s_lower_bound = s_mean_snakes - 1.96 * s_std_snakes / math.sqrt(n_runs)
 s_upper_bound = s_mean_snakes + 1.96 * s_std_snakes / math.sqrt(n_runs)
-ax.fill_between(np.arange(len(s_mean_snakes)),
-                s_lower_bound,
-                s_upper_bound,
-                alpha=0.25,
-                color="red"
-                )
-ax.plot(np.arange(len(s_mean_snakes)),
-        s_mean_snakes,
-        alpha=1,
-        linewidth=4,
-        c="red",
-        label="Directed-E$\mathbf{^2}$"
-        )
-# plt.yscale('log', base=10)
-# plt.ylim([1, 10 ** 7])
+# ax.fill_between(np.arange(len(s_mean_snakes)),
+#                 s_lower_bound,
+#                 s_upper_bound,
+#                 alpha=0.25,
+#                 color="red"
+#                 )
+# ax.plot(np.arange(len(s_mean_snakes)),
+#         s_mean_snakes,
+#         alpha=1,
+#         linewidth=4,
+#         c="red",
+#         label="Directed-E$\mathbf{^2}$"
+#         )
+
 # plt.gca().ticklabel_format(useMathText=True)
 # plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
 # plt.show()
-# plt.ylim([-1000, 40000])
+plt.ylim([-0.1, 1])
 # ax.set_yticks([0, 10000, 20000, 30000, 40000])
 # ax.set_yticklabels([])
 ax.set_xticks(np.arange(0, 301, 100))
-        # ax.set_xticklabels([])
+# ax.set_xticklabels([])
 ax.set_xlim(0, 300)
-plt.savefig(f"/Users/alirezakazemipour/Desktop/Snake_Visited.pdf",
-                format="pdf",
-                bbox_inches="tight"
-                )
+plt.savefig(f"/Users/alirezakazemipour/Desktop/Snake_Visited_{prob}.pdf",
+            format="pdf",
+            bbox_inches="tight"
+            )
+# x = len(s_snakes_smoothed)
+# for i in np.arange(27, 28):
+#     ax.plot(np.arange(len(s_mean_snakes)),
+#             s_snakes_smoothed[i],
+#             alpha=1,
+#             linewidth=4,
+#             label="Directed-E$\mathbf{^2}$"
+#             )
+#
 # plt.show()
 plt.close()
 
@@ -419,15 +486,97 @@ ax.plot(np.arange(len(s_mean_gbs)),
 # plt.gca().ticklabel_format(useMathText=True)
 # plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
 # plt.show()
-# plt.ylim([-1000, 40000])
+plt.ylim([-0.1, 1])
 # ax.set_yticks([0, 10000, 20000, 30000, 40000])
 # ax.set_yticklabels([])
 ax.set_xticks(np.arange(0, 301, 100))
-        # ax.set_xticklabels([])
+# ax.set_xticklabels([])
 ax.set_xlim(0, 300)
-plt.savefig(f"/Users/alirezakazemipour/Desktop/GoldBar_Visited.pdf",
-                format="pdf",
-                bbox_inches="tight"
+plt.savefig(f"/Users/alirezakazemipour/Desktop/GoldBar_Visited_{prob}.pdf",
+            format="pdf",
+            bbox_inches="tight"
+            )
+# plt.show()
+plt.close()
+
+################ Beta ##########################
+ig, ax = plt.subplots(figsize=(6.4, 4.8), layout="constrained")
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.xaxis.set_tick_params(labelsize=20, colors="black")
+ax.yaxis.set_tick_params(labelsize=20, colors="black")
+# ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10000:.0f}"))
+ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
+
+my_mean_betas = np.mean(np.asarray(my_betas_smoothed), axis=0)
+my_std_betas = np.std(np.asarray(my_betas_smoothed), axis=0)
+my_lower_bound = my_mean_betas - 1.96 * my_std_betas / math.sqrt(n_runs)
+my_upper_bound = my_mean_betas + 1.96 * my_std_betas / math.sqrt(n_runs)
+# ax.fill_between(np.arange(len(my_mean_betas)),
+#                 my_lower_bound,
+#                 my_upper_bound,
+#                 alpha=0.25,
+#                 color="blue"
+#                 )
+ax.plot(np.arange(len(my_mean_betas)),
+        my_mean_betas,
+        alpha=1,
+        linewidth=4,
+        c="blue",
+        label="Double MBIE"
+        )
+
+my_mean_beta_es = np.mean(np.asarray(my_beta_es_smoothed), axis=0)
+my_std_beta_es = np.std(np.asarray(my_beta_es_smoothed), axis=0)
+my_lower_bound = my_mean_beta_es - 1.96 * my_std_beta_es / math.sqrt(n_runs)
+my_upper_bound = my_mean_beta_es + 1.96 * my_std_beta_es / math.sqrt(n_runs)
+# ax.fill_between(np.arange(len(my_mean_beta_es)),
+#                 my_lower_bound,
+#                 my_upper_bound,
+#                 alpha=0.25,
+#                 color="red"
+#                 )
+ax.plot(np.arange(len(my_mean_beta_es)),
+        my_mean_beta_es,
+        alpha=1,
+        linewidth=4,
+        c="red",
+        label="Directed-E$\mathbf{^2}$"
+        )
+
+my_mean_beta_ms = np.mean(np.asarray(my_beta_ms_smoothed), axis=0)
+my_std_beta_ms = np.std(np.asarray(my_beta_ms_smoothed), axis=0)
+my_lower_bound = my_mean_beta_ms - 1.96 * my_std_beta_ms / math.sqrt(n_runs)
+my_upper_bound = my_mean_beta_ms + 1.96 * my_std_beta_ms / math.sqrt(n_runs)
+ax.fill_between(np.arange(len(my_mean_beta_ms)),
+                my_lower_bound,
+                my_upper_bound,
+                alpha=0.25,
+                color="green"
                 )
+ax.plot(np.arange(len(my_mean_beta_ms)),
+        my_mean_beta_ms,
+        alpha=1,
+        linewidth=4,
+        c="green",
+        label="Directed-E$\mathbf{^2}$"
+        )
+
+
+# plt.yscale('log', base=10)
+# plt.ylim([1, 10 ** 7])
+# plt.gca().ticklabel_format(useMathText=True)
+# plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
+plt.show()
+# plt.ylim([0, 0.5])
+# ax.set_yticks([0, 10000, 20000, 30000, 40000])
+# ax.set_yticklabels([])
+# ax.set_xticks(np.arange(0, 301, 100))
+# ax.set_xticklabels([])
+# ax.set_xlim(0, 300)
+# plt.savefig(f"/Users/alirezakazemipour/Desktop/Goal_Visited_{prob}.pdf",
+#             format="pdf",
+#             bbox_inches="tight"
+#             )
 # plt.show()
 plt.close()

@@ -21,12 +21,12 @@ hydra:
     _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
     max_batch_size: null
     params:
-      environment: river_swim
+      environment: 6x6_snake
       experiment.hide_progress_bar: true
       experiment.datadir: data
-      experiment.rng_seed: range(0, 5)
-      monitor: ask, button
-      monitor.prob: 1.0
+      experiment.rng_seed: range(0, 30)
+      monitor: button
+      monitor.prob: 1, 0.05
   help:
     app_name: ${hydra.job.name}
     header: '${hydra.help.app_name} is powered by Hydra.
@@ -133,8 +133,8 @@ hydra:
       provider: schema
     output_dir: ???
     choices:
-      monitor: ask
-      environment: river_swim
+      monitor: button
+      environment: 6x6_snake
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -146,30 +146,35 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Grid/RiverSwim-6-v0
+  id: Gym-Grid/Gridworld-Snake-6x6-v0
   monitor:
-    button_cell_id: 0
-    button_flip_act: 0
-    forbidden_states: null
+    button_cell_id: 31
+    button_flip_act: 1
+    forbidden_states:
+    - 2
+    - 8
+    - 20
+    - 26
+    - 32
   experiment:
-    training_steps: 20000
+    training_steps: 30000
     testing_episodes: 100
     testing_frequency: 100
-    beta: 1.1
+    beta: 1.005
   critic:
     gamma: 0.99
-    joint_max_q: 200
-    env_min_r: 0
-    ucb_a: 0.05
-    ucb_b: 0
-    ucb_c: 1.5
+    joint_max_q: 1
+    env_min_r: -10
+    ucb_a: 0.0005
+    ucb_b: 0.0005
+    ucb_c: 0.0005
   render_mode: null
 monitor:
-  id: Ask
+  id: Button
   prob: 1
 critic:
   vi_iter: 50
 experiment:
   datadir: null
-  rng_seed: 20
+  rng_seed: 0
   hide_progress_bar: false

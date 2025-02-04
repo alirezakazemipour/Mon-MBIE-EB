@@ -23,10 +23,6 @@ def run(cfg: DictConfig) -> None:
                                                          test=True
                                                          )
 
-    # report_river_swim(env_test)
-    # if "RiverSwim-6-v0" in cfg.environment["id"]:
-    #     cfg.critic.vi_iter = 800
-
     critic = MonQCritic(env.observation_space["env"].n,
                         env.observation_space["mon"].n,
                         env.action_space["env"].n,
@@ -42,10 +38,10 @@ def run(cfg: DictConfig) -> None:
                                )
     data = experiment.train()
     # experiment.test()
-    print(f"\ntotal episodes: {experiment.tot_episodes}")
+    # print(f"\ntotal episodes: {experiment.tot_episodes}")
     # print(f"\nexplore episodes: {experiment.explore_episodes}")
     # print("\nvisits:", critic.env_visit.astype(int))
-    print("\nobservs:", critic.env_obsrv_count.astype(int))  # noqa
+    # print("\nobservs:", critic.env_obsrv_count.astype(int))  # noqa
     # print("\nrwd model:", critic.env_rwd_model)
     # print("\njoint count: ", critic.joint_count[-1])
     # print("\nmon rwd: ", critic.mon_rwd_model)
@@ -63,9 +59,9 @@ def run(cfg: DictConfig) -> None:
         savepath = os.path.join(filepath, f"data_{seed}")
         np.savez(savepath + ".npz", **data)
 
-        if not os.path.isfile(savepath):
-            with open(savepath + ".pkl", 'wb') as f:
-                pickle.dump(cfg, f)
+        # if not os.path.isfile(savepath):
+        #     with open(savepath + ".pkl", 'wb') as f:
+        #         pickle.dump(cfg, f)
 
 
 if __name__ == "__main__":
