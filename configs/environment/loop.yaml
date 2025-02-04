@@ -1,4 +1,5 @@
-id: Gym-Grid/Gridworld-Hazard
+id: Gym-Grid/Gridworld-Loop
+
 monitor:
   button_cell_id: 0
   button_flip_act: 0
@@ -9,12 +10,12 @@ experiment:
   training_steps: 20000
   testing_episodes: 100
   testing_frequency: 100
-  beta: 1.025
+  beta: 1.005
 
 critic:
   gamma: 0.99
   joint_max_q: 1
-  env_min_r: -10
-  ucb_a: 0.0004
-  ucb_b: 0.0004
-  ucb_c: 0.0004
+  env_min_r: 0
+  ucb_a: 0.0005
+  ucb_b: 0.0005
+  ucb_c: 0.0005

@@ -1,5 +1,5 @@
 defaults:
-  - environment: distract
+  - environment: two_room_2x11
   - monitor: level
   - _self_
   - override hydra/hydra_logging: disabled
