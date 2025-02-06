@@ -1,7 +1,7 @@
 gymnasium~=0.28.1
 swig
 box2d
-numpy==2.0.2
+numpy
 tqdm
 hydra-core
 hydra-joblib-launcher

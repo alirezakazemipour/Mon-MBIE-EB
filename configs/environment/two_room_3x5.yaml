@@ -1,4 +1,4 @@
-  id: Gym-Grid/Gridworld-TwoRoom-3x5
+id: Gym-Grid/Gridworld-TwoRoom-3x5
 
 monitor:
   button_cell_id: 0

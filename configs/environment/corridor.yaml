@@ -1,4 +1,5 @@
 id: Gym-Grid/Gridworld-Corridor
+
 monitor:
   button_cell_id: 0
   button_flip_act: 0
