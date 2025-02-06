@@ -1,7 +1,7 @@
 id: Gym-Grid/Gridworld-TwoRoom-2x11
 
 monitor:
-  button_cell_id: 0
+  button_cell_id: 16
   button_flip_act: 0
   forbidden_states:
 

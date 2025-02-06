@@ -24,7 +24,7 @@ env = (
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-OneWay",
     # "Gridworld-Empty",
-    # "Gridworld-TwoRoom-Quicksand-3x5-v0",
+    # "Gridworld-TwoRoom-3x5",
     # "Gridworld-Hazard",
 )
 env_mon_combo = itertools.product(env, monitor)
@@ -95,6 +95,23 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                                "RandomNonZero": (0.826, "optimal"),
                                "Full": (0.826, "optimal"),
                                },
+
+        "Gridworld-TwoRoom_3x5": {"Ask": (0.941, "optimal"),
+                                  "Button": (0.826, "optimal"),
+                                  "Level": (0.941, "optimal"),
+                                  "N": (0.941, "optimal"),
+                                  "Random": (0.941, "optimal"),
+                                  "RandomNonZero": (0.941, "optimal"),
+                                  "Full": (0.941, "optimal"),
+                                  },
+        "Gridworld-TwoRoom_2x11": {"Ask": (0.941, "optimal"),
+                                   "Button": (0.8261, "optimal"),
+                                   "Level": (0.941, "optimal"),
+                                   "N": (0.941, "optimal"),
+                                   "Random": (0.941, "optimal"),
+                                   "RandomNonZero": (0.941, "optimal"),
+                                   "Full": (0.941, "optimal"),
+                                   },
         }
 
 for env, monitor in env_mon_combo:
@@ -126,16 +143,10 @@ for env, monitor in env_mon_combo:
             x = np.load(f"data/neurips/Simone/iGym-Grid/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                 "test/return"]
             s_runs.append(x)
-            # x = np.load(f"data/single_observe_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
-            # som_runs.append(x)
-            # x = np.load(f"data/single_visit_mbie/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
-            # svm_runs.append(x)
         # print(np.argmin(np.array(my_runs).sum(-1)))
         # exit()
         my_smoothed = []
         s_smoothed = []
-        som_smoothed = []
-        svm_smoothed = []
 
         for run in my_runs:
             val = [run[0]]
@@ -148,18 +159,6 @@ for env, monitor in env_mon_combo:
             for tmp in run[1:]:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
             s_smoothed.append(val)
-
-        for run in som_runs:
-            val = [run[0]]
-            for tmp in run[1:]:
-                val.append(0.9 * val[-1] + 0.1 * tmp)
-            som_smoothed.append(val)
-
-        for run in svm_runs:
-            val = [run[0]]
-            for tmp in run[1:]:
-                val.append(0.9 * val[-1] + 0.1 * tmp)
-            svm_smoothed.append(val)
 
         my_mean_return = np.mean(np.asarray(my_smoothed), axis=0)
         my_std_return = np.std(np.asarray(my_smoothed), axis=0)
@@ -176,7 +175,6 @@ for env, monitor in env_mon_combo:
                 alpha=1,
                 linewidth=4,
                 c=color,
-                label="Double MBIE"
                 )
 
         s_mean_return = np.mean(np.asarray(s_smoothed), axis=0)
@@ -194,7 +192,6 @@ for env, monitor in env_mon_combo:
                 alpha=1,
                 linewidth=4,
                 c="red",
-                label="Parisi et al's"
                 )
 
         plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")

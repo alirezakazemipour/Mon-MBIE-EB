@@ -1,5 +1,5 @@
 defaults:
-  - environment: corridor
+  - environment: two_room_2x11
   - monitor: ask
   - _self_
   - override hydra/hydra_logging: disabled
