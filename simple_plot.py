@@ -4,7 +4,8 @@ import numpy as np
 import itertools
 from matplotlib import ticker
 
-plt.style.use('ggplot')
+my_color = "#2a9d8f"
+simone_color = "#f4a261"
 
 SMALL_SIZE = 8
 MEDIUM_SIZE = 24
@@ -121,7 +122,7 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}", "blue"),
+        (f"{monitor}", my_color),
     ]
 
     assert n_runs == 30
@@ -181,13 +182,13 @@ for env, monitor in env_mon_combo:
                         s_lower_bound,
                         s_upper_bound,
                         alpha=0.25,
-                        color="red"
+                        color=simone_color
                         )
         ax.plot(np.arange(len(s_mean_return)),
                 s_mean_return,
                 alpha=1,
                 linewidth=4,
-                c="red",
+                c=simone_color,
                 )
 
         plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
