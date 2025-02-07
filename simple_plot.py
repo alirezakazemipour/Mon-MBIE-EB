@@ -4,7 +4,7 @@ import numpy as np
 import itertools
 from matplotlib import ticker
 
-plt.style.use('ggplot')
+# plt.style.use('ggplot')
 
 SMALL_SIZE = 8
 MEDIUM_SIZE = 24
@@ -16,11 +16,12 @@ plt.rc('axes', labelsize=BIGGER_SIZE)  # fontsize of the x and y labels
 plt.rc('xtick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('legend', fontsize=17)  # legend fontsize
-# plt.rc('figure', titlesize=BIGGER_SIZE)
-# plt.title(f"EOP", weight="bold")
+
+my_color = "#2a9d8f"
+simone_color = "#f4a261"
 
 n_runs = 30
-monitor = "Button", #"Ask", "NSupporter", "RandomNonZero", "Level"
+monitor = "Button",  # "Ask", "NSupporter", "RandomNonZero", "Level"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
@@ -39,14 +40,14 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                            "Full": (20.02, "optimal"),
                            },
         "Gridworld-Snake-6x6-v0": {"Ask": (0.904, "optimal"),
-                                            "Button": (0.19, "optimal"),
-                                            "Level": (0.904, "optimal"),
-                                            "NSupporter": (0.915, "optimal"),
-                                            "NExpert": (0.904, "optimal"),
-                                            "Random": (0.904, "optimal"),
-                                            "RandomNonZero": (0.904, "optimal"),
-                                            "Full": (0.904, "optimal"),
-                                            },
+                                   "Button": (0.19, "optimal"),
+                                   "Level": (0.904, "optimal"),
+                                   "NSupporter": (0.915, "optimal"),
+                                   "NExpert": (0.904, "optimal"),
+                                   "Random": (0.904, "optimal"),
+                                   "RandomNonZero": (0.904, "optimal"),
+                                   "Full": (0.904, "optimal"),
+                                   },
         "Gridworld-Corridor-3x4-v0": {"Ask": (0.764, "optimal"),
                                       "Button": (0.672, "optimal"),
                                       "Level": (0.764, "optimal"),
@@ -64,14 +65,14 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                                      "Full": (0.941, "optimal"),
                                      },
         "Gridworld-Bypass-3x5-v0": {"Ask": (0.904, "cautious"),
-                                               "Button": (0.308, "cautious"),
-                                               "Level": (0.904, "cautious"),
-                                               "NSupporter": (0.91, "cautious"),
-                                               "NExpert": (0.904, "cautious"),
-                                               "Random": (0.904, "cautious"),
-                                               "RandomNonZero": (0.904, "cautious"),
-                                               "Full": (0.941, "optimal"),
-                                               },
+                                    "Button": (0.308, "cautious"),
+                                    "Level": (0.904, "cautious"),
+                                    "NSupporter": (0.91, "cautious"),
+                                    "NExpert": (0.904, "cautious"),
+                                    "Random": (0.904, "cautious"),
+                                    "RandomNonZero": (0.904, "cautious"),
+                                    "Full": (0.941, "optimal"),
+                                    },
         "Gridworld-Quicksand-Distract-4x4-v0": {"Ask": (0.914, "optimal"),
                                                 "Button": (0.821, "optimal"),
                                                 "Level": (0.914, "optimal"),
@@ -154,14 +155,13 @@ for env, monitor in env_mon_combo:
                         my_lower_bound,
                         my_upper_bound,
                         alpha=0.25,
-                        color="blue"
+                        color=my_color
                         )
         ax.plot(np.arange(len(my_mean_return)),
                 my_mean_return,
                 alpha=1,
                 linewidth=4,
-                c="blue",
-                label="Known Monitor"
+                c=my_color,
                 )
 
         s_mean_return = np.mean(np.asarray(s_smoothed), axis=0)
@@ -172,13 +172,13 @@ for env, monitor in env_mon_combo:
                         s_lower_bound,
                         s_upper_bound,
                         alpha=0.25,
-                        color="red"
+                        color=simone_color
                         )
         ax.plot(np.arange(len(s_mean_return)),
                 s_mean_return,
                 alpha=1,
                 linewidth=4,
-                c="red",
+                c=simone_color,
                 label="Directed-E$^2$"
                 )
 
@@ -217,14 +217,14 @@ for env, monitor in env_mon_combo:
         # ax.set_ylim(-0.7, 0.3)
 
         # if monitor == "Button" or monitor == "Full":
-            # ax.set_ylabel("Discounted test return",
-            #               weight="bold",
-            #               fontsize=20,
-            #               # rotation="horizontal",
-            #               # labelpad=50,
-            #               # ha='right'
-            #               )
-            # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
+        # ax.set_ylabel("Discounted test return",
+        #               weight="bold",
+        #               fontsize=20,
+        #               # rotation="horizontal",
+        #               # labelpad=50,
+        #               # ha='right'
+        #               )
+        # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
         # ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
         # else:
         #     ax.set_yticklabels([])
@@ -249,16 +249,15 @@ for env, monitor in env_mon_combo:
                        my_lower_bound,
                        my_upper_bound,
                        alpha=0.25,
-                       color="blue"
+                       color=my_color
                        )
     axins.plot(np.arange(len(my_mean_return)),
                my_mean_return,
                alpha=1,
                linewidth=3,
-               c="blue",
+               c=my_color,
                )
     axins.axhline(ref, linestyle="--", color="k", linewidth=2, label=f"{opt_caut}")
-
 
     axins.set_yticks([-0.7, 0.3])
     axins.set_xticks(np.arange(0, 301, 100))
@@ -266,8 +265,6 @@ for env, monitor in env_mon_combo:
     axins.xaxis.set_tick_params(labelsize=15, colors="black")
     axins.yaxis.set_tick_params(labelsize=15, colors="black")
     ax.indicate_inset_zoom(axins, edgecolor="black", linewidth=2)
-
-
 
     # plt.show()
     plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",

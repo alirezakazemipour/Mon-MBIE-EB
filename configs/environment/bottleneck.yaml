@@ -1,4 +1,4 @@
-id: Gym-Grid/Gridworld-Snake-6x6-v0
+id: Gym-Grid/Gridworld-Bottleneck
 monitor:
   button_cell_id: 31
   button_flip_act: 1

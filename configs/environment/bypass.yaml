@@ -1,4 +1,4 @@
-id: Gym-Grid/Gridworld-Bypass-3x5-v0
+id: Gym-Grid/Gridworld-Bypass
 monitor:
   button_cell_id: 13
   button_flip_act: 1

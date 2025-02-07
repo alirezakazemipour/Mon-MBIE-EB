@@ -131,7 +131,7 @@ class MonExperiment:
                                      "test/return": (test_return_env + test_return_mon).mean(),
                                      }
                     return_test_history.append(test_dict["test/return"])
-                    if self.env.spec.id == gym.envs.spec("Gym-Grid/Gridworld-Snake-6x6-v0").id and isinstance(self.env,
+                    if self.env.spec.id == gym.envs.spec("Gym-Grid/Gridworld-Bottleneck").id and isinstance(self.env,
                                                                                                               Button):
                         goal_cnt_hist.append(goal_cnt)
                         snake_cnt_hist.append(snake_cnt)
