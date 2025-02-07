@@ -134,7 +134,7 @@ for env, monitor in env_mon_combo:
         som_runs = []
         svm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/neurips/mine/old hyperparams/{env}/{algo}/data_{i}.npz")["test_return"][:200]
+            x = np.load(f"data/neurips/mine/new hyperparams/{env}/{algo}/data_{i}.npz")["test_return"][:200]
             my_runs.append(x)
             x = np.load(f"data/neurips/Simone/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                 "test/return"][:200]
