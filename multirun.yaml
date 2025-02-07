@@ -21,11 +21,11 @@ hydra:
     _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
     max_batch_size: null
     params:
-      environment: loop, two_room_3x5, two_room_2x11, corridor
+      environment: empty, one_way, hazard
       monitor: full, random_nonzero, ask, button, n, level
       experiment.hide_progress_bar: true
-      experiment.datadir: data_aux
-      experiment.rng_seed: range(0, 30)
+      experiment.datadir: data
+      experiment.rng_seed: range(20, 30)
   help:
     app_name: ${hydra.job.name}
     header: '${hydra.help.app_name} is powered by Hydra.
@@ -132,7 +132,7 @@ hydra:
       provider: schema
     output_dir: ???
     choices:
-      monitor: level
+      monitor: ask
       environment: two_room_2x11
       hydra/env: default
       hydra/callbacks: null
@@ -147,7 +147,7 @@ hydra:
 environment:
   id: Gym-Grid/Gridworld-TwoRoom-2x11
   monitor:
-    button_cell_id: 0
+    button_cell_id: 16
     button_flip_act: 0
     forbidden_states: null
   experiment:
@@ -164,9 +164,8 @@ environment:
     ucb_c: 0.0005
   render_mode: null
 monitor:
-  id: Level
+  id: Ask
   prob: 1
-  n_levels: 3
 critic:
   vi_iter: 50
 experiment:

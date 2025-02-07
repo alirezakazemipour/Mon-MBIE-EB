@@ -18,14 +18,16 @@ plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('legend', fontsize=17)  # legend fontsize
 
 n_runs = 30
-monitor = "NExpert",  # "Full", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
+monitor = "Full", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
-    "RiverSwim-6-v0",
-    # "Gridworld-Penalty-3x3-v0",
-    # "Gridworld-OneWay",
-    # "Gridworld-Empty",
-    # "Gridworld-TwoRoom-3x5",
-    # "Gridworld-Hazard",
+    # "RiverSwim-6-v0",
+    "Gridworld-OneWay",
+    "Gridworld-TwoRoom-3x5",
+    "Gridworld-TwoRoom-2x11",
+    "Gridworld-Hazard",
+    "Gridworld-Corridor",
+    "Gridworld-Loop",
+    "Gridworld-Empty",
 )
 env_mon_combo = itertools.product(env, monitor)
 
@@ -96,7 +98,7 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                                "Full": (0.826, "optimal"),
                                },
 
-        "Gridworld-TwoRoom_3x5": {"Ask": (0.941, "optimal"),
+        "Gridworld-TwoRoom-3x5": {"Ask": (0.941, "optimal"),
                                   "Button": (0.826, "optimal"),
                                   "Level": (0.941, "optimal"),
                                   "N": (0.941, "optimal"),
@@ -104,7 +106,7 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                                   "RandomNonZero": (0.941, "optimal"),
                                   "Full": (0.941, "optimal"),
                                   },
-        "Gridworld-TwoRoom_2x11": {"Ask": (0.941, "optimal"),
+        "Gridworld-TwoRoom-2x11": {"Ask": (0.941, "optimal"),
                                    "Button": (0.8261, "optimal"),
                                    "Level": (0.941, "optimal"),
                                    "N": (0.941, "optimal"),
@@ -119,29 +121,23 @@ for env, monitor in env_mon_combo:
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     algos = [
-        (f"{monitor}", "blue", ""),
-        # (f"{monitor}_1", "blue", "100%"),
-        # (f"{monitor}_0.75", "red", "75%"),
-        # (f"{monitor}_0.5", "green", "50%"),
-        # (f"{monitor}_0.25", "orange", "25%"),
-        # (f"{monitor}_0.1", "brown", "10%"),
-        # (f"{monitor}_0.01", "magenta", "1%")
+        (f"{monitor}", "blue"),
     ]
 
     assert n_runs == 30
 
     for conf in algos:
-        algo, color, legend = conf
+        algo, color = conf
         ref, opt_caut = info[env][monitor]
         my_runs = []
         s_runs = []
         som_runs = []
         svm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/neurips/mine/Gym-Grid/{env}/{algo}/data_{i}.npz")["test_return"]
+            x = np.load(f"data/neurips/mine/old hyperparams/{env}/{algo}/data_{i}.npz")["test_return"][:200]
             my_runs.append(x)
-            x = np.load(f"data/neurips/Simone/iGym-Grid/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
-                "test/return"]
+            x = np.load(f"data/neurips/Simone/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
+                "test/return"][:200]
             s_runs.append(x)
         # print(np.argmin(np.array(my_runs).sum(-1)))
         # exit()
@@ -204,13 +200,13 @@ for env, monitor in env_mon_combo:
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, 201, 40))
-        # ax.set_xticklabels([])
+        ax.set_xticklabels([])
         ax.set_xlim(0, 210)
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
-        # ax.set_ylim(0, 20)
+        ax.set_ylim(0, 1)
 
-        # if monitor == "Full":
+        if monitor == "Full":
         # ax.set_ylabel("Discounted test return",
         #               weight="bold",
         #               fontsize=20,
@@ -219,9 +215,9 @@ for env, monitor in env_mon_combo:
         #               # ha='right'
         #               )
         # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-        # ax.set_yticks([0.2, 0.5, 0.8, 1])
-        # else:
-        # ax.set_yticklabels([])
+            ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
+        else:
+            ax.set_yticklabels([])
         # elif monitor == "Button":
         #     ax.set_ylabel("Discounted test return",
         #                   weight="bold",
@@ -234,6 +230,7 @@ for env, monitor in env_mon_combo:
     # plt.show()
     plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
                 format="pdf",
-                bbox_inches="tight"
+                bbox_inches="tight",
+                dpi=300
                 )
     plt.close()
