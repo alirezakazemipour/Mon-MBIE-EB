@@ -44,7 +44,7 @@ class MonExperiment:
         self.actor = actor
         self.critic = critic
         self.gamma = critic.gamma
-        self.beta = kwargs["beta"]
+        self.base = kwargs["kappa_base"]
 
         self.training_steps = training_steps
         self.testing_episodes = testing_episodes
@@ -97,7 +97,7 @@ class MonExperiment:
             N = self.critic.env_num_obs * self.critic.env_num_act
             explore = False
             ################
-            if math.log(self.tot_episodes + 1e-4, self.beta) > self.explore_episodes and n < N:
+            if math.log(self.tot_episodes + 1e-4, self.base) > self.explore_episodes and n < N:
                 explore = True
                 self.explore_episodes += 1
                 self.critic.obsrv_mbie(rng)

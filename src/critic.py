@@ -58,9 +58,11 @@ class MonQCritic(Critic):
         self.gamma = gamma
         self.joint_max_q = kwargs["joint_max_q"]
         self.env_min_r = kwargs["env_min_r"]
-        self.a = kwargs["ucb_a"]
-        self.b = kwargs["ucb_b"]
-        self.c = kwargs["ucb_c"]
+        self.beta_e = kwargs["beta_e"]
+        self.beta_m = kwargs["beta_m"]
+        self.beta = kwargs["beta"]
+        self.beta_obs = kwargs["beta_obs"]
+        self.beta_kl_ucb = kwargs["beta_kl_ucb"]
         self.vi_iter = kwargs["vi_iter"]
 
         self.env_num_obs = env_num_obs
@@ -118,14 +120,14 @@ class MonQCritic(Critic):
                                         self.env_act_space,
                                         self.env_obsrv_count,
                                         self.env_rwd_model,
-                                        self.a
+                                        self.beta_e
                                         )
 
         mon_rwd = self.update_rwd_model(self.mon_obs_space,
                                         self.mon_act_space,
                                         self.joint_count.sum((0, 2)),
                                         self.mon_rwd_model,
-                                        self.b
+                                        self.beta_m
                                         )
 
         ucb4transit = np.zeros_like(self.monitor)
@@ -134,7 +136,7 @@ class MonQCritic(Critic):
             f_t = f(t)
             for a in self.joint_act_space:
                 if self.joint_count[*s, *a] != 0:
-                    ucb = self.c * math.sqrt(math.log(f_t) / self.joint_count[*s, *a])
+                    ucb = self.beta * math.sqrt(math.log(f_t) / self.joint_count[*s, *a])
                     ucb4transit[*s, *a] += ucb
 
         self.joint_q = self.value_iteration(self.vi_iter,
@@ -160,10 +162,11 @@ class MonQCritic(Critic):
                     if self.env_obsrv_count[se, ae] == 0:
                         obsrv_rwd_bar[*s, *a] = kl_confidence(t,
                                                               0,
-                                                              self.joint_count[*s, *a]
+                                                              self.joint_count[*s, *a],
+                                                              self.beta_kl_ucb
                                                               )
                     # optimism for transitions
-                    ucb = self.c * math.sqrt(math.log(f_t) / self.joint_count[*s, *a])
+                    ucb = self.beta_obs * math.sqrt(math.log(f_t) / self.joint_count[*s, *a])
                     obsrv_rwd_bar[*s, *a] += ucb
 
         self.obsrv_q = self.value_iteration(self.vi_iter,
