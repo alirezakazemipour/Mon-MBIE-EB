@@ -97,7 +97,7 @@ def register_envs():
         entry_point="gym_grid.gridworld:Gridworld",
         max_episode_steps=50,
         kwargs={
-            "grid": "3x5_bypass",
+            "grid": "bypass",
         },
     )
 

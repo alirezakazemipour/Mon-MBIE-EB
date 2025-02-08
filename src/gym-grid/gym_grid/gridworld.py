@@ -99,7 +99,7 @@ GRIDS = {
         [RIGHT, EMPTY, QCKSND, GOOD_SMALL, EMPTY],
         [UP, EMPTY, EMPTY, EMPTY, EMPTY],
     ],
-    "3x5_bypass": [
+    "bypass": [
         [EMPTY, LEFT, GOOD, EMPTY, EMPTY],
         [EMPTY, QCKSND, BAD, BAD, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
