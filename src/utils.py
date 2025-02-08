@@ -106,14 +106,14 @@ def kl_divergence(p, q):
 
 
 @jit
-def kl_confidence(t, emp_mean, num_pulls, precision=1e-5, max_iter=50):
+def kl_confidence(t, emp_mean, num_pulls, beta, precision=1e-5, max_iter=50):
     # https://github.com/guptav96/bandit-algorithms/blob/main/algo/klucb.py
     n = 0
     lower_bound = emp_mean
     upper_bound = 1
     while n < max_iter and upper_bound - lower_bound > precision:
         q = (lower_bound + upper_bound) / 2
-        if kl_divergence(emp_mean, q) > (np.log(1 + t * np.log(t) ** 2) / num_pulls):
+        if kl_divergence(emp_mean, q) > (beta * np.log(1 + t * np.log(t) ** 2) / num_pulls):
             upper_bound = q
         else:
             lower_bound = q

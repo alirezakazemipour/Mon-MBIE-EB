@@ -45,7 +45,7 @@ class MonExperiment:
         self.actor = actor
         self.critic = critic
         self.gamma = critic.gamma
-        self.beta = kwargs["beta"]
+        self.base = kwargs["kappa_base"]
 
         self.training_steps = training_steps
         self.testing_episodes = testing_episodes
@@ -85,7 +85,7 @@ class MonExperiment:
             self.critic.opt_pess_mbie(rng)  # off-policy; can be updated every episode!
             explore = False
             ################
-            if math.log(self.tot_episodes + 1e-4, self.beta) > self.explore_episodes:
+            if math.log(self.tot_episodes + 1e-4, self.base) > self.explore_episodes:
                 explore = True
                 self.explore_episodes += 1
                 self.critic.obsrv_mbie(rng)
