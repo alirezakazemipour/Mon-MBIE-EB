@@ -101,7 +101,7 @@ GRIDS = {
     ],
     "bypass": [
         [EMPTY, LEFT, GOOD, EMPTY, EMPTY],
-        [EMPTY, QCKSND, EMPTY, BAD, EMPTY],
+        [EMPTY, QCKSND, BAD, BAD, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
     ],
     "3x4_corridor": [

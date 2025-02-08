@@ -93,7 +93,7 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
 
             self.critic.opt_pess_mbie(rng)  # off-policy; can be updated every episode!
-            ne = np.count_nonzero(self.critic.env_obsrv_count)
+            ne = np.count_nonzero(self.critic.env_obsrv_cnt)
             n = self.critic.env_num_obs * self.critic.env_num_act
             explore = False
             ################
@@ -141,9 +141,9 @@ class MonExperiment:
                         button_off_cnt_hist.append(button_off_cnt)
                         button_on_cnt_hist.append(button_on_cnt)
                         unobsrv_cnt_hist.append(unobsrv_cnt)
-                        beta_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.joint_count)).mean())
-                        beta_m_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.joint_count.sum((0, 2))).mean()))
-                        beta_e_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.env_obsrv_count)).mean())
+                        beta_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.joint_cnt)).mean())
+                        beta_m_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.joint_cnt.sum((0, 2))).mean()))
+                        beta_e_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.env_obsrv_cnt)).mean())
 
                 train_dict = {
                     "train/return_env": last_ep_return_env,
@@ -192,10 +192,10 @@ class MonExperiment:
                 "env_visit": self.critic.env_visit,
                 "joint_q": self.critic.joint_q,
                 "obsrv_q": self.critic.obsrv_q,
-                "joint_count": self.critic.joint_count,
-                "joint_obsrv_count": self.critic.joint_obsrv_count,
+                "joint_cnt": self.critic.joint_cnt,
+                "joint_obsrv_cnt": self.critic.joint_obsrv_cnt,
                 "monitor": self.critic.monitor,
-                "env_obsrv_count": self.critic.env_obsrv_count,
+                "env_obsrv_cnt": self.critic.env_obsrv_cnt,
                 "env_reward_model": self.critic.env_rwd_model,
                 "goal_cnt_hist": goal_cnt_hist,
                 "button_on_cnt_hist": button_on_cnt_hist,
