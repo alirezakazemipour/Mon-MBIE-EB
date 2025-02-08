@@ -22,13 +22,13 @@ simone_color = "#f4a261"
 
 n_runs = 30
 p = 1
-monitor = "NSupporter", "Level", "Random", "NExpert"
+monitor = "Button", "Level", "Random", "NExpert"
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-Corridor-3x4-v0",
-    "Gridworld-Bottleneck",
-    # "Gridworld-Bypass",
+    # "Gridworld-Bottleneck",
+    "Gridworld-Bypass",
 )
 env_mon_combo = itertools.product(env, monitor)
 
