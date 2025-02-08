@@ -1,7 +1,6 @@
 import math
 
 import gymnasium as gym
-from numpy.random import SeedSequence, RandomState, MT19937
 import numpy as np
 from tqdm import tqdm
 import warnings
@@ -9,7 +8,7 @@ import warnings
 from src.actor import Actor
 from src.critic import MonQCritic
 from src.utils import set_rng_seed, cantor_pairing
-
+from src.wrappers.monitor_wrappers import Button
 
 
 class MonExperiment:
@@ -72,6 +71,17 @@ class MonExperiment:
 
         return_train_history = []
         return_test_history = []
+
+        goal_cnt_hist = []
+        button_off_cnt_hist = []
+        button_on_cnt_hist = []
+        unobsrv_cnt_hist = []
+        snake_cnt_hist = []
+        gold_bar_cnt_hist = []
+        beta_hist = []
+        beta_m_hist = []
+        beta_e_hist = []
+
         while tot_steps < self.training_steps:
             pbar.update(tot_steps - pbar.n)
             last_ep_return = last_ep_return_env + last_ep_return_mon
@@ -83,9 +93,9 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
 
             self.critic.opt_pess_mbie(rng)  # off-policy; can be updated every episode!
-            explore = False
-            ne = np.count_nonzero(self.critic.env_obsrv_count)
+            ne = np.count_nonzero(self.critic.env_obsrv_cnt)
             n = self.critic.env_num_obs * self.critic.env_num_act
+            explore = False
             ################
             if math.log(self.tot_episodes + 1e-4, self.base) > self.explore_episodes and ne < n:
                 explore = True
@@ -161,17 +171,27 @@ class MonExperiment:
                 "env_visit": self.critic.env_visit,
                 "joint_q": self.critic.joint_q,
                 "obsrv_q": self.critic.obsrv_q,
-                "joint_count": self.critic.joint_count,
-                "joint_obsrv_count": self.critic.joint_obsrv_count,
+                "joint_cnt": self.critic.joint_cnt,
+                "joint_obsrv_cnt": self.critic.joint_obsrv_cnt,
                 "monitor": self.critic.monitor,
-                "env_obsrv_count": self.critic.env_obsrv_count,
-                "env_reward_model": self.critic.env_rwd_model
+                "env_obsrv_cnt": self.critic.env_obsrv_cnt,
+                "env_reward_model": self.critic.env_rwd_model,
+                "goal_cnt_hist": goal_cnt_hist,
+                "button_on_cnt_hist": button_on_cnt_hist,
+                "button_off_cnt_hist": button_off_cnt_hist,
+                "unobsrv_cnt_hist": unobsrv_cnt_hist,
+                "snake_cnt_hist": snake_cnt_hist,
+                "gold_bar_cnt_hist": gold_bar_cnt_hist,
+                "beta_hist": beta_hist,
+                "beta_m_hist": beta_m_hist,
+                "beta_e_hist": beta_e_hist
                 }
         return data
 
     def test(self):
         ep_return_env = np.zeros(self.testing_episodes)
         ep_return_mon = np.zeros(self.testing_episodes)
+
         for ep in range(self.testing_episodes):
             ep_seed = cantor_pairing(self.rng_seed, ep)
             obs, _ = self.env_test.reset(seed=ep_seed)

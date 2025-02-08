@@ -1,5 +1,5 @@
 defaults:
-  - environment: two_room_2x11
+  - environment: river_swim
   - monitor: ask
   - _self_
   - override hydra/hydra_logging: disabled
