@@ -84,8 +84,10 @@ class MonExperiment:
 
             self.critic.opt_pess_mbie(rng)  # off-policy; can be updated every episode!
             explore = False
+            ne = np.count_nonzero(self.critic.env_obsrv_count)
+            n = self.critic.env_num_obs * self.critic.env_num_act
             ################
-            if math.log(self.tot_episodes + 1e-4, self.base) > self.explore_episodes:
+            if math.log(self.tot_episodes + 1e-4, self.base) > self.explore_episodes and ne < n:
                 explore = True
                 self.explore_episodes += 1
                 self.critic.obsrv_mbie(rng)
