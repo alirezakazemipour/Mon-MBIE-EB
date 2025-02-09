@@ -135,7 +135,7 @@ for env, monitor in env_mon_combo:
         som_runs = []
         svm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/neurips/mine/new hyperparams/{env}/{algo}/data_{i}.npz")["test_return"][:200]
+            x = np.load(f"data/neurips/mine/{env}/{algo}/data_{i}.npz")["test_return"][:200]
             my_runs.append(x)
             x = np.load(f"data/neurips/Simone/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                 "test/return"][:200]
@@ -201,11 +201,11 @@ for env, monitor in env_mon_combo:
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, 201, 40))
-        ax.set_xticklabels([])
+        # ax.set_xticklabels([])
         ax.set_xlim(0, 210)
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
-        ax.set_ylim(0, 1)
+        ax.set_ylim(0, 21)
 
         if monitor == "Full":
         # ax.set_ylabel("Discounted test return",
@@ -216,7 +216,7 @@ for env, monitor in env_mon_combo:
         #               # ha='right'
         #               )
         # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-            ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
+            ax.set_yticks([0, 5, 10, 15, 20])
         else:
             ax.set_yticklabels([])
         # elif monitor == "Button":
