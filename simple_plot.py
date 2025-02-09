@@ -93,7 +93,7 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
         "Gridworld-Corridor": {"Ask": (0.826, "optimal"),
                                "Button": (0.712, "optimal"),
                                "Level": (0.826, "optimal"),
-                               "N": (0.826, "optimal"),
+                               "N": (0.846, "optimal"),
                                "Random": (0.826, "optimal"),
                                "RandomNonZero": (0.826, "optimal"),
                                "Full": (0.826, "optimal"),
@@ -140,8 +140,8 @@ for env, monitor in env_mon_combo:
             x = np.load(f"data/neurips/Simone/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                 "test/return"][:200]
             s_runs.append(x)
-        # print(np.argmin(np.array(my_runs).sum(-1)))
-        # exit()
+        print(np.argmin(np.array(my_runs).sum(-1)))
+        exit()
         my_smoothed = []
         s_smoothed = []
 
