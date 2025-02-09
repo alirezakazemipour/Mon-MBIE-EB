@@ -21,11 +21,11 @@ hydra:
     _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
     max_batch_size: null
     params:
-      environment: empty, one_way, hazard
-      monitor: full, random_nonzero, ask, button, n, level
-      experiment.hide_progress_bar: true
-      experiment.datadir: data
-      experiment.rng_seed: range(20, 30)
+      environment: river_swim
+      monitor: button
+      experiment.hide_progress_bar: false
+      experiment.datadir: null
+      experiment.rng_seed: range(26, 27)
   help:
     app_name: ${hydra.job.name}
     header: '${hydra.help.app_name} is powered by Hydra.
@@ -132,8 +132,8 @@ hydra:
       provider: schema
     output_dir: ???
     choices:
-      monitor: ask
-      environment: two_room_2x11
+      monitor: button
+      environment: river_swim
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -145,30 +145,32 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Grid/Gridworld-TwoRoom-2x11
+  id: Gym-Grid/RiverSwim-6-v0
   monitor:
-    button_cell_id: 16
+    button_cell_id: 0
     button_flip_act: 0
     forbidden_states: null
   experiment:
     training_steps: 20000
     testing_episodes: 100
     testing_frequency: 100
-    beta: 1.005
+    kappa_base: 1.005
   critic:
     gamma: 0.99
-    joint_max_q: 1
+    joint_max_q: 30
     env_min_r: 0
-    ucb_a: 0.0005
-    ucb_b: 0.0005
-    ucb_c: 0.0005
+    beta_e: 0
+    beta_m: 0
+    beta: 0.01
+    beta_obs: 0.01
+    beta_kl_ucb: 0.05
   render_mode: null
 monitor:
-  id: Ask
+  id: Button
   prob: 1
 critic:
   vi_iter: 50
 experiment:
   datadir: null
-  rng_seed: 4
+  rng_seed: 26
   hide_progress_bar: false

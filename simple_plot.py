@@ -21,14 +21,14 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 n_runs = 30
 monitor = "Full", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
-    # "RiverSwim-6-v0",
-    "Gridworld-OneWay",
-    "Gridworld-TwoRoom-3x5",
-    "Gridworld-TwoRoom-2x11",
-    "Gridworld-Hazard",
-    "Gridworld-Corridor",
-    "Gridworld-Loop",
-    "Gridworld-Empty",
+    "RiverSwim-6-v0",
+    # "Gridworld-OneWay",
+    # "Gridworld-TwoRoom-3x5",
+    # "Gridworld-TwoRoom-2x11",
+    # "Gridworld-Hazard",
+    # "Gridworld-Corridor",
+    # "Gridworld-Loop",
+    # "Gridworld-Empty",
 )
 env_mon_combo = itertools.product(env, monitor)
 
@@ -50,7 +50,7 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                             "Full": (0.904, "optimal"),
                             },
         "Gridworld-OneWay": {"Ask": (0.764, "optimal"),
-                             "Button": (0.672, "optimal"),
+                             "Button": (0.66, "optimal"),
                              "Level": (0.764, "optimal"),
                              "N": (0.764, "optimal"),
                              "Random": (0.764, "optimal"),
@@ -205,6 +205,7 @@ for env, monitor in env_mon_combo:
         ax.set_xlim(0, 210)
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
+        # ax.set_ylim(0, 1)
         ax.set_ylim(0, 21)
 
         if monitor == "Full":
@@ -217,6 +218,7 @@ for env, monitor in env_mon_combo:
         #               )
         # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
             ax.set_yticks([0, 5, 10, 15, 20])
+            # ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
         else:
             ax.set_yticklabels([])
         # elif monitor == "Button":
