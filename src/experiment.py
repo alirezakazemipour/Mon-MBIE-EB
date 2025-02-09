@@ -90,21 +90,22 @@ class MonExperiment:
                                  f"test {np.mean(test_return):.3f} "
                                  )
 
-            if self.env.spec.id == gym.envs.spec("Gym-Grid/Gridworld-Snake-6x6-v0").id and isinstance(self.env,
+            if self.env.spec.id == gym.envs.spec("Gym-Grid/Gridworld-Bottleneck").id and isinstance(self.env,
                                                                                                       Button):
                 goal_cnt_hist.append(self.critic.env_visit[-1, 4])
                 snake_cnt_hist.append(self.critic.env_visit[10].sum())
                 gold_bar_cnt_hist.append(self.critic.env_visit[30, 4])
-                button_off_cnt_hist.append(self.critic.joint_count[31, 0, 1, 0])
-                button_on_cnt_hist.append(self.critic.joint_count[31, 1, 1, 0])
+                button_off_cnt_hist.append(self.critic.joint_cnt[31, 0, 1, 0])
+                button_on_cnt_hist.append(self.critic.joint_cnt[31, 1, 1, 0])
                 unobsrv_cnt_hist.append(self.critic.env_visit[[2, 8, 20, 26, 32]].mean())
 
             ep_seed = cantor_pairing(self.rng_seed, self.tot_episodes)
             rng = np.random.default_rng(ep_seed)
-
+            ne = np.sum(self.critic.env_obsrv_cnt.sum(-1) != 0)
+            n = self.critic.env_num_obs * self.critic.env_num_act
             self.critic.opt_pess_mbie(rng)
             ################
-            if math.log(self.tot_episodes + 1e-4, self.beta) > self.cnt:
+            if math.log(self.tot_episodes + 1e-4, self.beta) > self.cnt and ne < n:
                 self.cnt += 1
                 explore = True
                 self.explore_episodes += 1
@@ -182,7 +183,7 @@ class MonExperiment:
                 "joint_q": self.critic.joint_q,
                 "obsrv_q": self.critic.obsrv_q,
                 "monitor": self.critic.monitor,
-                "env_obsrv_count": self.critic.env_obsrv_count,
+                "env_obsrv_cnt": self.critic.env_obsrv_cnt,
                 "env_reward_model": self.critic.env_rwd_model,
                 "goal_cnt_hist": goal_cnt_hist,
                 "button_on_cnt_hist": button_on_cnt_hist,

@@ -57,11 +57,11 @@ def register_envs():
     )
 
     register(
-        id="Gridworld-Snake-6x6-v0",
+        id="Gridworld-Bottleneck",
         entry_point="gym_grid.gridworld:Gridworld",
         max_episode_steps=50,
         kwargs={
-            "grid": "6x6_snake",
+            "grid": "bottleneck",
         },
     )
 

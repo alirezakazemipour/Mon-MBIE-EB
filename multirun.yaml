@@ -21,12 +21,12 @@ hydra:
     _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
     max_batch_size: null
     params:
-      environment: 6x6_snake
+      environment: bottleneck
       experiment.hide_progress_bar: true
       experiment.datadir: data
-      experiment.rng_seed: range(0, 30)
-      monitor: random_nonzero, full
-      monitor.prob: 0.05
+      experiment.rng_seed: range(0, 1)
+      monitor: random, ask, button, n_supporter, n_expert, level
+      monitor.prob: 1, 0.8, 0.2, 0.05
   help:
     app_name: ${hydra.job.name}
     header: '${hydra.help.app_name} is powered by Hydra.
@@ -133,8 +133,8 @@ hydra:
       provider: schema
     output_dir: ???
     choices:
-      monitor: random
-      environment: 6x6_snake
+      monitor: button
+      environment: bottleneck
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: disabled
@@ -146,7 +146,7 @@ hydra:
       hydra/output: default
   verbose: false
 environment:
-  id: Gym-Grid/Gridworld-Snake-6x6-v0
+  id: Gym-Grid/Gridworld-Bottleneck
   monitor:
     button_cell_id: 31
     button_flip_act: 1
@@ -157,19 +157,19 @@ environment:
     - 26
     - 32
   experiment:
-    training_steps: 25000
+    training_steps: 50000
     testing_episodes: 100
     testing_frequency: 100
-    beta: 1.02
+    beta: 1.005
   critic:
     gamma: 0.99
     joint_max_q: 10
-    env_min_r: -1
-    ucb_a: 0.0004
-    ucb_b: 0.0004
+    env_min_r: -10
+    ucb_a: 0.0005
+    ucb_b: 0.0005
   render_mode: null
 monitor:
-  id: Random
+  id: Button
   prob: 0.05
 critic:
   vi_iter: 50

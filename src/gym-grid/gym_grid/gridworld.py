@@ -67,7 +67,7 @@ GRIDS = {
     ],
     "10x10_empty": [[EMPTY for _ in range(10)] for _ in range(10)],
     "6x6_distract": [[EMPTY for _ in range(6)] for _ in range(6)],
-    "6x6_snake": [
+    "bottleneck": [
         [EMPTY, EMPTY, BAD, EMPTY, EMPTY, EMPTY],
         [EMPTY, EMPTY, BAD, EMPTY, BAD, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
@@ -118,8 +118,8 @@ GRIDS = {
 
 GRIDS["10x10_empty"][-1][-1] = GOOD
 GRIDS["20_straight"][-1][-1] = GOOD
-GRIDS["6x6_distract"][-1][-1] = GOOD
-GRIDS["6x6_distract"][-1][0] = GOOD_SMALL
+GRIDS["bottleneck"][-1][-1] = GOOD
+GRIDS["bottleneck"][-1][0] = GOOD_SMALL
 
 GRIDS["river_swim_6"][-1][-1] = GOOD
 GRIDS["river_swim_6"][0][0] = GOOD_SMALL

@@ -52,7 +52,7 @@ class MonQCritic(Critic):
         Args:
             strategy (str): can be either "oracle", "reward_model", "q_sequential",
                 "q_joint", "ignore", "reward_is_X", where X is a float.
-            gamma (float): discount factor,
+            gamma (float): discnt factor,
             lr (DictConfig): configuration to initialize the learning rate,
         """
 
@@ -78,11 +78,11 @@ class MonQCritic(Critic):
         self.env_r = None
         self.env_visit = None
         self.env_term = None
-        self.env_obsrv_count = None
+        self.env_obsrv_cnt = None
         self.joint_q = None
         self.obsrv_q = None
-        self.env_transit_count = None
-        self.joint_count = None
+        self.env_transit_cnt = None
+        self.joint_cnt = None
 
     def update(self,
                obs_env,
@@ -97,16 +97,16 @@ class MonQCritic(Critic):
                next_obs_mon,
                ):
         if not np.isnan(rwd_proxy):
-            self.env_obsrv_count[obs_env, act_env] += 1
+            self.env_obsrv_cnt[obs_env, act_env] += 1
             self.env_r[obs_env, act_env] += rwd_env
 
         self.env_visit[obs_env, act_env] += 1
-        self.env_transit_count[obs_env, act_env, next_obs_env] += 1
+        self.env_transit_cnt[obs_env, act_env, next_obs_env] += 1
 
         if term:
             self.env_term[obs_env, act_env] = 1
 
-        self.joint_count[obs_env, obs_mon, act_env, act_mon] += 1
+        self.joint_cnt[obs_env, obs_mon, act_env, act_mon] += 1
 
         return 0
 
@@ -114,7 +114,7 @@ class MonQCritic(Critic):
 
         env_rwd_model = self.update_env_rwd_model(self.env_obs_space,
                                                   self.env_act_space,
-                                                  self.env_obsrv_count,
+                                                  self.env_obsrv_cnt,
                                                   self.env_rwd_model,
                                                   self.a
                                                   )
@@ -151,7 +151,7 @@ class MonQCritic(Critic):
 
         mon_obsrv_rwd_bar = self.update_obsrv_rwd_model(self.joint_obs_space,
                                                         self.joint_act_space,
-                                                        self.env_obsrv_count,
+                                                        self.env_obsrv_cnt,
                                                         np.zeros_like(self.monitor),
                                                         self.monitor,
                                                         )
@@ -174,9 +174,9 @@ class MonQCritic(Critic):
         self.env_r = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_visit = np.zeros((self.env_num_obs, self.env_num_act))
         self.env_term = np.zeros((self.env_num_obs, self.env_num_act))
-        self.env_obsrv_count = np.zeros((self.env_num_obs, self.env_num_act))
-        self.joint_count = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
-        self.env_transit_count = np.zeros((self.env_num_obs, self.env_num_act, self.env_num_obs,))
+        self.env_obsrv_cnt = np.zeros((self.env_num_obs, self.env_num_act))
+        self.joint_cnt = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
+        self.env_transit_cnt = np.zeros((self.env_num_obs, self.env_num_act, self.env_num_obs,))
         self.joint_q = np.ones(
             (self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act)) * self.joint_max_q
         self.obsrv_q = np.ones(
@@ -185,13 +185,13 @@ class MonQCritic(Critic):
     @property
     def env_rwd_model(self):
         with np.errstate(divide='ignore', invalid='ignore'):
-            r = self.env_r / self.env_obsrv_count
+            r = self.env_r / self.env_obsrv_cnt
         r[np.isnan(r)] = self.env_min_r
         return r
 
     @property
     def env_dynamics(self):
-        p_env = self.env_transit_count / (self.env_visit[..., None] + 1e-4)
+        p_env = self.env_transit_cnt / (self.env_visit[..., None] + 1e-4)
         return p_env
 
     @staticmethod
@@ -201,24 +201,24 @@ class MonQCritic(Critic):
 
     @staticmethod
     @jit
-    def update_env_rwd_model(env_obs_space, env_act_space, count, env_rwd_model, a0):
+    def update_env_rwd_model(env_obs_space, env_act_space, cnt, env_rwd_model, a0):
         for s in env_obs_space:
             for a in env_act_space:
-                if count[s, a] != 0:
-                    t = count[s].sum()
+                if cnt[s, a] != 0:
+                    t = cnt[s].sum()
                     f_t = f(t)
-                    ucb = a0 * np.sqrt(2 * np.log(f_t) / count[s, a])
+                    ucb = a0 * np.sqrt(np.log(f_t) / cnt[s, a])
                     env_rwd_model[s, a] += ucb
         return env_rwd_model
 
     @staticmethod
     @jit
-    def update_obsrv_rwd_model(obs_space, act_space, count, model, monitor):
+    def update_obsrv_rwd_model(obs_space, act_space, cnt, model, monitor):
         for s in obs_space:
             for a in act_space:
                 se, sm = s
                 ae, am = a
-                if count[se, ae] == 0 and np.sum(monitor[se, :, ae, :]) > 0:
+                if cnt[se, ae] == 0 and np.sum(monitor[se, :, ae, :]) > 0:
                     model[*s, *a] = monitor[*s, *a]
         return model
 
@@ -227,7 +227,7 @@ class MonQCritic(Critic):
     def value_iteration(n_iter,
                         q,
                         max_q,
-                        count,
+                        cnt,
                         rwd,
                         gamma,
                         p,
@@ -242,7 +242,7 @@ class MonQCritic(Critic):
             z = z.reshape(rwd.shape)
             q = rwd + gamma * z * (1 - term[:, None, :, None])
             q = q.flatten()
-            q[count == 0] = max_q
+            q[cnt == 0] = max_q
             q = q.reshape(rwd.shape)
             v = jittable_joint_max(q)
         return q
