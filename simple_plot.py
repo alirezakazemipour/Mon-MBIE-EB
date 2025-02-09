@@ -22,13 +22,14 @@ simone_color = "#f4a261"
 
 n_runs = 30
 p = 1
-monitor = "Button", "Level", "Random", "NExpert"
+# monitor = "Random", "Ask", "NSupporter", "NExpert", "Level"
+monitor = "Button",
+
 env = (
     # "RiverSwim-6-v0",
     # "Gridworld-Penalty-3x3-v0",
     # "Gridworld-Corridor-3x4-v0",
-    # "Gridworld-Bottleneck",
-    "Gridworld-Bypass",
+    "Gridworld-Bottleneck",
 )
 env_mon_combo = itertools.product(env, monitor)
 
@@ -65,15 +66,6 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                                      "RandomNonZero": (0.941, "optimal"),
                                      "Full": (0.941, "optimal"),
                                      },
-        "Gridworld-Bypass": {"Ask": (0.904, "cautious"),
-                                    "Button": (0.308, "cautious"),
-                                    "Level": (0.904, "cautious"),
-                                    "NSupporter": (0.91, "cautious"),
-                                    "NExpert": (0.904, "cautious"),
-                                    "Random": (0.904, "cautious"),
-                                    "RandomNonZero": (0.904, "cautious"),
-                                    "Full": (0.941, "optimal"),
-                                    },
         "Gridworld-Quicksand-Distract-4x4-v0": {"Ask": (0.914, "optimal"),
                                                 "Button": (0.821, "optimal"),
                                                 "Level": (0.914, "optimal"),
@@ -102,13 +94,13 @@ for env, monitor in env_mon_combo:
         # knm_runs = []
         for i in range(n_runs):
             x = np.load(f"data/stochastically_observable/mine/"
-                        f"{env}/{algo}_{prob}/data_{i}.npz")["test_return"][:300]
+                        f"{env}/{algo}_{prob}/data_{i}.npz")["test_return"][:500]
             my_runs.append(x)
 
             x = np.load(
                 f"data/stochastically_observable/simone/good init/"
                 f"{env}/{algo}Monitor_{prob}/{monitor}Monitor__{prob}_{i}.npz")[
-                "test/return"][:300]
+                "test/return"][:500]
             s_runs.append(x)
 
             # x = np.load(f"data/understanding/new_snake/known_monitor/"
@@ -201,14 +193,14 @@ for env, monitor in env_mon_combo:
         # plt.title(f"{env}_{monitor}_{prob}")
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
-        ax.set_xticks(np.arange(0, 301, 100))
+        ax.set_xticks(np.arange(0, 501, 100))
         # ax.set_xticklabels([])
-        ax.set_xlim(0, 300)
+        ax.set_xlim(0, 500)
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
-        # ax.yaxis.label.set_color('black')
-        ax.set_ylim(0, 1)
+        # ax.set_ylim(0, 1)
+        ax.set_ylim(-0.7, 0.3)
 
-        # if monitor == "Button" or monitor == "Full":
+        if monitor == "Button" or monitor == "Random":
         # ax.set_ylabel("Discounted test return",
         #               weight="bold",
         #               fontsize=20,
@@ -217,10 +209,15 @@ for env, monitor in env_mon_combo:
         #               # ha='right'
         #               )
         # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-        # ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
-        ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
-        # else:
-        #     ax.set_yticklabels([])
+            ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
+        # ax.yaxis.set_label_position("right")
+        # ax.yaxis.tick_right()
+        # ax.spines[['left']].set_visible(False)
+        # ax.spines[['right']].set_visible(True)
+
+            # ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
+        else:
+            ax.set_yticklabels([])
         # if monitor == "Button":
         #     ax.set_ylabel("Discounted test return",
         #                   weight="bold",
