@@ -59,8 +59,8 @@ class MonQCritic(Critic):
         self.gamma = kwargs["gamma"]
         self.joint_max_q = kwargs["joint_max_q"]
         self.env_min_r = kwargs["env_min_r"]
-        self.a = kwargs["ucb_a"]
-        self.b = kwargs["ucb_b"]
+        self.beta_e = kwargs["beta_e"]
+        self.beta = kwargs["beta"]
         self.vi_iter = kwargs["vi_iter"]
 
         self.env_num_obs = env_num_obs
@@ -116,14 +116,14 @@ class MonQCritic(Critic):
                                                   self.env_act_space,
                                                   self.env_obsrv_cnt,
                                                   self.env_rwd_model,
-                                                  self.a
+                                                  self.beta_e
                                                   )
         # uncertainties for transition
         env_rwd_model = self.update_env_rwd_model(self.env_obs_space,
                                                   self.env_act_space,
                                                   self.env_visit,
                                                   env_rwd_model,
-                                                  self.b
+                                                  self.beta
                                                   )
 
         p = self.joint_dynamics(self.env_dynamics, self.mon_dynamics)
@@ -146,7 +146,7 @@ class MonQCritic(Critic):
                                                       self.env_act_space,
                                                       self.env_visit,
                                                       np.zeros_like(self.env_rwd_model),
-                                                      self.b
+                                                      self.beta
                                                       )
 
         mon_obsrv_rwd_bar = self.update_obsrv_rwd_model(self.joint_obs_space,
