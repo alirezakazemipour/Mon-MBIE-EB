@@ -45,8 +45,8 @@ def run(cfg: DictConfig) -> None:
     # print(f"\ntotal episodes: {experiment.tot_episodes}")
     # print(f"\nexplore episodes: {experiment.explore_episodes}")
     # print("\nvisits:", critic.env_visit.astype(int))
-    # print("\nobservs:", critic.env_obsrv_cnt.sum(-1).astype(int))  # noqa
-    # print("\nrwd model:", critic.env_rwd_model)
+    print("\nobservs:", critic.env_obsrv_cnt.sum(-1).astype(int))  # noqa
+    print("\nrwd model:", critic.env_rwd_model)
     # print("\njoint count: ", critic.joint_count[-1])
     # print("\nmon rwd: ", critic.mon_rwd_model)
     # print("\ndynamics: ", critic.joint_dynamics)

@@ -19,7 +19,7 @@ plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('legend', fontsize=17)  # legend fontsize
 
 n_runs = 30
-monitor = "Full", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
+monitor = "N", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
     "RiverSwim-6-v0",
     # "Gridworld-OneWay",
@@ -135,13 +135,13 @@ for env, monitor in env_mon_combo:
         som_runs = []
         svm_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/neurips/mine/{env}/{algo}/data_{i}.npz")["test_return"][:200]
+            x = np.load(f"data/neurips/mine/{env}/{algo}/data_{27}.npz")["test_return"][:200]
             my_runs.append(x)
             x = np.load(f"data/neurips/Simone/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
-                "test/return"][:200]
+                    "test/return"][:200]
             s_runs.append(x)
-        print(np.argmin(np.array(my_runs).sum(-1)))
-        exit()
+        # print(np.argsort(np.array(my_runs).sum(-1)))
+        # exit()
         my_smoothed = []
         s_smoothed = []
 
@@ -173,6 +173,13 @@ for env, monitor in env_mon_combo:
                 linewidth=4,
                 c=color,
                 )
+        # for i in range(30):
+        #     ax.plot(np.arange(len(my_smoothed[i])),
+        #             my_smoothed[i],
+        #             alpha=1,
+        #             linewidth=4,
+        #             c=color,
+                    # )
 
         s_mean_return = np.mean(np.asarray(s_smoothed), axis=0)
         s_std_return = np.std(np.asarray(s_smoothed), axis=0)
@@ -209,14 +216,14 @@ for env, monitor in env_mon_combo:
         ax.set_ylim(0, 21)
 
         if monitor == "Full":
-        # ax.set_ylabel("Discounted test return",
-        #               weight="bold",
-        #               fontsize=20,
-        #               # rotation="horizontal",
-        #               # labelpad=50,
-        #               # ha='right'
-        #               )
-        # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
+            # ax.set_ylabel("Discounted test return",
+            #               weight="bold",
+            #               fontsize=20,
+            #               # rotation="horizontal",
+            #               # labelpad=50,
+            #               # ha='right'
+            #               )
+            # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
             ax.set_yticks([0, 5, 10, 15, 20])
             # ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
         else:
