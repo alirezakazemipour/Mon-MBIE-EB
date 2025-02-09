@@ -103,7 +103,7 @@ class MonQCritic(Critic):
         if not np.isnan(rwd_proxy):
             self.env_obsrv_cnt[obs_env, act_env] += 1
             self.env_r[obs_env, act_env] += rwd_env
-            self.joint_obsrv_cnt[obs_env, obs_mon, act_env, act_mon, next_obs_env, next_obs_mon] += 1
+            self.joint_obsrv_cnt[obs_env, obs_mon, act_env, act_mon] += 1
 
         self.env_visit[obs_env, act_env] += 1
         self.env_transit_cnt[obs_env, act_env, next_obs_env] += 1
@@ -190,8 +190,7 @@ class MonQCritic(Critic):
         self.env_obsrv_cnt = np.zeros((self.env_num_obs, self.env_num_act))
         self.mon_r = np.zeros((self.mon_num_obs, self.mon_num_act))
         self.joint_cnt = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
-        self.joint_obsrv_cnt = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act,
-                                         self.env_num_obs, self.mon_num_obs))
+        self.joint_obsrv_cnt = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act))
         self.joint_transit_cnt = np.zeros((self.env_num_obs, self.mon_num_obs, self.env_num_act, self.mon_num_act,
                                            self.env_num_obs, self.mon_num_obs))
         self.joint_q = np.ones(
@@ -218,9 +217,8 @@ class MonQCritic(Critic):
 
     @property
     def monitor(self):
-        m = self.joint_obsrv_cnt / (self.joint_transit_cnt + 1e-6)
-        p = self.joint_dynamics
-        return np.sum(m * p, axis=(-1, -2))
+        m = self.joint_obsrv_cnt / (self.joint_cnt + 1e-6)
+        return m
 
     @staticmethod
     @jit
