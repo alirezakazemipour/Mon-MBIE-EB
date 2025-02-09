@@ -21,9 +21,9 @@ my_color = "#2a9d8f"
 simone_color = "#f4a261"
 
 n_runs = 30
-p = 1
-# monitor = "Random", "Ask", "NSupporter", "NExpert", "Level"
-monitor = "Button",
+p = 0.8
+monitor = "Random", "Ask", "NSupporter", "NExpert", "Level"
+# monitor = "Button",
 
 env = (
     # "RiverSwim-6-v0",
@@ -194,11 +194,11 @@ for env, monitor in env_mon_combo:
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, 501, 100))
-        # ax.set_xticklabels([])
+        ax.set_xticklabels([])
         ax.set_xlim(0, 500)
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
-        # ax.set_ylim(0, 1)
-        ax.set_ylim(-0.7, 0.3)
+        ax.set_ylim(0, 1)
+        # ax.set_ylim(-0.7, 0.3)
 
         if monitor == "Button" or monitor == "Random":
         # ax.set_ylabel("Discounted test return",
@@ -209,13 +209,13 @@ for env, monitor in env_mon_combo:
         #               # ha='right'
         #               )
         # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-            ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
+        #     ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
         # ax.yaxis.set_label_position("right")
         # ax.yaxis.tick_right()
         # ax.spines[['left']].set_visible(False)
         # ax.spines[['right']].set_visible(True)
 
-            # ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
+            ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
         else:
             ax.set_yticklabels([])
         # if monitor == "Button":
