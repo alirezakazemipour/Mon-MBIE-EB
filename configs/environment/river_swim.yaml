@@ -19,5 +19,5 @@ critic:
   beta_m: 0.005
   beta: 0.009
   beta_obs: 0.009
-  beta_kl_ucb: 1
+  beta_kl_ucb: 0.05
 
