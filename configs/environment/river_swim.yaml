@@ -15,8 +15,8 @@ critic:
   gamma: 0.99
   joint_max_q: 30
   env_min_r: 0
-  beta_e: 0.008
-  beta_m: 0.008
+  beta_e: 0.005
+  beta_m: 0.005
   beta: 0.01
   beta_obs: 0.01
   beta_kl_ucb: 0.05
