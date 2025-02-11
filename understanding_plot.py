@@ -3,7 +3,9 @@ import math
 from matplotlib import pyplot as plt
 from matplotlib import ticker
 
-plt.style.use('ggplot')
+my_color = "#2a9d8f"
+simone_color = "#f4a261"
+known_color = "#C26DBC"
 
 SMALL_SIZE = 8
 MEDIUM_SIZE = 24
@@ -16,7 +18,7 @@ plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('legend', fontsize=17)  # legend fontsize
 
 n_runs = 30
-prob = 1
+prob = 0.05
 mode = "on"
 
 my_goals = []
@@ -153,13 +155,13 @@ ax.fill_between(np.arange(len(my_mean_goals)),
                 my_lower_bound,
                 my_upper_bound,
                 alpha=0.25,
-                color="blue"
+                color=my_color
                 )
 ax.plot(np.arange(len(my_mean_goals)),
         my_mean_goals,
         alpha=1,
         linewidth=4,
-        c="blue",
+        c=my_color,
         label="Double MBIE"
         )
 
@@ -171,13 +173,13 @@ ax.fill_between(np.arange(len(s_mean_goals)),
                 s_lower_bound,
                 s_upper_bound,
                 alpha=0.25,
-                color="red"
+                color=simone_color
                 )
 ax.plot(np.arange(len(s_mean_goals)),
         s_mean_goals,
         alpha=1,
         linewidth=4,
-        c="red",
+        c=simone_color,
         label="Directed-E$\mathbf{^2}$"
         )
 # plt.yscale('log', base=10)
@@ -215,13 +217,13 @@ my_upper_bound = my_mean_buttons + 1.96 * my_std_buttons / math.sqrt(n_runs)
 #                 my_lower_bound,
 #                 my_upper_bound,
 #                 alpha=0.25,
-#                 color="blue"
+#                 color=my_color
 #                 )
 # ax.plot(np.arange(len(my_mean_buttons)),
 #         my_mean_buttons,
 #         alpha=1,
 #         linewidth=4,
-#         c="blue",
+#         c=my_color,
 #         label="Double MBIE"
 #         )
 
@@ -230,7 +232,7 @@ for i in range(24, 25):
             my_buttons_smoothed[i],
             alpha=1,
             linewidth=4,
-            # c="blue",
+            # c=my_color,
             label="Double MBIE"
             )
 
@@ -242,13 +244,13 @@ ax.fill_between(np.arange(len(s_mean_buttons)),
                 s_lower_bound,
                 s_upper_bound,
                 alpha=0.25,
-                color="red"
+                color=simone_color
                 )
 ax.plot(np.arange(len(s_mean_buttons)),
         s_mean_buttons,
         alpha=1,
         linewidth=4,
-        c="red",
+        c=simone_color,
         label="Directed-E$\mathbf{^2}$"
         )
 # plt.yscale('log',base=10)
@@ -257,7 +259,7 @@ ax.plot(np.arange(len(s_mean_buttons)),
 # ax.set_yticks([0, 10000, 20000, 30000, 40000])
 #
 plt.ylim([0, 0.55])
-plt.show()
+# plt.show()
 # ax.set_yticklabels([])
 ax.set_xticks(np.arange(0, 301, 100))
 # ax.set_xticklabels([])
@@ -285,13 +287,13 @@ ax.fill_between(np.arange(len(my_mean_unobsrvs)),
                 my_lower_bound,
                 my_upper_bound,
                 alpha=0.25,
-                color="blue"
+                color=my_color
                 )
 ax.plot(np.arange(len(my_mean_unobsrvs)),
         my_mean_unobsrvs,
         alpha=1,
         linewidth=4,
-        c="blue",
+        c=my_color,
         label="Double MBIE"
         )
 
@@ -303,13 +305,13 @@ ax.fill_between(np.arange(len(s_mean_unobsrvs)),
                 s_lower_bound,
                 s_upper_bound,
                 alpha=0.25,
-                color="red"
+                color=simone_color
                 )
 ax.plot(np.arange(len(s_mean_unobsrvs)),
         s_mean_unobsrvs,
         alpha=1,
         linewidth=4,
-        c="red",
+        c=simone_color,
         label="Directed-E$\mathbf{^2}$"
         )
 # plt.yscale('log',base=10)
@@ -375,13 +377,13 @@ ax.fill_between(np.arange(len(my_mean_snakes)),
                 my_lower_bound,
                 my_upper_bound,
                 alpha=0.25,
-                color="blue"
+                color=my_color
                 )
 ax.plot(np.arange(len(my_mean_snakes)),
         my_mean_snakes,
         alpha=1,
         linewidth=4,
-        c="blue",
+        c=my_color,
         label="Double MBIE"
         )
 
@@ -390,7 +392,7 @@ ax.plot(np.arange(len(my_mean_snakes)),
 #             my_snakes_smoothed[i],
 #             alpha=1,
 #             linewidth=4,
-#             # c="blue",
+#             # c=my_color,
 #             label="Double MBIE"
 #             )
 
@@ -402,13 +404,13 @@ s_upper_bound = s_mean_snakes + 1.96 * s_std_snakes / math.sqrt(n_runs)
 #                 s_lower_bound,
 #                 s_upper_bound,
 #                 alpha=0.25,
-#                 color="red"
+#                 color=simone_color
 #                 )
 # ax.plot(np.arange(len(s_mean_snakes)),
 #         s_mean_snakes,
 #         alpha=1,
 #         linewidth=4,
-#         c="red",
+#         c=simone_color,
 #         label="Directed-E$\mathbf{^2}$"
 #         )
 
@@ -454,13 +456,13 @@ ax.fill_between(np.arange(len(my_mean_gbs)),
                 my_lower_bound,
                 my_upper_bound,
                 alpha=0.25,
-                color="blue"
+                color=my_color
                 )
 ax.plot(np.arange(len(my_mean_gbs)),
         my_mean_gbs,
         alpha=1,
         linewidth=4,
-        c="blue",
+        c=my_color,
         label="Double MBIE"
         )
 
@@ -472,13 +474,13 @@ ax.fill_between(np.arange(len(s_mean_gbs)),
                 s_lower_bound,
                 s_upper_bound,
                 alpha=0.25,
-                color="red"
+                color=simone_color
                 )
 ax.plot(np.arange(len(s_mean_gbs)),
         s_mean_gbs,
         alpha=1,
         linewidth=4,
-        c="red",
+        c=simone_color,
         label="Directed-E$\mathbf{^2}$"
         )
 # plt.yscale('log', base=10)
@@ -516,13 +518,13 @@ my_upper_bound = my_mean_betas + 1.96 * my_std_betas / math.sqrt(n_runs)
 #                 my_lower_bound,
 #                 my_upper_bound,
 #                 alpha=0.25,
-#                 color="blue"
+#                 color=my_color
 #                 )
 ax.plot(np.arange(len(my_mean_betas)),
         my_mean_betas,
         alpha=1,
         linewidth=4,
-        c="blue",
+        c=my_color,
         label="Double MBIE"
         )
 
@@ -534,13 +536,13 @@ my_upper_bound = my_mean_beta_es + 1.96 * my_std_beta_es / math.sqrt(n_runs)
 #                 my_lower_bound,
 #                 my_upper_bound,
 #                 alpha=0.25,
-#                 color="red"
+#                 color=simone_color
 #                 )
 ax.plot(np.arange(len(my_mean_beta_es)),
         my_mean_beta_es,
         alpha=1,
         linewidth=4,
-        c="red",
+        c=simone_color,
         label="Directed-E$\mathbf{^2}$"
         )
 
@@ -552,13 +554,13 @@ ax.fill_between(np.arange(len(my_mean_beta_ms)),
                 my_lower_bound,
                 my_upper_bound,
                 alpha=0.25,
-                color="green"
+                color=my_color
                 )
 ax.plot(np.arange(len(my_mean_beta_ms)),
         my_mean_beta_ms,
         alpha=1,
         linewidth=4,
-        c="green",
+        c=my_color,
         label="Directed-E$\mathbf{^2}$"
         )
 
