@@ -101,7 +101,7 @@ class MonExperiment:
 
             ep_seed = cantor_pairing(self.rng_seed, self.tot_episodes)
             rng = np.random.default_rng(ep_seed)
-            ne = np.sum(self.critic.env_obsrv_cnt.sum(-1) != 0)
+            ne = np.sum(self.critic.env_obsrv_cnt != 0)
             n = self.critic.env_num_obs * self.critic.env_num_act
             self.critic.opt_pess_mbie(rng)
             ################
