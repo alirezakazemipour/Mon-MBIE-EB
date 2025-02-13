@@ -17,7 +17,7 @@ critic:
   env_min_r: 0
   beta_e: 0.005
   beta_m: 0.005
-  beta: 0.01
-  beta_obs: 0.01
+  beta: 0.1
+  beta_obs: 0.1
   beta_kl_ucb: 0.05
 
