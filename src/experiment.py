@@ -93,7 +93,7 @@ class MonExperiment:
             rng = np.random.default_rng(ep_seed)
 
             self.critic.opt_pess_mbie(rng)  # off-policy; can be updated every episode!
-            ne = np.sum(self.critic.env_obsrv_cnt.sum(-1) != 0)
+            ne = np.sum(self.critic.env_obsrv_cnt != 0)
             n = self.critic.env_num_obs * self.critic.env_num_act
             explore = False
             ################
