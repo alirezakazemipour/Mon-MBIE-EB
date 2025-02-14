@@ -116,7 +116,7 @@ class MonQCritic(Critic):
 
         return 0
 
-    def opt_pess_mbie(self, rng):  # noqa
+    def opt_mbie(self, rng):  # noqa
 
         env_rwd = self.update_rwd_model(self.env_obs_space,
                                         self.env_act_space,
@@ -202,7 +202,7 @@ class MonQCritic(Critic):
     def env_rwd_model(self):
         with np.errstate(divide='ignore', invalid='ignore'):
             r = self.env_r / self.env_obsrv_cnt
-        r[np.isnan(r)] = self.env_min_r
+        r[self.env_obsrv_cnt == 0] = self.env_min_r
         return r
 
     @property

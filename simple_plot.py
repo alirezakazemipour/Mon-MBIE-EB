@@ -19,7 +19,7 @@ plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('legend', fontsize=17)  # legend fontsize
 
 n_runs = 30
-monitor = "Ask", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
+monitor = "N", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
     "RiverSwim-6-v0",
     # "Gridworld-OneWay",
@@ -66,7 +66,7 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                                      "Full": (0.941, "optimal"),
                                      },
         "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.941, "optimal"),
-                                               "Button": (0.849, "optimal"),
+                                               "Button": (0.9, "optimal"),
                                                "Level": (0.941, "optimal"),
                                                "N": (0.941, "optimal"),
                                                "Random": (0.941, "optimal"),
@@ -100,7 +100,7 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                                },
 
         "Gridworld-TwoRoom-3x5": {"Ask": (0.941, "optimal"),
-                                  "Button": (0.826, "optimal"),
+                                  "Button": (0.838, "optimal"),
                                   "Level": (0.941, "optimal"),
                                   "N": (0.941, "optimal"),
                                   "Random": (0.941, "optimal"),
@@ -207,8 +207,8 @@ for env, monitor in env_mon_combo:
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
         ax.set_xticks(np.arange(0, 201, 40))
-        # ax.set_xticklabels([])
-        ax.set_xlim(0, 210)
+        ax.set_xticklabels([])
+        # ax.set_xlim(0, 210)
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.yaxis.label.set_color('black')
         # ax.set_ylim(0, 1)
