@@ -47,13 +47,6 @@ class MonQCritic(Critic):
                  gamma: float,
                  **kwargs,
                  ):
-        """
-        Args:
-            strategy (str): can be either "oracle", "reward_model", "q_sequential",
-                "q_joint", "ignore", "reward_is_X", where X is a float.
-            gamma (float): discount factor,
-            lr (DictConfig): configuration to initialize the learning rate,
-        """
 
         self.gamma = gamma
         self.joint_max_q = kwargs["joint_max_q"]
@@ -116,7 +109,7 @@ class MonQCritic(Critic):
 
         return 0
 
-    def opt_pess_mbie(self, rng):  # noqa
+    def opt_mbie(self, rng):  # noqa
 
         env_rwd = self.update_rwd_model(self.env_obs_space,
                                         self.env_act_space,
@@ -252,7 +245,6 @@ class MonQCritic(Critic):
             z = z.reshape(rwd.shape)
             q = rwd + gamma * z * (1 - term[:, None, :, None])
             q = q.flatten()
-            # q = np.minimum(q, max_q)
             q[cnt == 0] = max_q
             q = q.reshape(rwd.shape)
             v = jittable_joint_max(q)
