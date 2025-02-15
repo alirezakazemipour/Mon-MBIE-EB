@@ -101,11 +101,9 @@ class MonExperiment:
 
             ep_seed = cantor_pairing(self.rng_seed, self.tot_episodes)
             rng = np.random.default_rng(ep_seed)
-            ne = np.sum(self.critic.env_obsrv_cnt != 0)
-            n = self.critic.env_num_obs * self.critic.env_num_act
             self.critic.opt_pess_mbie(rng)
             ################
-            if math.log(self.tot_episodes + 1e-4, self.base) > self.cnt and ne < n:
+            if math.log(self.tot_episodes + 1e-4, self.base) > self.cnt:
                 self.cnt += 1
                 explore = True
                 self.explore_episodes += 1
