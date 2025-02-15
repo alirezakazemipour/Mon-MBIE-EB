@@ -4,8 +4,6 @@ import numpy as np
 import itertools
 from matplotlib import ticker
 
-# plt.style.use('ggplot')
-
 SMALL_SIZE = 8
 MEDIUM_SIZE = 24
 BIGGER_SIZE = 26
@@ -20,6 +18,8 @@ plt.rc('legend', fontsize=17)  # legend fontsize
 my_color = "#2a9d8f"
 simone_color = "#f4a261"
 known_color = "#C26DBC"
+mbie_color = "#bc4749"
+pessimism_color = "cae9ff"
 
 n_runs = 30
 p = 1
@@ -91,29 +91,28 @@ for env, monitor in env_mon_combo:
         algo, color, prob = conf
         ref, opt_caut = info[env][monitor]
         my_runs = []
-        s_runs = []
-        knm_runs = []
+        mbie_runs = []
+        # knm_runs = []
         for i in range(n_runs):
             x = np.load(f"data/stochastically_observable/mine/"
                         f"{env}/{algo}_{prob}/data_{i}.npz")["test_return"][:500]
             my_runs.append(x)
 
             x = np.load(
-                f"data/stochastically_observable/simone/bad init/"
-                f"{env}/{algo}_{prob}/{monitor}Monitor__{prob}_{i}.npz")[
-                "test/return"][:500]
-            s_runs.append(x)
+                f"data/ablation/mbie/stochastically_observable/Gym-Grid/"
+                f"{env}/{algo}_{prob}/data_{i}.npz")["test_return"][:500]
+            mbie_runs.append(x)
 
-            x = np.load(f"data/stochastically_observable/known/"
-                        f"{env}/{algo}_{prob}/data_{i}.npz")["test_return"]
-            knm_runs.append(x)
+            # x = np.load(f"data/stochastically_observable/known/"
+            #             f"{env}/{algo}_{prob}/data_{i}.npz")["test_return"]
+            # knm_runs.append(x)
             # exit()
 
         # print(np.argmin(np.array(my_runs).sum(-1)))
         # exit()
         my_smoothed = []
-        s_smoothed = []
-        knm_smoothed = []
+        mbie_smoothed = []
+        # knm_smoothed = []
 
         for run in my_runs:
             val = [run[0]]
@@ -121,17 +120,17 @@ for env, monitor in env_mon_combo:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
             my_smoothed.append(val)
 
-        for run in s_runs:
+        for run in mbie_runs:
             val = [run[0]]
             for tmp in run[1:]:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
-            s_smoothed.append(val)
+            mbie_smoothed.append(val)
 
-        for run in knm_runs:
-            val = [run[0]]
-            for tmp in run[1:]:
-                val.append(0.9 * val[-1] + 0.1 * tmp)
-            knm_smoothed.append(val)
+        # for run in knm_runs:
+        #     val = [run[0]]
+        #     for tmp in run[1:]:
+        #         val.append(0.9 * val[-1] + 0.1 * tmp)
+        #     knm_smoothed.append(val)
 
         my_mean_return = np.mean(np.asarray(my_smoothed), axis=0)
         my_std_return = np.std(np.asarray(my_smoothed), axis=0)
@@ -150,27 +149,27 @@ for env, monitor in env_mon_combo:
                 c=my_color,
                 )
 
-        s_mean_return = np.mean(np.asarray(s_smoothed), axis=0)
-        s_std_return = np.std(np.asarray(s_smoothed), axis=0)
+        s_mean_return = np.mean(np.asarray(mbie_smoothed), axis=0)
+        s_std_return = np.std(np.asarray(mbie_smoothed), axis=0)
         s_lower_bound = s_mean_return - 1.96 * s_std_return / math.sqrt(n_runs)
         s_upper_bound = s_mean_return + 1.96 * s_std_return / math.sqrt(n_runs)
         ax.fill_between(np.arange(len(s_mean_return)),
                         s_lower_bound,
                         s_upper_bound,
                         alpha=0.25,
-                        color=simone_color
+                        color=mbie_color
                         )
         ax.plot(np.arange(len(s_mean_return)),
                 s_mean_return,
                 alpha=1,
                 linewidth=4,
-                c=simone_color,
+                c=mbie_color,
                 )
 
-        knm_mean_return = np.mean(np.asarray(knm_smoothed), axis=0)
-        knm_std_return = np.std(np.asarray(knm_smoothed), axis=0)
-        knm_lower_bound = knm_mean_return - 1.96 * knm_std_return / math.sqrt(n_runs)
-        knm_upper_bound = knm_mean_return + 1.96 * knm_std_return / math.sqrt(n_runs)
+        # knm_mean_return = np.mean(np.asarray(knm_smoothed), axis=0)
+        # knm_std_return = np.std(np.asarray(knm_smoothed), axis=0)
+        # knm_lower_bound = knm_mean_return - 1.96 * knm_std_return / math.sqrt(n_runs)
+        # knm_upper_bound = knm_mean_return + 1.96 * knm_std_return / math.sqrt(n_runs)
         # ax.fill_between(np.arange(len(knm_mean_return)),
         #                 knm_lower_bound,
         #                 knm_upper_bound,
@@ -194,15 +193,15 @@ for env, monitor in env_mon_combo:
         # plt.title(f"{env}_{monitor}_{prob}")
         # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
         ax.xaxis.label.set_color('black')
-        ax.set_xticks(np.arange(0, 301, 100))
+        ax.set_xticks(np.arange(0, 501, 100))
         # ax.set_xticklabels([])
-        ax.set_xlim(0, 300)
+        ax.set_xlim(0, 500)
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.set_ylim(0, 1)
         # ax.set_ylim(-0.7, 0.3)
-        ax.set_yticks([0, -100, -200, -300])
+        ax.set_ylim([-420, 1])
 
-        # if monitor == "Button" or monitor == "Random":
+        if monitor == "Button" or monitor == "Random":
         # ax.set_ylabel("Discounted test return",
         #               weight="bold",
         #               fontsize=20,
@@ -212,14 +211,11 @@ for env, monitor in env_mon_combo:
         #               )
         # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
         #     ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
-        # ax.yaxis.set_label_position("right")
-        # ax.yaxis.tick_right()
-        # ax.spines[['left']].set_visible(False)
-        # ax.spines[['right']].set_visible(True)
-
-            # ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
-        # else:
-        #     ax.set_yticklabels([])
+        #     ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
+        #     ax.set_yticks([0, -100, -200, -300, -400])
+            ax.set_yticklabels([])
+        else:
+            ax.set_yticklabels([])
         # if monitor == "Button":
         #     ax.set_ylabel("Discounted test return",
         #                   weight="bold",
@@ -233,30 +229,30 @@ for env, monitor in env_mon_combo:
     # plt.tight_layout()
 
     # inset Axes....
-    x1, x2, y1, y2 = 0, 300, -0.7, 0.3  # subregion of the original image
-    axins = ax.inset_axes((0.4, 0.62, 0.52, 0.28),
-                          xlim=(x1, x2), ylim=(y1, y2), xticklabels=[0, 10, 20, 30], yticklabels=[-0.7, 0.3])
-
-    axins.fill_between(np.arange(len(my_mean_return)),
-                       my_lower_bound,
-                       my_upper_bound,
-                       alpha=0.25,
-                       color=my_color
-                       )
-    axins.plot(np.arange(len(my_mean_return)),
-               my_mean_return,
-               alpha=1,
-               linewidth=3,
-               c=my_color,
-               )
-    axins.axhline(ref, linestyle="--", color="k", linewidth=2, label=f"{opt_caut}")
-
-    axins.set_yticks([-0.7, 0.3])
-    axins.set_xticks(np.arange(0, 301, 100))
-    axins.set_xlim(0, 300)
-    axins.xaxis.set_tick_params(labelsize=15, colors="black")
-    axins.yaxis.set_tick_params(labelsize=15, colors="black")
-    ax.indicate_inset_zoom(axins, edgecolor="black", linewidth=2)
+    # x1, x2, y1, y2 = 0, 300, -0.7, 0.3  # subregion of the original image
+    # axins = ax.inset_axes((0.4, 0.62, 0.52, 0.28),
+    #                       xlim=(x1, x2), ylim=(y1, y2), xticklabels=[0, 10, 20, 30], yticklabels=[-0.7, 0.3])
+    #
+    # axins.fill_between(np.arange(len(my_mean_return)),
+    #                    my_lower_bound,
+    #                    my_upper_bound,
+    #                    alpha=0.25,
+    #                    color=my_color
+    #                    )
+    # axins.plot(np.arange(len(my_mean_return)),
+    #            my_mean_return,
+    #            alpha=1,
+    #            linewidth=3,
+    #            c=my_color,
+    #            )
+    # axins.axhline(ref, linestyle="--", color="k", linewidth=2, label=f"{opt_caut}")
+    #
+    # axins.set_yticks([-0.7, 0.3])
+    # axins.set_xticks(np.arange(0, 301, 100))
+    # axins.set_xlim(0, 300)
+    # axins.xaxis.set_tick_params(labelsize=15, colors="black")
+    # axins.yaxis.set_tick_params(labelsize=15, colors="black")
+    # ax.indicate_inset_zoom(axins, edgecolor="black", linewidth=2)
     #
     # plt.show()
     plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}_{prob}.pdf",

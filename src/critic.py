@@ -137,7 +137,7 @@ class MonQCritic(Critic):
         self.joint_q = self.value_iteration(self.vi_iter,
                                             self.joint_q,
                                             self.joint_max_q,
-                                            (self.env_obsrv_cnt[:, None, :, None] * self.joint_cnt).flatten(),
+                                            self.joint_cnt.flatten(),
                                             env_rwd[:, None, :, None] + mon_rwd[None, :, None, :] + ucb4transit,
                                             self.gamma,
                                             self.joint_dynamics.reshape(-1, self.env_num_obs * self.mon_num_obs),
@@ -194,6 +194,7 @@ class MonQCritic(Critic):
     @property
     def env_rwd_model(self):
         r = self.env_r / (self.env_obsrv_cnt + 1e-6)
+        r[self.env_obsrv_cnt == 0] = self.env_min_r
         return r
 
     @property
