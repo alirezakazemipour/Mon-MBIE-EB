@@ -38,8 +38,8 @@ s_unobsrvs = []
 s_gbs = []
 
 for i in range(n_runs):
-    x = np.load(f"data/understanding/test_visit/mine/Gym-Grid/"
-                f"Gridworld-Snake-6x6-v0/Button_{prob}/data_{i}.npz")
+    x = np.load(f"data/stochastically_observable/mine/"
+                f"Gridworld-Bottleneck/Button_{prob}/data_{i}.npz")
 
     my_goals.append(x["goal_cnt_hist"])
     my_buttons.append(x[f"button_{mode}_cnt_hist"])
@@ -51,8 +51,8 @@ for i in range(n_runs):
     my_beta_es.append(x["beta_e_hist"])
 
     x = np.load(
-        f"data/understanding/test_visit/simone/iGym-Grid/"
-        f"Gridworld-Snake-6x6-v0/ButtonMonitor_{prob}/ButtonMonitor__{prob}_{i}.npz")
+        f"data/stochastically_observable/simone/bad init/"
+        f"Gridworld-Bottleneck/Button_{prob}/ButtonMonitor__{prob}_{i}.npz")
 
     s_goals.append(x["test/goal_cnt_hist"])
     s_snakes.append(x["test/snake_cnt_hist"])
