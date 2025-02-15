@@ -94,12 +94,6 @@ class MonExperiment:
 
             self.critic.opt_mbie(rng)  # off-policy; can be updated every episode.
             explore = False
-            ################
-            if math.log(self.tot_episodes + 1e-4, self.base) > self.explore_episodes:
-                explore = True
-                self.explore_episodes += 1
-                self.critic.obsrv_mbie(rng)
-            ################
 
             obs, _ = self.env.reset(seed=ep_seed)
             ep_return_env = 0.0

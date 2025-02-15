@@ -8,4 +8,4 @@ params:
   experiment.datadir: data
   experiment.rng_seed: range(0, 30)
   monitor: random, ask, button, n_supporter, n_expert, level
-  monitor.prob: 1, 0.8, 0.2, 0.05
+  monitor.prob: 1
