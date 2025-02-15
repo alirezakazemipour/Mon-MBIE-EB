@@ -19,10 +19,10 @@ my_color = "#2a9d8f"
 simone_color = "#f4a261"
 known_color = "#C26DBC"
 mbie_color = "#bc4749"
-pessimism_color = "cae9ff"
+pessimism_color = "#7b2cbf"
 
 n_runs = 30
-p = 1
+p = 0.05
 # monitor = "Random", "Ask", "NSupporter", "NExpert", "Level"
 monitor = "Button",
 
@@ -99,7 +99,7 @@ for env, monitor in env_mon_combo:
             my_runs.append(x)
 
             x = np.load(
-                f"data/ablation/mbie/stochastically_observable/Gym-Grid/"
+                f"data/ablation/pessimism/stochastically_observable/Gym-Grid/"
                 f"{env}/{algo}_{prob}/data_{i}.npz")["test_return"][:500]
             mbie_runs.append(x)
 
@@ -157,13 +157,13 @@ for env, monitor in env_mon_combo:
                         s_lower_bound,
                         s_upper_bound,
                         alpha=0.25,
-                        color=mbie_color
+                        color=pessimism_color
                         )
         ax.plot(np.arange(len(s_mean_return)),
                 s_mean_return,
                 alpha=1,
                 linewidth=4,
-                c=mbie_color,
+                c=pessimism_color,
                 )
 
         # knm_mean_return = np.mean(np.asarray(knm_smoothed), axis=0)
@@ -199,7 +199,7 @@ for env, monitor in env_mon_combo:
         ax.yaxis.set_tick_params(labelsize=20, colors="black")
         # ax.set_ylim(0, 1)
         # ax.set_ylim(-0.7, 0.3)
-        ax.set_ylim([-420, 1])
+        ax.set_ylim([-5, 1])
 
         if monitor == "Button" or monitor == "Random":
         # ax.set_ylabel("Discounted test return",
@@ -211,9 +211,10 @@ for env, monitor in env_mon_combo:
         #               )
         # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
         #     ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
-        #     ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
+            # ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
         #     ax.set_yticks([0, -100, -200, -300, -400])
-            ax.set_yticklabels([])
+        #     ax.set_yticklabels([])
+            ax.set_yticks([-4, -2, 0, 1])
         else:
             ax.set_yticklabels([])
         # if monitor == "Button":
