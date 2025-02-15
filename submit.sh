@@ -7,8 +7,8 @@
 #SBATCH --signal=B:SIGTERM@180
 #SBATCH --account=def-mtaylor3
 #SBATCH --ntasks=1
-#SBATCH --time=5:00:00
-#SBATCH --mem=6000M
+#SBATCH --time=1:30:00
+#SBATCH --mem=5000M
 #SBATCH --cpus-per-task=32
 #SBATCH --tasks-per-node=1
 #SBATCH --job-name="level_unknown_beluga"
