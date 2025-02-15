@@ -19,7 +19,7 @@ plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('legend', fontsize=17)  # legend fontsize
 
 n_runs = 30
-monitor = "N", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
+monitor = "Button", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
     "RiverSwim-6-v0",
     # "Gridworld-OneWay",
