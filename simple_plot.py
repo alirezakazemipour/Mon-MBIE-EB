@@ -19,7 +19,7 @@ plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
 plt.rc('legend', fontsize=17)  # legend fontsize
 
 n_runs = 30
-monitor = "Button", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
+monitor = "Full", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
     "RiverSwim-6-v0",
     # "Gridworld-OneWay",
@@ -140,8 +140,8 @@ for env, monitor in env_mon_combo:
             x = np.load(f"data/neurips/Simone/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                     "test/return"][:200]
             s_runs.append(x)
-        print(np.argsort(np.array(my_runs).sum(-1)))
-        exit()
+        # print(np.argsort(np.array(my_runs).sum(-1)))
+        # exit()
         my_smoothed = []
         s_smoothed = []
 
