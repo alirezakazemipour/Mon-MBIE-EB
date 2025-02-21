@@ -247,4 +247,8 @@ class MonQCritic(Critic):
             q[cnt == 0] = max_q
             q = q.reshape(rwd.shape)
             v = jittable_joint_max(q)
+
+            # Policy iteration
+            # pi = np.exp(q - np.max(q)) / np.sum(np.exp(q - np.max(q)), axis=(-1, -2))[..., None, None]
+            # v = np.sum(pi * q, axis=(-1, -2))
         return q
