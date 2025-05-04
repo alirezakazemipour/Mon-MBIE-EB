@@ -35,15 +35,6 @@ def run(cfg: DictConfig) -> None:
                                **{**cfg.environment.experiment, **cfg.experiment}
                                )
     data = experiment.train()
-    # experiment.test()
-    # print(f"\ntotal episodes: {experiment.tot_episodes}")
-    # print(f"\nexplore episodes: {experiment.explore_episodes}")
-    # print("\nvisits:", critic.env_visit.astype(int))
-    # print("\nobservs:", critic.env_obsrv_count.astype(int))  # noqa
-    # print("\nrwd model:", critic.env_rwd_model)
-    # print("\njoint count: ", critic.joint_count[-1])
-    # print("\nmon rwd: ", critic.mon_rwd_model)
-    # print(critic.joint_q)
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,
@@ -54,10 +45,6 @@ def run(cfg: DictConfig) -> None:
         seed = str(cfg.experiment.rng_seed)
         savepath = os.path.join(filepath, f"data_{seed}")
         np.savez(savepath + ".npz", **data)
-
-        # if not os.path.isfile(savepath):
-        #     with open(savepath + ".pkl", 'wb') as f:
-        #         pickle.dump(cfg, f)
 
 
 if __name__ == "__main__":
