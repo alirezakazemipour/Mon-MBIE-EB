@@ -3,6 +3,7 @@ import math
 import numpy as np
 import itertools
 from matplotlib import ticker
+import os
 
 mon_mbie_eb_color = "#2a9d8f"
 de2_color = "#f4a261"
@@ -117,114 +118,82 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
                                    },
         }
 
+assert n_runs == 30
 for env, monitor in env_mon_combo:
     fig, ax = plt.subplots(figsize=(6.4, 4.8), layout="constrained")
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    algos = [(f"{monitor}", mon_mbie_eb_color),]
 
-    assert n_runs == 30
+    ref, ref_label = info[env][monitor]
+    mon_mbie_eb_runs = []
+    dee_runs = []
+    for i in range(n_runs):
+        x = np.load(f"data/Mon_MBIE_EB/{env}/{monitor}/data_{i}.npz")["test_return"]
+        mon_mbie_eb_runs.append(x)
+        x = np.load(f"data/DEE/{env}/{monitor}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
+                "test/return"]
+        dee_runs.append(x)
+    mon_mbie_eb_smoothed = []
+    dee_smoothed = []
 
-    for conf in algos:
-        algo, color = conf
-        ref, ref_label = info[env][monitor]
-        mon_mbie_eb_runs = []
-        dee_runs = []
-        for i in range(n_runs):
-            x = np.load(f"data/Mon_MBIE_EB/{env}/{algo}/data_{i}.npz")["test_return"][:200]
-            mon_mbie_eb_runs.append(x)
-            x = np.load(f"data/DEE/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
-                    "test/return"][:200]
-            dee_runs.append(x)
-        mon_mbie_eb_smoothed = []
-        dee_smoothed = []
+    for run in mon_mbie_eb_runs:
+        val = [run[0]]
+        for tmp in run[1:]:
+            val.append(0.9 * val[-1] + 0.1 * tmp)
+        mon_mbie_eb_smoothed.append(val)
 
-        for run in mon_mbie_eb_runs:
-            val = [run[0]]
-            for tmp in run[1:]:
-                val.append(0.9 * val[-1] + 0.1 * tmp)
-            mon_mbie_eb_smoothed.append(val)
+    for run in dee_runs:
+        val = [run[0]]
+        for tmp in run[1:]:
+            val.append(0.9 * val[-1] + 0.1 * tmp)
+        dee_smoothed.append(val)
 
-        for run in dee_runs:
-            val = [run[0]]
-            for tmp in run[1:]:
-                val.append(0.9 * val[-1] + 0.1 * tmp)
-            dee_smoothed.append(val)
+    mon_mbie_eb_mean_return = np.mean(np.asarray(mon_mbie_eb_smoothed), axis=0)
+    mon_mbie_eb_std_return = np.std(np.asarray(mon_mbie_eb_smoothed), axis=0)
+    mon_mbie_eb_lower_bound = mon_mbie_eb_mean_return - 1.96 * mon_mbie_eb_std_return / math.sqrt(n_runs)
+    mon_mbie_eb_upper_bound = mon_mbie_eb_mean_return + 1.96 * mon_mbie_eb_std_return / math.sqrt(n_runs)
+    ax.fill_between(np.arange(len(mon_mbie_eb_mean_return)),
+                    mon_mbie_eb_lower_bound,
+                    mon_mbie_eb_upper_bound,
+                    alpha=0.25,
+                    color=mon_mbie_eb_color
+                    )
+    ax.plot(np.arange(len(mon_mbie_eb_mean_return)),
+            mon_mbie_eb_mean_return,
+            alpha=1,
+            linewidth=4,
+            c=mon_mbie_eb_color,
+            )
 
-        mon_mbie_eb_mean_return = np.mean(np.asarray(mon_mbie_eb_smoothed), axis=0)
-        mon_mbie_eb_std_return = np.std(np.asarray(mon_mbie_eb_smoothed), axis=0)
-        mon_mbie_eb_lower_bound = mon_mbie_eb_mean_return - 1.96 * mon_mbie_eb_std_return / math.sqrt(n_runs)
-        mon_mbie_eb_upper_bound = mon_mbie_eb_mean_return + 1.96 * mon_mbie_eb_std_return / math.sqrt(n_runs)
-        ax.fill_between(np.arange(len(mon_mbie_eb_mean_return)),
-                        mon_mbie_eb_lower_bound,
-                        mon_mbie_eb_upper_bound,
-                        alpha=0.25,
-                        color=color
-                        )
-        ax.plot(np.arange(len(mon_mbie_eb_mean_return)),
-                mon_mbie_eb_mean_return,
-                alpha=1,
-                linewidth=4,
-                c=color,
-                )
+    dee_mean_return = np.mean(np.asarray(dee_smoothed), axis=0)
+    dee_std_return = np.std(np.asarray(dee_smoothed), axis=0)
+    dee_lower_bound = dee_mean_return - 1.96 * dee_std_return / math.sqrt(n_runs)
+    dee_upper_bound = dee_mean_return + 1.96 * dee_std_return / math.sqrt(n_runs)
+    ax.fill_between(np.arange(len(dee_mean_return)),
+                    dee_lower_bound,
+                    dee_upper_bound,
+                    alpha=0.25,
+                    color=de2_color
+                    )
+    ax.plot(np.arange(len(dee_mean_return)),
+            dee_mean_return,
+            alpha=1,
+            linewidth=4,
+            c=de2_color,
+            )
 
-        dee_mean_return = np.mean(np.asarray(dee_smoothed), axis=0)
-        dee_std_return = np.std(np.asarray(dee_smoothed), axis=0)
-        dee_lower_bound = dee_mean_return - 1.96 * dee_std_return / math.sqrt(n_runs)
-        dee_upper_bound = dee_mean_return + 1.96 * dee_std_return / math.sqrt(n_runs)
-        ax.fill_between(np.arange(len(dee_mean_return)),
-                        dee_lower_bound,
-                        dee_upper_bound,
-                        alpha=0.25,
-                        color=de2_color
-                        )
-        ax.plot(np.arange(len(dee_mean_return)),
-                dee_mean_return,
-                alpha=1,
-                linewidth=4,
-                c=de2_color,
-                )
+    plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{ref_label}")
+    ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
+    ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
+    ax.xaxis.set_tick_params(labelsize=20, colors="black")
+    ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
+    plt.title(f"{env}_{monitor}")
+    plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
+    ax.xaxis.label.set_color('black')
+    ax.yaxis.set_tick_params(labelsize=20, colors="black")
 
-        plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{ref_label}")
-        # ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
-        # ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
-        ax.xaxis.set_tick_params(labelsize=20, colors="black")
-        ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
-        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-        # plt.title(f"{env}_{monitor}")
-        # plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
-        ax.xaxis.label.set_color('black')
-        ax.set_xticks(np.arange(0, 201, 40))
-        ax.set_xticklabels([])
-        # ax.set_xlim(0, 210)
-        ax.yaxis.set_tick_params(labelsize=20, colors="black")
-        # ax.yaxis.label.set_color('black')
-        # ax.set_ylim(0, 1)
-        ax.set_ylim(0, 21)
-
-        if monitor == "Full":
-            # ax.set_ylabel("Discounted test return",
-            #               weight="bold",
-            #               fontsize=20,
-            #               # rotation="horizontal",
-            #               # labelpad=50,
-            #               # ha='right'
-            #               )
-            # ax.legend(loc='lower right', bbox_to_anchor=(1, 0))
-            ax.set_yticks([0, 5, 10, 15, 20])
-            # ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
-        else:
-            ax.set_yticklabels([])
-        # elif monitor == "Button":
-        #     ax.set_ylabel("Discounted test return",
-        #                   weight="bold",
-        #                   fontsize=20,
-        #                   # rotation="horizontal",
-        #                   # labelpad=50,
-        #                   # ha='center'
-        #                   )
-
-    # plt.show()
+    os.makedirs("figs", exist_ok=True)
     plt.savefig(f"figs/{monitor}_{env}.pdf",
                 format="pdf",
                 bbox_inches="tight",
