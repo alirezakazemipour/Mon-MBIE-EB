@@ -7,8 +7,6 @@ from src.actor import Greedy
 from src.critic import MonQCritic
 from src.experiment import MonExperiment
 from src.wrappers import monitor_wrappers
-from src.utils import report_river_swim
-import pickle
 
 
 @hydra.main(version_base=None, config_path="configs", config_name="default")
@@ -22,10 +20,6 @@ def run(cfg: DictConfig) -> None:
                                                          **{**cfg.monitor, **cfg.environment.monitor},
                                                          test=True
                                                          )
-
-    # report_river_swim(env_test)
-    # if "RiverSwim-6-v0" in cfg.environment["id"]:
-    #     cfg.critic.vi_iter = 800
 
     critic = MonQCritic(env.observation_space["env"].n,
                         env.observation_space["mon"].n,
@@ -41,30 +35,17 @@ def run(cfg: DictConfig) -> None:
                                **{**cfg.environment.experiment, **cfg.experiment}
                                )
     data = experiment.train()
-    # experiment.test()
-    # print(f"\ntotal episodes: {experiment.tot_episodes}")
-    # print(f"\nexplore episodes: {experiment.explore_episodes}")
-    # print("\nvisits:", critic.env_visit.astype(int))
-    # print("\nobservs:", critic.env_obsrv_cnt.sum(-1).astype(int))  # noqa
-    print("\nrwd model:", critic.env_rwd_model)
-    # print("\njoint count: ", critic.joint_count[-1])
-    print("\nmon rwd: ", critic.mon_rwd_model)
-    # print("\ndynamics: ", critic.joint_dynamics)
-    print(critic.joint_q)
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,
-                                cfg.environment.id,
+                                "Mon_MBIE_EB",
+                                os.path.split(cfg.environment.id)[-1],
                                 cfg.monitor.id
                                 )
         os.makedirs(filepath, exist_ok=True)
         seed = str(cfg.experiment.rng_seed)
         savepath = os.path.join(filepath, f"data_{seed}")
         np.savez(savepath + ".npz", **data)
-
-        if not os.path.isfile(savepath):
-            with open(savepath + ".pkl", 'wb') as f:
-                pickle.dump(cfg, f)
 
 
 if __name__ == "__main__":

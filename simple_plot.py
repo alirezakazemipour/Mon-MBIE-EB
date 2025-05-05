@@ -4,8 +4,8 @@ import numpy as np
 import itertools
 from matplotlib import ticker
 
-my_color = "#2a9d8f"
-simone_color = "#f4a261"
+mon_mbie_eb_color = "#2a9d8f"
+de2_color = "#f4a261"
 
 SMALL_SIZE = 8
 MEDIUM_SIZE = 24
@@ -22,13 +22,13 @@ n_runs = 30
 monitor = "Full", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
     "RiverSwim-6-v0",
-    # "Gridworld-OneWay",
-    # "Gridworld-TwoRoom-3x5",
-    # "Gridworld-TwoRoom-2x11",
-    # "Gridworld-Hazard",
-    # "Gridworld-Corridor",
-    # "Gridworld-Loop",
-    # "Gridworld-Empty",
+    "Gridworld-OneWay",
+    "Gridworld-TwoRoom-3x5",
+    "Gridworld-TwoRoom-2x11",
+    "Gridworld-Hazard",
+    "Gridworld-Corridor",
+    "Gridworld-Loop",
+    "Gridworld-Empty",
 )
 env_mon_combo = itertools.product(env, monitor)
 
@@ -121,83 +121,71 @@ for env, monitor in env_mon_combo:
     fig, ax = plt.subplots(figsize=(6.4, 4.8), layout="constrained")
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    algos = [
-        (f"{monitor}", my_color),
-    ]
+    algos = [(f"{monitor}", mon_mbie_eb_color),]
 
     assert n_runs == 30
 
     for conf in algos:
         algo, color = conf
-        ref, opt_caut = info[env][monitor]
-        my_runs = []
-        s_runs = []
-        som_runs = []
-        svm_runs = []
+        ref, ref_label = info[env][monitor]
+        mon_mbie_eb_runs = []
+        dee_runs = []
         for i in range(n_runs):
-            x = np.load(f"data/neurips/mine/{env}/{algo}/data_{i}.npz")["test_return"][:200]
-            my_runs.append(x)
-            x = np.load(f"data/neurips/Simone/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
+            x = np.load(f"data/Mon_MBIE_EB/{env}/{algo}/data_{i}.npz")["test_return"][:200]
+            mon_mbie_eb_runs.append(x)
+            x = np.load(f"data/DEE/{env}/{algo}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
                     "test/return"][:200]
-            s_runs.append(x)
-        # print(np.argsort(np.array(my_runs).sum(-1)))
-        # exit()
-        my_smoothed = []
-        s_smoothed = []
+            dee_runs.append(x)
+        mon_mbie_eb_smoothed = []
+        dee_smoothed = []
 
-        for run in my_runs:
+        for run in mon_mbie_eb_runs:
             val = [run[0]]
             for tmp in run[1:]:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
-            my_smoothed.append(val)
+            mon_mbie_eb_smoothed.append(val)
 
-        for run in s_runs:
+        for run in dee_runs:
             val = [run[0]]
             for tmp in run[1:]:
                 val.append(0.9 * val[-1] + 0.1 * tmp)
-            s_smoothed.append(val)
+            dee_smoothed.append(val)
 
-        my_mean_return = np.mean(np.asarray(my_smoothed), axis=0)
-        my_std_return = np.std(np.asarray(my_smoothed), axis=0)
-        my_lower_bound = my_mean_return - 1.96 * my_std_return / math.sqrt(n_runs)
-        my_upper_bound = my_mean_return + 1.96 * my_std_return / math.sqrt(n_runs)
-        ax.fill_between(np.arange(len(my_mean_return)),
-                        my_lower_bound,
-                        my_upper_bound,
+        mon_mbie_eb_mean_return = np.mean(np.asarray(mon_mbie_eb_smoothed), axis=0)
+        mon_mbie_eb_std_return = np.std(np.asarray(mon_mbie_eb_smoothed), axis=0)
+        mon_mbie_eb_lower_bound = mon_mbie_eb_mean_return - 1.96 * mon_mbie_eb_std_return / math.sqrt(n_runs)
+        mon_mbie_eb_upper_bound = mon_mbie_eb_mean_return + 1.96 * mon_mbie_eb_std_return / math.sqrt(n_runs)
+        ax.fill_between(np.arange(len(mon_mbie_eb_mean_return)),
+                        mon_mbie_eb_lower_bound,
+                        mon_mbie_eb_upper_bound,
                         alpha=0.25,
                         color=color
                         )
-        ax.plot(np.arange(len(my_mean_return)),
-                my_mean_return,
+        ax.plot(np.arange(len(mon_mbie_eb_mean_return)),
+                mon_mbie_eb_mean_return,
                 alpha=1,
                 linewidth=4,
                 c=color,
                 )
-        # for i in range(30):
-        #     ax.plot(np.arange(len(my_smoothed[i])),
-        #             my_smoothed[i],
-        #             alpha=1,
-        #             linewidth=4,
-        #             )
 
-        s_mean_return = np.mean(np.asarray(s_smoothed), axis=0)
-        s_std_return = np.std(np.asarray(s_smoothed), axis=0)
-        s_lower_bound = s_mean_return - 1.96 * s_std_return / math.sqrt(n_runs)
-        s_upper_bound = s_mean_return + 1.96 * s_std_return / math.sqrt(n_runs)
-        ax.fill_between(np.arange(len(s_mean_return)),
-                        s_lower_bound,
-                        s_upper_bound,
+        dee_mean_return = np.mean(np.asarray(dee_smoothed), axis=0)
+        dee_std_return = np.std(np.asarray(dee_smoothed), axis=0)
+        dee_lower_bound = dee_mean_return - 1.96 * dee_std_return / math.sqrt(n_runs)
+        dee_upper_bound = dee_mean_return + 1.96 * dee_std_return / math.sqrt(n_runs)
+        ax.fill_between(np.arange(len(dee_mean_return)),
+                        dee_lower_bound,
+                        dee_upper_bound,
                         alpha=0.25,
-                        color=simone_color
+                        color=de2_color
                         )
-        ax.plot(np.arange(len(s_mean_return)),
-                s_mean_return,
+        ax.plot(np.arange(len(dee_mean_return)),
+                dee_mean_return,
                 alpha=1,
                 linewidth=4,
-                c=simone_color,
+                c=de2_color,
                 )
 
-        plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{opt_caut}")
+        plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{ref_label}")
         # ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
         # ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
         ax.xaxis.set_tick_params(labelsize=20, colors="black")
@@ -237,7 +225,7 @@ for env, monitor in env_mon_combo:
         #                   )
 
     # plt.show()
-    plt.savefig(f"/Users/alirezakazemipour/Desktop/{monitor}_{env}.pdf",
+    plt.savefig(f"figs/{monitor}_{env}.pdf",
                 format="pdf",
                 bbox_inches="tight",
                 dpi=300
