@@ -38,7 +38,7 @@ def run(cfg: DictConfig) -> None:
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,
-                                "Mon_MBIE_EB",
+                                "Pess_MBIE_EB_unsolvable",
                                 os.path.split(cfg.environment.id)[-1],
                                 cfg.monitor.id
                                 )
