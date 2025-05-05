@@ -1,7 +1,6 @@
 import numpy as np
 import math
 from abc import ABC, abstractmethod
-from omegaconf import DictConfig
 from src.utils import kl_confidence, jittable_joint_max
 import itertools
 from numba import jit
