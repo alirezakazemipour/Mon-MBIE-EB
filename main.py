@@ -40,7 +40,7 @@ def run(cfg: DictConfig) -> None:
         filepath = os.path.join(cfg.experiment.datadir,
                                 "Mon_MBIE_EB",
                                 os.path.split(cfg.environment.id)[-1],
-                                cfg.monitor.id
+                                cfg.monitor.id + "_" + str(cfg.monitor.prob)
                                 )
         os.makedirs(filepath, exist_ok=True)
         seed = str(cfg.experiment.rng_seed)
