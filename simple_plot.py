@@ -8,17 +8,6 @@ import os
 mon_mbie_eb_color = "#2a9d8f"
 de2_color = "#f4a261"
 
-SMALL_SIZE = 8
-MEDIUM_SIZE = 24
-BIGGER_SIZE = 26
-
-plt.rc('font', size=SMALL_SIZE, weight='bold')  # controls default text sizes
-plt.rc('axes', titlesize=MEDIUM_SIZE)  # fontsize of the axes title
-plt.rc('axes', labelsize=BIGGER_SIZE)  # fontsize of the x and y labels
-plt.rc('xtick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
-plt.rc('ytick', labelsize=BIGGER_SIZE)  # fontsize of the tick labels
-plt.rc('legend', fontsize=17)  # legend fontsize
-
 n_runs = 30
 monitor = "Full", "RandomNonZero", "Ask", "Button", "N", "Level"  # , "Random"
 env = (
@@ -33,88 +22,88 @@ env = (
 )
 env_mon_combo = itertools.product(env, monitor)
 
-info = {"RiverSwim-6-v0": {"Ask": (20.02, "optimal"),
-                           "Button": (19.14, "optimal"),
-                           "Level": (19.83, "optimal"),
-                           "N": (20.02, "optimal"),
-                           "NExpert": (20.02, "optimal"),
-                           "Random": (20.02, "optimal"),
-                           "RandomNonZero": (20.02, "optimal"),
-                           "Full": (20.02, "optimal"),
+info = {"RiverSwim-6-v0": {"Ask": (20.02, "Minimax-Optimal"),
+                           "Button": (19.14, "Minimax-Optimal"),
+                           "Level": (19.83, "Minimax-Optimal"),
+                           "N": (20.02, "Minimax-Optimal"),
+                           "NExpert": (20.02, "Minimax-Optimal"),
+                           "Random": (20.02, "Minimax-Optimal"),
+                           "RandomNonZero": (20.02, "Minimax-Optimal"),
+                           "Full": (20.02, "Minimax-Optimal"),
                            },
-        "Gridworld-Empty": {"Ask": (0.904, "optimal"),
-                            "Button": (0.799, "optimal"),
-                            "Level": (0.904, "optimal"),
-                            "N": (0.915, "optimal"),
-                            "Random": (0.904, "optimal"),
-                            "RandomNonZero": (0.904, "optimal"),
-                            "Full": (0.904, "optimal"),
+        "Gridworld-Empty": {"Ask": (0.904, "Minimax-Optimal"),
+                            "Button": (0.799, "Minimax-Optimal"),
+                            "Level": (0.904, "Minimax-Optimal"),
+                            "N": (0.915, "Minimax-Optimal"),
+                            "Random": (0.904, "Minimax-Optimal"),
+                            "RandomNonZero": (0.904, "Minimax-Optimal"),
+                            "Full": (0.904, "Minimax-Optimal"),
                             },
-        "Gridworld-OneWay": {"Ask": (0.764, "optimal"),
-                             "Button": (0.66, "optimal"),
-                             "Level": (0.764, "optimal"),
-                             "N": (0.764, "optimal"),
-                             "Random": (0.764, "optimal"),
-                             "RandomNonZero": (0.764, "optimal"),
-                             "Full": (0.764, "optimal"),
+        "Gridworld-OneWay": {"Ask": (0.764, "Minimax-Optimal"),
+                             "Button": (0.66, "Minimax-Optimal"),
+                             "Level": (0.764, "Minimax-Optimal"),
+                             "N": (0.764, "Minimax-Optimal"),
+                             "Random": (0.764, "Minimax-Optimal"),
+                             "RandomNonZero": (0.764, "Minimax-Optimal"),
+                             "Full": (0.764, "Minimax-Optimal"),
                              },
-        "Gridworld-Penalty-3x3-v0": {"Ask": (0.941, "optimal"),
-                                     "Button": (0.849, "optimal"),
-                                     "Level": (0.941, "optimal"),
-                                     "N": (0.941, "optimal"),
-                                     "Random": (0.941, "optimal"),
-                                     "RandomNonZero": (0.941, "optimal"),
-                                     "Full": (0.941, "optimal"),
+        "Gridworld-Penalty-3x3-v0": {"Ask": (0.941, "Minimax-Optimal"),
+                                     "Button": (0.849, "Minimax-Optimal"),
+                                     "Level": (0.941, "Minimax-Optimal"),
+                                     "N": (0.941, "Minimax-Optimal"),
+                                     "Random": (0.941, "Minimax-Optimal"),
+                                     "RandomNonZero": (0.941, "Minimax-Optimal"),
+                                     "Full": (0.941, "Minimax-Optimal"),
                                      },
-        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.941, "optimal"),
-                                               "Button": (0.9, "optimal"),
-                                               "Level": (0.941, "optimal"),
-                                               "N": (0.941, "optimal"),
-                                               "Random": (0.941, "optimal"),
-                                               "RandomNonZero": (0.941, "optimal"),
-                                               "Full": (0.941, "optimal"),
+        "Gridworld-TwoRoom-Quicksand-3x5-v0": {"Ask": (0.941, "Minimax-Optimal"),
+                                               "Button": (0.9, "Minimax-Optimal"),
+                                               "Level": (0.941, "Minimax-Optimal"),
+                                               "N": (0.941, "Minimax-Optimal"),
+                                               "Random": (0.941, "Minimax-Optimal"),
+                                               "RandomNonZero": (0.941, "Minimax-Optimal"),
+                                               "Full": (0.941, "Minimax-Optimal"),
                                                },
-        "Gridworld-Hazard": {"Ask": (0.914, "optimal"),
-                             "Button": (0.821, "optimal"),
-                             "Level": (0.914, "optimal"),
-                             "N": (0.914, "optimal"),
-                             "Random": (0.914, "optimal"),
-                             "RandomNonZero": (0.914, "optimal"),
-                             "Full": (0.914, "optimal"),
+        "Gridworld-Hazard": {"Ask": (0.914, "Minimax-Optimal"),
+                             "Button": (0.821, "Minimax-Optimal"),
+                             "Level": (0.914, "Minimax-Optimal"),
+                             "N": (0.914, "Minimax-Optimal"),
+                             "Random": (0.914, "Minimax-Optimal"),
+                             "RandomNonZero": (0.914, "Minimax-Optimal"),
+                             "Full": (0.914, "Minimax-Optimal"),
                              },
-        "Gridworld-Loop": {"Ask": (0.961, "optimal"),
-                           "Button": (0.845, "optimal"),
-                           "Level": (0.961, "optimal"),
-                           "N": (0.961, "optimal"),
-                           "Random": (0.961, "optimal"),
-                           "RandomNonZero": (0.961, "optimal"),
-                           "Full": (0.961, "optimal"),
+        "Gridworld-Loop": {"Ask": (0.961, "Minimax-Optimal"),
+                           "Button": (0.845, "Minimax-Optimal"),
+                           "Level": (0.961, "Minimax-Optimal"),
+                           "N": (0.961, "Minimax-Optimal"),
+                           "Random": (0.961, "Minimax-Optimal"),
+                           "RandomNonZero": (0.961, "Minimax-Optimal"),
+                           "Full": (0.961, "Minimax-Optimal"),
                            },
 
-        "Gridworld-Corridor": {"Ask": (0.826, "optimal"),
-                               "Button": (0.712, "optimal"),
-                               "Level": (0.826, "optimal"),
-                               "N": (0.846, "optimal"),
-                               "Random": (0.826, "optimal"),
-                               "RandomNonZero": (0.826, "optimal"),
-                               "Full": (0.826, "optimal"),
+        "Gridworld-Corridor": {"Ask": (0.826, "Minimax-Optimal"),
+                               "Button": (0.712, "Minimax-Optimal"),
+                               "Level": (0.826, "Minimax-Optimal"),
+                               "N": (0.846, "Minimax-Optimal"),
+                               "Random": (0.826, "Minimax-Optimal"),
+                               "RandomNonZero": (0.826, "Minimax-Optimal"),
+                               "Full": (0.826, "Minimax-Optimal"),
                                },
 
-        "Gridworld-TwoRoom-3x5": {"Ask": (0.941, "optimal"),
-                                  "Button": (0.838, "optimal"),
-                                  "Level": (0.941, "optimal"),
-                                  "N": (0.941, "optimal"),
-                                  "Random": (0.941, "optimal"),
-                                  "RandomNonZero": (0.941, "optimal"),
-                                  "Full": (0.941, "optimal"),
+        "Gridworld-TwoRoom-3x5": {"Ask": (0.941, "Minimax-Optimal"),
+                                  "Button": (0.838, "Minimax-Optimal"),
+                                  "Level": (0.941, "Minimax-Optimal"),
+                                  "N": (0.941, "Minimax-Optimal"),
+                                  "Random": (0.941, "Minimax-Optimal"),
+                                  "RandomNonZero": (0.941, "Minimax-Optimal"),
+                                  "Full": (0.941, "Minimax-Optimal"),
                                   },
-        "Gridworld-TwoRoom-2x11": {"Ask": (0.941, "optimal"),
-                                   "Button": (0.8261, "optimal"),
-                                   "Level": (0.941, "optimal"),
-                                   "N": (0.941, "optimal"),
-                                   "Random": (0.941, "optimal"),
-                                   "RandomNonZero": (0.941, "optimal"),
-                                   "Full": (0.941, "optimal"),
+        "Gridworld-TwoRoom-2x11": {"Ask": (0.941, "Minimax-Optimal"),
+                                   "Button": (0.8261, "Minimax-Optimal"),
+                                   "Level": (0.941, "Minimax-Optimal"),
+                                   "N": (0.941, "Minimax-Optimal"),
+                                   "Random": (0.941, "Minimax-Optimal"),
+                                   "RandomNonZero": (0.941, "Minimax-Optimal"),
+                                   "Full": (0.941, "Minimax-Optimal"),
                                    },
         }
 
@@ -130,8 +119,7 @@ for env, monitor in env_mon_combo:
     for i in range(n_runs):
         x = np.load(f"data/Mon_MBIE_EB/{env}/{monitor}/data_{i}.npz")["test_return"]
         mon_mbie_eb_runs.append(x)
-        x = np.load(f"data/DEE/{env}/{monitor}/q_visit_-10.0_-10.0_1.0_1.0_1.0_0.0_0.01_{i}.npz")[
-                "test/return"]
+        x = np.load(f"data/DEE/{env}/{monitor}/data_{i}.npz")["test/return"]
         dee_runs.append(x)
     mon_mbie_eb_smoothed = []
     dee_smoothed = []
@@ -163,6 +151,7 @@ for env, monitor in env_mon_combo:
             alpha=1,
             linewidth=4,
             c=mon_mbie_eb_color,
+            label="Mon-MBIE-EB"
             )
 
     dee_mean_return = np.mean(np.asarray(dee_smoothed), axis=0)
@@ -180,18 +169,25 @@ for env, monitor in env_mon_combo:
             alpha=1,
             linewidth=4,
             c=de2_color,
+            label="Directed-E$^2$"
             )
 
     plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{ref_label}")
-    ax.set_ylabel("Discounted Test Return", weight="bold", fontsize=18)
+    ax.set_ylabel("Discounted Test Return")
     ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
-    ax.xaxis.set_tick_params(labelsize=20, colors="black")
     ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
     plt.title(f"{env}_{monitor}")
-    plt.xlabel("Steps (x$10^3$)", weight="bold", fontsize=30)
-    ax.xaxis.label.set_color('black')
-    ax.yaxis.set_tick_params(labelsize=20, colors="black")
+    plt.xlabel("Training Steps (x$10^3$)")
+
+    ax.set_xticks(np.arange(0, 201, 40))
+
+    if env != "RiverSwim-6-v0":
+        ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
+        ax.set_ylim([0 ,1])
+    else:
+        ax.set_yticks([0, 5, 10, 15, 20])
+        ax.set_ylim([0, 22])
 
     os.makedirs("figs", exist_ok=True)
     plt.savefig(f"figs/{monitor}_{env}.pdf",
