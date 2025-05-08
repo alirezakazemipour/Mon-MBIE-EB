@@ -8,7 +8,7 @@ import os
 mon_mbie_eb_color = "#2a9d8f"  # noqa
 de2_color = "#f4a261"
 
-n_runs = 2
+n_runs = 30
 p = 1, 0.8, 0.2, 0.05
 monitor = "Random", "Ask", "NSupporter", "NExpert", "Level", "Button"
 env = "Gridworld-Bottleneck",
@@ -58,7 +58,7 @@ info = {"RiverSwim-6-v0": {"Ask": (20.02, "Minimax-Optimal"),
                                                 },
         }
 
-assert n_runs == 2
+assert n_runs == 30
 
 for env, monitor, prob in env_mon_p_combo:
     fig, ax = plt.subplots(figsize=(6.4, 4.8), layout="constrained")
