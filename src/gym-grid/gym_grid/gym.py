@@ -57,6 +57,15 @@ def register_envs():
     )
 
     register(
+        id="Gridworld-Bottleneck",
+        entry_point="gym_grid.gridworld:Gridworld",
+        max_episode_steps=50,
+        kwargs={
+            "grid": "bottleneck",
+        },
+    )
+
+    register(
         id="Gridworld-Penalty-3x3-v0",
         entry_point="gym_grid.gridworld:Gridworld",
         max_episode_steps=50,
