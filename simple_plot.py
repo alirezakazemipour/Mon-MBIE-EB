@@ -190,7 +190,7 @@ for env, monitor in env_mon_combo:
         ax.set_ylim([0, 22])
 
     os.makedirs("figs", exist_ok=True)
-    plt.savefig(f"figs/{monitor}_{env}.pdf",
+    plt.savefig(f"figs/{env}_{monitor}.pdf",
                 format="pdf",
                 bbox_inches="tight",
                 dpi=300
