@@ -273,7 +273,7 @@ for env, monitor, prob in env_mon_p_combo:
             c=de2_color,
             label="Directed-E$\mathbf{^2}$" # noqa
             )
-    ax.set_ylabel("$\bot$ Visitation Count")
+    ax.set_ylabel("Unobserved Visitation Count")
     ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
     plt.title(f"{env}_{monitor}({prob * 100}%)")

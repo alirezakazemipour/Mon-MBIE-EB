@@ -24,9 +24,9 @@ hydra:
       environment: bottleneck
       experiment.hide_progress_bar: true
       experiment.datadir: data
-      experiment.rng_seed: range(0, 2)
-      monitor: random, ask, button, n_supporter, n_expert, level
-      monitor.prob: 1, 0.8, 0.2, 0.05
+      experiment.rng_seed: range(0, 30)
+      monitor: button
+      monitor.prob: 0.05
   help:
     app_name: ${hydra.job.name}
     header: '${hydra.help.app_name} is powered by Hydra.
@@ -178,5 +178,5 @@ critic:
   vi_iter: 50
 experiment:
   datadir: null
-  rng_seed: 18
+  rng_seed: 1
   hide_progress_bar: false
