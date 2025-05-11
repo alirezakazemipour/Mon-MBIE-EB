@@ -8,7 +8,6 @@ import warnings
 from src.actor import Actor
 from src.critic import MonQCritic
 from src.utils import set_rng_seed, cantor_pairing
-from src.wrappers.monitor_wrappers import Button
 
 
 class MonExperiment:

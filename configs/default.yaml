@@ -1,6 +1,6 @@
 defaults:
-  - environment: one_way
-  - monitor: full
+  - environment: river_swim
+  - monitor: n_supporters
   - _self_
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
