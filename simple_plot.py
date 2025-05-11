@@ -70,9 +70,9 @@ for env, monitor, prob in env_mon_p_combo:
     optim_mbie_eb_runs = []
     knm_runs = []
     for i in range(n_runs):
-        x = np.load(f"data/mon_mbie_eb/{env}/{monitor}_{prob}/data_{i}.npz")["test_return"]
+        x = np.load(f"data/Mon_MBIE_EB/{env}/{monitor}_{prob}/data_{i}.npz")["test_return"]
         mon_mbie_eb_runs.append(x)
-        x = np.load(f"data/optim_mbie_eb/{env}/{monitor}_{prob}/data_{i}.npz")["test/return"]
+        x = np.load(f"data/Optim_MBIE_EB/{env}/{monitor}_{prob}/data_{i}.npz")["test_return"]
         optim_mbie_eb_runs.append(x)
 
     mon_mbie_eb_smoothed = []
