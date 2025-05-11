@@ -11,52 +11,21 @@ known_monitor_color = "#c26dbc"
 
 n_runs = 30
 p = 1, 0.8, 0.2, 0.05
-monitor = "Random", "Ask", "NSupporter", "NExpert", "Level", "Button"
+monitor = "FullRandom", "Ask", "NSupporters", "NExperts", "Level", "Button"
 env = "Gridworld-Bottleneck",
 
 env_mon_p_combo = itertools.product(env, monitor, p)
 
-info = {"RiverSwim-6-v0": {"Ask": (20.02, "Minimax-Optimal"),
-                           "Button": (19.14, "Minimax-Optimal"),
-                           "Level": (19.83, "Minimax-Optimal"),
-                           "N": (20.02, "Minimax-Optimal"),
-                           "Random": (20.02, "Minimax-Optimal"),
-                           "RandomNonZero": (20.02, "Minimax-Optimal"),
-                           "Full": (20.02, "Minimax-Optimal"),
-                           },
+info = {
         "Gridworld-Bottleneck": {"Ask": (0.904, "Minimax-Optimal"),
                                  "Button": (0.19, "Minimax-Optimal"),
                                  "Level": (0.904, "Minimax-Optimal"),
-                                 "NSupporter": (0.915, "Minimax-Optimal"),
-                                 "NExpert": (0.904, "Minimax-Optimal"),
-                                 "Random": (0.904, "Minimax-Optimal"),
-                                 "RandomNonZero": (0.904, "Minimax-Optimal"),
+                                 "NSupporters": (0.915, "Minimax-Optimal"),
+                                 "NExperts": (0.904, "Minimax-Optimal"),
+                                 "FullRandom": (0.904, "Minimax-Optimal"),
+                                 "SemiRandom": (0.904, "Minimax-Optimal"),
                                  "Full": (0.904, "Minimax-Optimal"),
                                  },
-        "Gridworld-Corridor-3x4-v0": {"Ask": (0.764, "Minimax-Optimal"),
-                                      "Button": (0.672, "Minimax-Optimal"),
-                                      "Level": (0.764, "Minimax-Optimal"),
-                                      "N": (0.764, "Minimax-Optimal"),
-                                      "Random": (0.764, "Minimax-Optimal"),
-                                      "RandomNonZero": (0.764, "Minimax-Optimal"),
-                                      "Full": (0.764, "Minimax-Optimal"),
-                                      },
-        "Gridworld-Penalty-3x3-v0": {"Ask": (0.941, "Minimax-Optimal"),
-                                     "Button": (0.849, "Minimax-Optimal"),
-                                     "Level": (0.941, "Minimax-Optimal"),
-                                     "N": (0.941, "Minimax-Optimal"),
-                                     "Random": (0.941, "Minimax-Optimal"),
-                                     "RandomNonZero": (0.941, "Minimax-Optimal"),
-                                     "Full": (0.941, "Minimax-Optimal"),
-                                     },
-        "Gridworld-Quicksand-Distract-4x4-v0": {"Ask": (0.914, "Minimax-Optimal"),
-                                                "Button": (0.821, "Minimax-Optimal"),
-                                                "Level": (0.914, "Minimax-Optimal"),
-                                                "N": (0.914, "Minimax-Optimal"),
-                                                "Random": (0.914, "Minimax-Optimal"),
-                                                "RandomNonZero": (0.914, "Minimax-Optimal"),
-                                                "Full": (0.914, "Minimax-Optimal"),
-                                                },
         }
 
 assert n_runs == 30
@@ -75,7 +44,6 @@ for env, monitor, prob in env_mon_p_combo:
         mon_mbie_eb_runs.append(x)
         x = np.load(f"data/DEE/{env}/{monitor}_{prob}/data_{i}.npz")["test/return"]
         dee_runs.append(x)
-
         x = np.load(f"data/Known_Monitor/{env}/{monitor}_{prob}/data_{i}.npz")["test_return"]
         knm_runs.append(x)
 
@@ -151,8 +119,8 @@ for env, monitor, prob in env_mon_p_combo:
             knm_mean_return,
             alpha=1,
             linewidth=4,
-            c="green",
-            label=known_monitor_color
+            c=known_monitor_color,
+            label="Known Monitor"
             )
 
     ax.set_ylabel("Discounted Test Return")

@@ -21,7 +21,7 @@ def run(cfg: DictConfig) -> None:
                                                          test=True
                                                          )
     # region Full
-    if "Full" in cfg.monitor.id:
+    if "MDP" in cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n,
                                   env.action_space["mon"].n
                                   )
@@ -48,8 +48,8 @@ def run(cfg: DictConfig) -> None:
                                )
     # endregion
 
-    # region Random
-    if "Random" == cfg.monitor.id:
+    # region FullRandom
+    if "FullRandom" == cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
 
         monitor = np.zeros((env.observation_space["env"].n,
@@ -79,8 +79,8 @@ def run(cfg: DictConfig) -> None:
                                )
     # endregion
 
-    # region RandomNonZero
-    if "RandomNonZero" == cfg.monitor.id:
+    # region SemiRandom
+    if "SemiRandom" == cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
 
         monitor = np.zeros((env.observation_space["env"].n,
@@ -189,8 +189,8 @@ def run(cfg: DictConfig) -> None:
         mon_dynamics[button_cell, 0, button_flip_act, 0, 0] = 0
     # endregion
 
-    # region NSupporter
-    if "NSupporter" in cfg.monitor.id:
+    # region NSupporters
+    if "NSupporters" in cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
         mon_rwd_model = np.diag(np.diag(mon_rwd_model - 0.2 - 0.001)) + 0.001
 
@@ -224,7 +224,7 @@ def run(cfg: DictConfig) -> None:
 
     # endregion
 
-    # region NExpert
+    # region NExperts
     if "NExpert" in cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
         mon_rwd_model = np.diag(np.diag(mon_rwd_model - 0.2 + 0.001)) - 0.001
@@ -324,7 +324,7 @@ def run(cfg: DictConfig) -> None:
 
     if cfg.experiment.datadir is not None:
         filepath = os.path.join(cfg.experiment.datadir,
-                                "known_monitor",
+                                "Known_Monitor",
                                 os.path.split(cfg.environment.id)[-1],
                                 cfg.monitor.id + "_" + str(cfg.monitor.prob)
                                 )
