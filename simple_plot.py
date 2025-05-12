@@ -129,6 +129,7 @@ for env, monitor, prob in env_mon_p_combo:
     plt.title(f"{env}_{monitor}({prob * 100}%)")
     plt.xlabel("Training Steps (x$10^3$)")
 
+    ax.set_xlim([0, 500])
     ax.set_xticks(np.arange(0, 501, 100))
 
     if monitor != "Button":
@@ -248,7 +249,10 @@ for env, monitor, prob in env_mon_p_combo:
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
     plt.title(f"{env}_{monitor}({prob * 100}%)")
     plt.xlabel("Training Steps (x$10^3$)")
+
+    ax.set_xlim([0, 500])
     ax.set_xticks(np.arange(0, 501, 100))
+
     plt.savefig(f"figs/Unobsrv_visits_{env}_{monitor}({prob * 100}%).pdf",
                 format="pdf",
                 bbox_inches="tight",
