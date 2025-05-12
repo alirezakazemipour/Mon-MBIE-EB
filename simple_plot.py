@@ -16,16 +16,16 @@ env = "Gridworld-Bottleneck",
 env_mon_p_combo = itertools.product(env, monitor, p)
 
 info = {
-        "Gridworld-Bottleneck": {"Ask": (0.904, "Minimax-Optimal"),
-                                 "Button": (0.19, "Minimax-Optimal"),
-                                 "Level": (0.904, "Minimax-Optimal"),
-                                 "NSupporters": (0.915, "Minimax-Optimal"),
-                                 "NExperts": (0.904, "Minimax-Optimal"),
-                                 "FullRandom": (0.904, "Minimax-Optimal"),
-                                 "SemiRandom": (0.904, "Minimax-Optimal"),
-                                 "Full": (0.904, "Minimax-Optimal"),
-                                 },
-        }
+    "Gridworld-Bottleneck": {"Ask": (0.904, "Minimax-Optimal"),
+                             "Button": (0.19, "Minimax-Optimal"),
+                             "Level": (0.904, "Minimax-Optimal"),
+                             "NSupporters": (0.915, "Minimax-Optimal"),
+                             "NExperts": (0.904, "Minimax-Optimal"),
+                             "FullRandom": (0.904, "Minimax-Optimal"),
+                             "SemiRandom": (0.904, "Minimax-Optimal"),
+                             "Full": (0.904, "Minimax-Optimal"),
+                             },
+}
 
 assert n_runs == 30
 
@@ -97,20 +97,17 @@ for env, monitor, prob in env_mon_p_combo:
 
     plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{ref_label}")
     ax.set_ylabel("Discounted Test Return")
-    ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
+    ax.legend(loc='upper right', ncol=2, bbox_to_anchor=(1, 0.5))
     ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
     plt.title(f"{env}_{monitor}({prob * 100}%)")
     plt.xlabel("Training Steps (x$10^3$)")
 
+    ax.set_xlim([0, 50])
     ax.set_xticks(np.arange(0, 501, 100))
 
-    if monitor != "Button":
-        ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
-        ax.set_ylim([0, 1])
-    else:
-        ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
-        ax.set_ylim([-0.7, 0.3])
+    ax.set_yticks([-400, -300, -200, -100, 0])
+    ax.set_ylim([-420, 5])
 
     os.makedirs("figs", exist_ok=True)
     plt.savefig(f"figs/{env}_{monitor}({prob * 100}%).pdf",
