@@ -23,7 +23,7 @@ info = {
                              "NExperts": (0.904, "Minimax-Optimal"),
                              "FullRandom": (0.904, "Minimax-Optimal"),
                              "RandomNonZero": (0.904, "Minimax-Optimal"),
-                             "Full": (0.904, "Minimax-Optimal"),
+                             "MDP": (0.904, "Minimax-Optimal"),
                              },
 }
 
