@@ -106,12 +106,8 @@ for env, monitor, prob in env_mon_p_combo:
     ax.set_xlim([0, 500])
     ax.set_xticks(np.arange(0, 501, 100))
 
-    if monitor != "Button":
-        ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
-        ax.set_ylim([0, 1])
-    else:
-        ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
-        ax.set_ylim([-0.7, 0.3])
+    ax.set_yticks([-4, -2, 0, 1])
+    ax.set_ylim([-5, 1])
 
     os.makedirs("figs", exist_ok=True)
     plt.savefig(f"figs/{env}_{monitor}({prob * 100}%).pdf",
