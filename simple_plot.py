@@ -103,7 +103,7 @@ for env, monitor, prob in env_mon_p_combo:
     plt.title(f"{env}_{monitor}({prob * 100}%)")
     plt.xlabel("Training Steps (x$10^3$)")
 
-    ax.set_xlim([0, 50])
+    ax.set_xlim([0, 500])
     ax.set_xticks(np.arange(0, 501, 100))
 
     ax.set_yticks([-400, -300, -200, -100, 0])
