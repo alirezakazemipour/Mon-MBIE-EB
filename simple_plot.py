@@ -145,6 +145,7 @@ for env, monitor, prob in env_mon_p_combo:
                 bbox_inches="tight",
                 dpi=300
                 )
+    plt.close()
 
     # Goals
     _, ax = plt.subplots(figsize=(6.4, 4.8), layout="constrained")
