@@ -225,7 +225,7 @@ def run(cfg: DictConfig) -> None:
     # endregion
 
     # region NExperts
-    if "NExpert" in cfg.monitor.id:
+    if "NExperts" in cfg.monitor.id:
         mon_rwd_model = np.zeros((env.observation_space["mon"].n, env.action_space["mon"].n))
         mon_rwd_model = np.diag(np.diag(mon_rwd_model - 0.2 + 0.001)) - 0.001
         mon_rwd_model = np.hstack([mon_rwd_model, np.zeros((env.observation_space["mon"].n, 1))])
