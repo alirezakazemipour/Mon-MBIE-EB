@@ -164,6 +164,7 @@ for env, monitor in env_mon_combo:
     plt.title(f"{env}_{monitor}")
     plt.xlabel("Training Steps (x$10^3$)")
 
+    ax.set_xlim([0, 200])
     ax.set_xticks(np.arange(0, 201, 40))
 
     if env != "RiverSwim":
