@@ -132,7 +132,11 @@ for env, monitor, prob in env_mon_p_combo:
     ax.set_xlim([0, 500])
     ax.set_xticks(np.arange(0, 501, 100))
 
-    if monitor != "Button":
+    if np.mean(dee_lower_bound) < -100:
+        ax.set_ylim([-320, 10])
+        ax.set_yticks([-300, -200, -100, 0])
+
+    elif monitor != "Button":
         ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
         ax.set_ylim([0, 1])
     else:
