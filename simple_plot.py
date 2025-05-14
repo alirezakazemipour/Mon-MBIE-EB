@@ -10,7 +10,7 @@ de2_color = "#f4a261"
 
 n_runs = 30
 p = 1, 0.8, 0.2, 0.05
-monitor = "FullRandom", "Ask", "NSupporters", "NExperts", "Level", "Button"
+monitor = "FullRandom", "Ask", "NSupporters", "NExperts", "Level", "Button",
 env = "Gridworld-Bottleneck",
 
 env_mon_p_combo = itertools.product(env, monitor, p)
@@ -133,8 +133,39 @@ for env, monitor, prob in env_mon_p_combo:
     ax.set_xticks(np.arange(0, 501, 100))
 
     if np.mean(dee_lower_bound) < -100:
-        ax.set_ylim([-320, 10])
+        ax.set_ylim([-350, 10])
         ax.set_yticks([-300, -200, -100, 0])
+        
+        x1, x2, y1, y2 = 0, 300, -0.7, 0.3  # subregion of the original image
+        axins = ax.inset_axes((0.4, 0.62, 0.52, 0.28),
+                              xlim=(x1, x2),
+                              ylim=(y1, y2),
+                              xticklabels=[0, 10, 20, 30],
+                              yticklabels=[-0.7, 0.3]
+                              )
+
+        axins.fill_between(np.arange(len(mon_mbie_eb_mean_return)),
+                           mon_mbie_eb_lower_bound,
+                           mon_mbie_eb_upper_bound,
+                           alpha=0.25,
+                           color=mon_mbie_eb_color
+                           )
+        axins.plot(np.arange(len(mon_mbie_eb_mean_return)),
+                   mon_mbie_eb_mean_return,
+                   alpha=1,
+                   linewidth=3,
+                   c=mon_mbie_eb_color,
+                   )
+        axins.axhline(ref, linestyle="--", color="k", linewidth=2, label=f"{ref_label}")
+
+        axins.set_yticks([-0.7, 0.3])
+        axins.set_xticks(np.arange(0, 301, 100))
+        axins.set_xlim(0, 300)
+        axins.xaxis.set_tick_params(labelsize=15, colors="black")
+        axins.yaxis.set_tick_params(labelsize=15, colors="black")
+        ax.indicate_inset_zoom(axins, edgecolor="black", linewidth=2)
+
+        
 
     elif monitor != "Button":
         ax.set_yticks([0, 0.2, 0.5, 0.8, 1])

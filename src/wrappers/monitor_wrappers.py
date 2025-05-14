@@ -108,7 +108,7 @@ class Monitor(gymnasium.Wrapper):
 
 # endregion
 
-# region Full
+# region MDP
 class MDP(Monitor):
     """
     This monitor always shows the true reward, regardless of its state and action.
