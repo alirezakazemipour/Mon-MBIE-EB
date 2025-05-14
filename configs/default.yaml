@@ -1,6 +1,6 @@
 defaults:
-  - environment: river_swim
-  - monitor: n_supporters
+  - environment: two_room_3x5
+  - monitor: button
   - _self_
   - override hydra/hydra_logging: disabled
   - override hydra/job_logging: disabled
