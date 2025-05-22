@@ -93,8 +93,8 @@ GRIDS = {
         [UP, EMPTY, EMPTY, EMPTY, EMPTY],
     ],
     "two_room_3x5": [
-        [EMPTY, LEFT, GOOD, EMPTY, EMPTY],
-        [EMPTY, QCKSND, EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, LEFT, EMPTY, GOOD],
+        [EMPTY, EMPTY, QCKSND, EMPTY, EMPTY],
         [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
     ],
     "one_way": [

@@ -1,4 +1,4 @@
-Source code of the paper [Monitored Markov Decision Processes](https://arxiv.org/abs/2402.06819).
+Source code of the algorithm[Monitored MBIE-EB](https://arxiv.org/abs/2502.16772).
 
 ## Install
 
@@ -9,42 +9,10 @@ cd src/gym-monitor
 pip install -e .
 ```
 
-To test and render an environment, run `python` and then
-```python
-import gymnasium
-env = gymnasium.make("Gym-Monitor/Gridworld-Medium-3x3-v0", render_mode="human")
-env.reset()
-env.step(1)
-env.render()
-```
-
-<p align="center">
-  <img src="figures/gridworld_render.png" width=200 alt="Gridworld Rendering">
-</p>
-
-Red tiles denote negative rewards, green tile is the goal, blue circle is the agent,
-the arrow means that the agent moved down.
-
-
 ## Hydra Configs
 We use [Hydra](https://hydra.cc/docs/intro/) to configure our experiments.  
-Hyperparameters and other settings are defined in YAML files in the `configs/` folder.  
-Most of the configuration is self-explanatory. Some keys you may need to change are the following:
-- [WandB](https://wandb.ai/site) settings and Hydra log directories in `configs/default.yaml`,
-- Folder `experiment.datadir` in `configs/default.yaml` (where `npy` data is saved),
-- Folder `experiment.debugdir` in `configs/default.yaml` (where agent pics are saved),
-- Steps, learning rate, epsilon decay, and other training parameters in `configs/experiment/`.
+Hyperparameters and other settings are defined in YAML files in the `configs/` folder.
 
-
-## Quick Run
-To try the Oracle algorithm on the Penalty MonMDP with the default configuration,
-and save some debug data, run
-```
-python main.py monitor=binary_stateless agent.critic.strategy=oracle experiment.debugdir=debug
-```
-
-This will save pics to easily visualize the Q-function and the greedy policy.  
-Everything will be saved in `debug/`, in subfolders depending on the environment and the monitor IDs.  
 
 <p align="center">
   <img src="figures/oracle_policy.png" width=200 alt="Oracle Actor in BinaryStateless"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
