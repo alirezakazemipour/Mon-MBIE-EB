@@ -1,4 +1,4 @@
-Source code of the algorithm[Monitored MBIE-EB](https://arxiv.org/abs/2502.16772).
+Source code of the algorithm [Monitored MBIE-EB](https://arxiv.org/abs/2502.16772).
 
 ## Install
 
@@ -13,23 +13,6 @@ pip install -e .
 We use [Hydra](https://hydra.cc/docs/intro/) to configure our experiments.  
 Hyperparameters and other settings are defined in YAML files in the `configs/` folder.
 
-
-<p align="center">
-  <img src="figures/oracle_policy.png" width=200 alt="Oracle Actor in BinaryStateless"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="figures/oracle_q_joint.png" width=240 alt="Oracle Critic in BinaryStateless">
-</p>
-
-In the policy pic (left), arrows denote the action executed in each tile.
-- Orange arrows do not ask for monitoring,
-- Empty white arrows do ask for monitoring,
-- Orange arrows with white borders can do both randomly.
-
-The policy is random in the goal tile because that is a terminal state.
-
-In the Q-function pic (right), the heatmaps denote the value of the 4D Q-table, where
-`Q[i,j,k,l]` is the Q-value of environment state `i`, monitor state `j`, environment action `k`, monitor action `l`.
-
-
 ## Sweeps
 For a sweep over multiple jobs in parallel with Joblib, run
 ```
@@ -38,14 +21,10 @@ python main.py -m hydra/launcher=joblib hydra/sweeper=manual_sweeper
 Custom sweeps are defined in `configs/hydra/sweeper/`.  
 You can further customize a sweep via command line. For example,
 ```
-python main.py -m hydra/launcher=joblib hydra/sweeper=medium_det experiment.rng_seed="range(0, 10)" monitor=limited_time hydra.launcher.verbose=1000
+python main.py -m hydra/launcher=joblib hydra/sweeper=manual_sweeper experiment.rng_seed="range(0, 10)" hydra.launcher.verbose=1000
 ```
 Configs in `configs/hydra/sweeper/` hide the training progress bar of the agent, so we
 suggest to pass `hydra.launcher.verbose=1000` to show the progress of the sweep.
-
-If you have access to a SLURM-based cluster, you can submit multiple jobs,
-each running a chunk of the sweep with Joblib. Refer to `submitit_jobs.py` for an example.
-
 
 ## Plot Data From Sweeps
 Experiments will save the expected discounted return of the ε-greedy (training)
