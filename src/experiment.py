@@ -73,14 +73,7 @@ class MonExperiment:
         return_test_history = []
 
         goal_cnt_hist = []
-        button_off_cnt_hist = []
-        button_on_cnt_hist = []
         unobsrv_cnt_hist = []
-        snake_cnt_hist = []
-        gold_bar_cnt_hist = []
-        beta_hist = []
-        beta_m_hist = []
-        beta_e_hist = []
 
         while tot_steps < self.training_steps:
             pbar.update(tot_steps - pbar.n)
@@ -115,11 +108,7 @@ class MonExperiment:
                     (test_return_env,
                      test_return_mon,
                      goal_cnt,
-                     button_off_cnt,
-                     button_on_cnt,
                      unobsrv_cnt,
-                     snake_cnt,
-                     gold_bar_cnt
                      ) = self.test()
 
                     self.actor.train()
@@ -131,17 +120,9 @@ class MonExperiment:
                                      "test/return": (test_return_env + test_return_mon).mean(),
                                      }
                     return_test_history.append(test_dict["test/return"])
-                    if self.env.spec.id == gym.envs.spec("Gym-Grid/Gridworld-Bottleneck").id and isinstance(self.env,
-                                                                                                              Button):
+                    if self.env.spec.id == gym.envs.spec("Gym-Grid/Gridworld-Bottleneck").id:
                         goal_cnt_hist.append(goal_cnt)
-                        snake_cnt_hist.append(snake_cnt)
-                        gold_bar_cnt_hist.append(gold_bar_cnt)
-                        button_off_cnt_hist.append(button_off_cnt)
-                        button_on_cnt_hist.append(button_on_cnt)
                         unobsrv_cnt_hist.append(unobsrv_cnt)
-                        beta_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.joint_cnt)).mean())
-                        beta_m_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.joint_cnt.sum((0, 2))).mean()))
-                        beta_e_hist.append(np.sqrt(1 / np.maximum(1e-4, self.critic.env_obsrv_cnt)).mean())
 
                 train_dict = {
                     "train/return_env": last_ep_return_env,
@@ -196,14 +177,7 @@ class MonExperiment:
                 "env_obsrv_cnt": self.critic.env_obsrv_cnt,
                 "env_reward_model": self.critic.env_rwd_model,
                 "goal_cnt_hist": goal_cnt_hist,
-                "button_on_cnt_hist": button_on_cnt_hist,
-                "button_off_cnt_hist": button_off_cnt_hist,
                 "unobsrv_cnt_hist": unobsrv_cnt_hist,
-                "snake_cnt_hist": snake_cnt_hist,
-                "gold_bar_cnt_hist": gold_bar_cnt_hist,
-                "beta_hist": beta_hist,
-                "beta_m_hist": beta_m_hist,
-                "beta_e_hist": beta_e_hist
                 }
         return data
 
@@ -212,11 +186,7 @@ class MonExperiment:
         ep_return_mon = np.zeros(self.testing_episodes)
 
         goal_cnt = np.zeros(self.testing_episodes)
-        button_off_cnt = np.zeros(self.testing_episodes)
-        button_on_cnt = np.zeros(self.testing_episodes)
         unobsrv_cnt = np.zeros(self.testing_episodes)
-        snake_cnt = np.zeros(self.testing_episodes)
-        gold_bar_cnt = np.zeros(self.testing_episodes)
 
         for ep in range(self.testing_episodes):
             ep_seed = cantor_pairing(self.rng_seed, ep)
@@ -231,14 +201,6 @@ class MonExperiment:
                     goal_cnt[ep] += 1
                 elif obs["env"] in [2, 8, 20, 26, 32]:
                     unobsrv_cnt[ep] += 1
-                elif obs["env"] == 10:
-                    snake_cnt[ep] += 1
-                elif obs["env"] == 30 and act["env"] == 4:
-                    gold_bar_cnt[ep] += 1
-                elif obs["env"] == 31 and obs["mon"] == 0 and act["env"] == 1 and act["mon"] == 0:
-                    button_off_cnt[ep] += 1
-                elif obs["env"] == 31 and obs["mon"] == 1 and act["env"] == 1 and act["mon"] == 0:
-                    button_on_cnt[ep] += 1
 
                 next_obs, rwd, term, trunc, info = self.env_test.step(act)
                 ep_return_env[ep] += (self.gamma ** ep_steps) * rwd["env"]
@@ -251,9 +213,5 @@ class MonExperiment:
         return (ep_return_env,
                 ep_return_mon,
                 goal_cnt.mean(),
-                button_off_cnt.mean(),
-                button_on_cnt.mean(),
                 unobsrv_cnt.mean(),
-                snake_cnt.mean(),
-                gold_bar_cnt.mean()
                 )
