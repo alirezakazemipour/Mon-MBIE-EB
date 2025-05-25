@@ -7,7 +7,7 @@ import os
 import warnings
 
 de2_exists = True
-if not os.path.exists("data/DEE"):
+if not os.path.exists("data/DE2"):
     de2_exists = False
     warnings.warn("Directed-E$^2$ data not found. Ignoring it.")
 
@@ -110,7 +110,7 @@ for env, monitor in env_mon_combo:
         x = np.load(f"data/Mon_MBIE_EB/{env}/{monitor}/data_{i}.npz")["test_return"]
         mon_mbie_eb_runs.append(x)
         if de2_exists:
-            x = np.load(f"data/de2/{env}/{monitor}/data_{i}.npz")["test/return"]
+            x = np.load(f"data/DE2/{env}/{monitor}/data_{i}.npz")["test/return"]
             de2_runs.append(x)
     mon_mbie_eb_smoothed = []
     de2_smoothed = []
