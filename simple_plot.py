@@ -6,6 +6,17 @@ from matplotlib import ticker
 import os
 import warnings
 
+SMALL_SIZE = 8
+MEDIUM_SIZE = 20
+BIGGER_SIZE = 26
+
+plt.rc('font', size=SMALL_SIZE, weight='bold')  # controls default text sizes
+plt.rc('axes', titlesize=MEDIUM_SIZE)  # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)  # fontsize of the x and y labels
+plt.rc('xtick', labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
+plt.rc('ytick', labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
+plt.rc('legend', fontsize=17)  # legend fontsize
+
 de2_exists = True
 if not os.path.exists("data/DE2"):
     de2_exists = False
@@ -178,7 +189,10 @@ for env, monitor in env_mon_combo:
     ax.set_xticks(np.arange(0, 201, 40))
 
     if env != "Gridworld-TwoRoom-2x11":
-        ax.set_xticks([])
+        # ax.set_xticks([])
+        # pass
+        for tick in ax.get_xticklabels():
+            tick.set_fontweight('bold')
     else:
         # Make y-axis tick labels bold
         for tick in ax.get_xticklabels():
