@@ -6,6 +6,17 @@ from matplotlib import ticker
 import os
 import warnings
 
+SMALL_SIZE = 8
+MEDIUM_SIZE = 20
+BIGGER_SIZE = 26
+
+plt.rc('font', size=SMALL_SIZE, weight='bold')  # controls default text sizes
+plt.rc('axes', titlesize=MEDIUM_SIZE)  # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)  # fontsize of the x and y labels
+plt.rc('xtick', labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
+plt.rc('ytick', labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
+plt.rc('legend', fontsize=17)  # legend fontsize
+
 de2_exists = True
 if not os.path.exists("data/DE2"):
     de2_exists = False
@@ -108,19 +119,19 @@ for env, monitor, prob in env_mon_p_combo:
         de2_std_return = np.std(np.asarray(de2_smoothed), axis=0)
         de2_lower_bound = de2_mean_return - 1.96 * de2_std_return / math.sqrt(n_runs)
         de2_upper_bound = de2_mean_return + 1.96 * de2_std_return / math.sqrt(n_runs)
-        ax.fill_between(np.arange(len(de2_mean_return)),
-                        de2_lower_bound,
-                        de2_upper_bound,
-                        alpha=0.25,
-                        color=de2_color
-                        )
-        ax.plot(np.arange(len(de2_mean_return)),
-                de2_mean_return,
-                alpha=1,
-                linewidth=4,
-                c=de2_color,
-                label="Directed-E$^2$"
-                )
+        # ax.fill_between(np.arange(len(de2_mean_return)),
+        #                 de2_lower_bound,
+        #                 de2_upper_bound,
+        #                 alpha=0.25,
+        #                 color=de2_color
+        #                 )
+        # ax.plot(np.arange(len(de2_mean_return)),
+        #         de2_mean_return,
+        #         alpha=1,
+        #         linewidth=4,
+        #         c=de2_color,
+        #         label="Directed-E$^2$"
+        #         )
 
     knm_mean_return = np.mean(np.asarray(knm_smoothed), axis=0)
     knm_std_return = np.std(np.asarray(knm_smoothed), axis=0)
@@ -137,17 +148,19 @@ for env, monitor, prob in env_mon_p_combo:
             alpha=1,
             linewidth=4,
             c=known_monitor_color,
+            marker="o",
             label="Known Monitor"
             )
-
-    ax.set_ylabel("Discounted Test Return")
-    ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
+    plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{ref_label}")
+    # ax.set_ylabel("Discounted Test Return")
+    # ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
     ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-    plt.title(f"{env}_{monitor}({prob * 100}%)")
-    plt.xlabel("Training Steps (x$10^3$)")
+    # plt.title(f"{env}_{monitor}({prob * 100}%)")
+    # plt.xlabel("Training Steps (x$10^3$)")
 
-    ax.set_xticks(np.arange(0, 501, 100))
+    ax.set_xticks(np.arange(0, 301, 100))
+    ax.set_xlim([0, 300])
 
     if monitor != "Button":
         ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
