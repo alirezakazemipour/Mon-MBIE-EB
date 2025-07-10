@@ -239,17 +239,18 @@ for env, monitor, prob in env_mon_p_combo:
                 alpha=1,
                 linewidth=4,
                 c=de2_color,
+                linestyle=":",
                 label="Directed-E$\mathbf{^2}$"  # noqa
                 )
-    ax.set_ylabel("Goal Visitation Count")
+    # ax.set_ylabel("Goal Visitation Count")
     # ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
     ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-    plt.title(f"{env}_{monitor}({prob * 100}%)")
-    plt.xlabel("Training Steps (x$10^3$)")
+    # plt.title(f"{env}_{monitor}({prob * 100}%)")
+    # plt.xlabel("Training Steps (x$10^3$)")
 
-    ax.set_xlim([0, 500])
-    ax.set_xticks(np.arange(0, 501, 100))
+    ax.set_xlim([0, 300])
+    ax.set_xticks(np.arange(0, 301, 100))
 
     plt.savefig(f"figs/Goal_visits_{env}_{monitor}({prob * 100}%).pdf",
                 format="pdf",
@@ -297,16 +298,17 @@ for env, monitor, prob in env_mon_p_combo:
                 alpha=1,
                 linewidth=4,
                 c=de2_color,
+                linestyle=":",
                 label="Directed-E$\mathbf{^2}$"  # noqa
                 )
-    ax.set_ylabel("Unobserved Visitation Count")
+    # ax.set_ylabel("Unobserved Visitation Count")
     # ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-    plt.title(f"{env}_{monitor}({prob * 100}%)")
-    plt.xlabel("Training Steps (x$10^3$)")
+    # plt.title(f"{env}_{monitor}({prob * 100}%)")
+    # plt.xlabel("Training Steps (x$10^3$)")
 
-    ax.set_xlim([0, 500])
-    ax.set_xticks(np.arange(0, 501, 100))
+    ax.set_xlim([0, 300])
+    ax.set_xticks(np.arange(0, 301, 100))
 
     plt.savefig(f"figs/Unobsrv_visits_{env}_{monitor}({prob * 100}%).pdf", # noqa
                 format="pdf",
