@@ -149,8 +149,8 @@ for env, monitor, prob in env_mon_p_combo:
     # plt.title(f"{env}_{monitor}({prob * 100}%)")
     # plt.xlabel("Training Steps (x$10^3$)")
 
-    ax.set_xlim([0, 500])
-    ax.set_xticks(np.arange(0, 501, 100))
+    ax.set_xlim([0, 300])
+    ax.set_xticks(np.arange(0, 301, 100))
 
     if de2_exists:
         if np.mean(de2_lower_bound) < -100:
