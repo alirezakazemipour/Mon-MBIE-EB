@@ -149,8 +149,8 @@ for env, monitor, prob in env_mon_p_combo:
     # plt.title(f"{env}_{monitor}({prob * 100}%)")
     # plt.xlabel("Training Steps (x$10^3$)")
 
-    ax.set_xlim([0, 300])
-    ax.set_xticks(np.arange(0, 301, 100))
+    ax.set_xlim([0, 500])
+    ax.set_xticks(np.arange(0, 501, 100))
 
     if de2_exists:
         if np.mean(de2_lower_bound) < -100:
@@ -186,6 +186,13 @@ for env, monitor, prob in env_mon_p_combo:
             axins.yaxis.set_tick_params(labelsize=15, colors="black")
             ax.indicate_inset_zoom(axins, edgecolor="black", linewidth=2)
 
+        if monitor != "Button":
+            ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
+            ax.set_ylim([0, 1])
+        else:
+            ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
+            ax.set_ylim([-0.7, 0.3])
+
     elif monitor != "Button":
         ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
         ax.set_ylim([0, 1])
@@ -193,8 +200,14 @@ for env, monitor, prob in env_mon_p_combo:
         ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
         ax.set_ylim([-0.7, 0.3])
 
+    if monitor != "FullRandom" and monitor != "Button":
+        ax.set_yticklabels([])
+
+    if prob != 0.05:
+        ax.set_xticklabels([])
+
     os.makedirs("figs", exist_ok=True)
-    plt.savefig(f"figs/Return_{env}_{monitor}({prob * 100}%).pdf",
+    plt.savefig(f"figs/Return_{env}_{monitor}({prob * 100}).pdf",
                 format="pdf",
                 bbox_inches="tight",
                 dpi=300
