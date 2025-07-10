@@ -162,26 +162,41 @@ for env, monitor in env_mon_combo:
                 alpha=1,
                 linewidth=4,
                 c=de2_color,
+                linestyle=':',
                 label="Directed-E$^2$"
                 )
 
     plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{ref_label}")
-    ax.set_ylabel("Discounted Test Return")
-    ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
+    # ax.set_ylabel("Discounted Test Return")
+    # ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
     ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-    plt.title(f"{env}_{monitor}")
-    plt.xlabel("Training Steps (x$10^3$)")
+    # plt.title(f"{env}_{monitor}")
+    # plt.xlabel("Training Steps (x$10^3$)")
 
     ax.set_xlim([0, 200])
     ax.set_xticks(np.arange(0, 201, 40))
 
+    if env != "Gridworld-TwoRoom-2x11":
+        ax.set_xticks([])
+    else:
+        # Make y-axis tick labels bold
+        for tick in ax.get_xticklabels():
+            tick.set_fontweight('bold')
+
     if env != "RiverSwim":
         ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
         ax.set_ylim([0, 1])
+        for tick in ax.get_yticklabels():
+            tick.set_fontweight('bold')
     else:
         ax.set_yticks([0, 5, 10, 15, 20])
         ax.set_ylim([0, 22])
+        for tick in ax.get_yticklabels():
+            tick.set_fontweight('bold')
+
+    if monitor != "MDP":
+        ax.set_yticks([])
 
     os.makedirs("figs", exist_ok=True)
     plt.savefig(f"figs/{env}_{monitor}.pdf",
