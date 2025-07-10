@@ -189,7 +189,7 @@ for env, monitor in env_mon_combo:
     ax.set_xticks(np.arange(0, 201, 40))
 
     if env != "Gridworld-TwoRoom-2x11":
-        # ax.set_xticks([])
+        ax.set_xticklabels([])
         # pass
         for tick in ax.get_xticklabels():
             tick.set_fontweight('bold')
@@ -210,7 +210,7 @@ for env, monitor in env_mon_combo:
             tick.set_fontweight('bold')
 
     if monitor != "MDP":
-        ax.set_yticks([])
+        ax.set_yticklabels([])
 
     os.makedirs("figs", exist_ok=True)
     plt.savefig(f"figs/{env}_{monitor}.pdf",
