@@ -119,19 +119,20 @@ for env, monitor, prob in env_mon_p_combo:
         de2_std_return = np.std(np.asarray(de2_smoothed), axis=0)
         de2_lower_bound = de2_mean_return - 1.96 * de2_std_return / math.sqrt(n_runs)
         de2_upper_bound = de2_mean_return + 1.96 * de2_std_return / math.sqrt(n_runs)
-        # ax.fill_between(np.arange(len(de2_mean_return)),
-        #                 de2_lower_bound,
-        #                 de2_upper_bound,
-        #                 alpha=0.25,
-        #                 color=de2_color
-        #                 )
-        # ax.plot(np.arange(len(de2_mean_return)),
-        #         de2_mean_return,
-        #         alpha=1,
-        #         linewidth=4,
-        #         c=de2_color,
-        #         label="Directed-E$^2$"
-        #         )
+        ax.fill_between(np.arange(len(de2_mean_return)),
+                        de2_lower_bound,
+                        de2_upper_bound,
+                        alpha=0.25,
+                        color=de2_color
+                        )
+        ax.plot(np.arange(len(de2_mean_return)),
+                de2_mean_return,
+                alpha=1,
+                linewidth=4,
+                c=de2_color,
+                linestyle=":",
+                label="Directed-E$^2$"
+                )
 
     knm_mean_return = np.mean(np.asarray(knm_smoothed), axis=0)
     knm_std_return = np.std(np.asarray(knm_smoothed), axis=0)
@@ -159,8 +160,8 @@ for env, monitor, prob in env_mon_p_combo:
     # plt.title(f"{env}_{monitor}({prob * 100}%)")
     # plt.xlabel("Training Steps (x$10^3$)")
 
-    ax.set_xticks(np.arange(0, 301, 100))
-    ax.set_xlim([0, 300])
+    ax.set_xticks(np.arange(0, 501, 100))
+    ax.set_xlim([0, 500])
 
     if monitor != "Button":
         ax.set_yticks([0, 0.2, 0.5, 0.8, 1])
@@ -169,8 +170,14 @@ for env, monitor, prob in env_mon_p_combo:
         ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
         ax.set_ylim([-0.7, 0.3])
 
+    if monitor != "FullRandom" and monitor != "Button":
+        ax.set_yticklabels([])
+
+    if prob != 0.05:
+        ax.set_xticklabels([])
+
     os.makedirs("figs", exist_ok=True)
-    plt.savefig(f"figs/{env}_{monitor}({prob * 100}%).pdf",
+    plt.savefig(f"figs/{env}_{monitor}({prob * 100}).pdf",
                 format="pdf",
                 bbox_inches="tight",
                 dpi=300
