@@ -6,6 +6,17 @@ from matplotlib import ticker
 import os
 import warnings
 
+SMALL_SIZE = 8
+MEDIUM_SIZE = 20
+BIGGER_SIZE = 26
+
+plt.rc('font', size=SMALL_SIZE, weight='bold')  # controls default text sizes
+plt.rc('axes', titlesize=MEDIUM_SIZE)  # fontsize of the axes title
+plt.rc('axes', labelsize=MEDIUM_SIZE)  # fontsize of the x and y labels
+plt.rc('xtick', labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
+plt.rc('ytick', labelsize=MEDIUM_SIZE)  # fontsize of the tick labels
+plt.rc('legend', fontsize=17)  # legend fontsize
+
 mon_mbie_eb_exists = True
 if not os.path.exists("data/Mon_MBIE_EB"):
     mon_mbie_eb_exists = False
@@ -101,16 +112,17 @@ for env, monitor, prob in env_mon_p_combo:
             alpha=1,
             linewidth=4,
             c=optim_mbie_eb_color,
+            linestyle=":",
             label="Optimistic MBIE-EB"
             )
 
     plt.axhline(ref, linestyle="--", color="k", linewidth=3, label=f"{ref_label}")
-    ax.set_ylabel("Discounted Test Return")
-    ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
+    # ax.set_ylabel("Discounted Test Return")
+    # ax.legend(loc='lower right', ncol=2, bbox_to_anchor=(1, 0))
     ax.yaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.1f}"))
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{x / 10:.0f}"))
-    plt.title(f"{env}_{monitor}({prob * 100}%)")
-    plt.xlabel("Training Steps (x$10^3$)")
+    # plt.title(f"{env}_{monitor}({prob * 100}%)")
+    # plt.xlabel("Training Steps (x$10^3$)")
 
     ax.set_xlim([0, 500])
     ax.set_xticks(np.arange(0, 501, 100))
@@ -122,8 +134,11 @@ for env, monitor, prob in env_mon_p_combo:
         ax.set_yticks([-0.5, -0.2, 0.1, 0.3])
         ax.set_ylim([-0.7, 0.3])
 
+    if monitor != "FullRandom" and monitor != "Button":
+        ax.set_yticklabels([])
+
     os.makedirs("figs", exist_ok=True)
-    plt.savefig(f"figs/{env}_{monitor}({prob * 100}%).pdf",
+    plt.savefig(f"figs/{env}_{monitor}({prob * 100}).pdf",
                 format="pdf",
                 bbox_inches="tight",
                 dpi=300
